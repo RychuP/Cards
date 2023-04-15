@@ -7,5 +7,5 @@ I am working on modernizing the code base to C#6 and adding some card game proje
 ## Screenshots:
 
 <p align="center" style="margin-bottom: 0px !important;">
-  <img width="800" src="/Screenshots/blackjack.png" alt="Blackjack" align="center">
+  <img width="800" src="/Screenshots/BlackjackScreenshot.png" alt="Blackjack" align="center">
 </p>
