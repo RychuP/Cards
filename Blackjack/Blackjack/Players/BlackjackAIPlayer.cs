@@ -51,9 +51,9 @@ namespace Blackjack
             {
                 Hit(this, EventArgs.Empty);
             }
-            else if (Stand != null)
+            else
             {
-                Stand(this, EventArgs.Empty);
+                Stand?.Invoke(this, EventArgs.Empty);
             }
         }
 

@@ -7,17 +7,13 @@
 //-----------------------------------------------------------------------------
 #endregion
 
-#region Using Statements
 using System;
 using CardsFramework;
 
-#endregion
+namespace Blackjack;
 
-namespace Blackjack
+public class BlackjackGameEventArgs : EventArgs
 {
-    public class BlackjackGameEventArgs : EventArgs
-    {
-        public Player Player { get; set; }
-        public HandTypes Hand { get; set; }
-    }
+    public Player Player { get; set; }
+    public HandTypes Hand { get; set; }
 }

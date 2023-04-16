@@ -113,10 +113,7 @@ class GameplayScreen : GameScreen
     public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
     {
         if (_blackJackGame != null && !coveredByOtherScreen)
-        {
-            _blackJackGame.Update(gameTime);
-        }
-
+            _blackJackGame.Update();
         base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
     }
 
@@ -127,12 +124,7 @@ class GameplayScreen : GameScreen
     public override void Draw(GameTime gameTime)
     {
         base.Draw(gameTime);
-
-        if (_blackJackGame != null)
-        {
-            _blackJackGame.Draw(gameTime);
-        }
-
+        _blackJackGame?.Draw(gameTime);
     }
     #endregion
 
@@ -143,19 +135,20 @@ class GameplayScreen : GameScreen
     private void InitializeGame()
     {
         _blackJackGame.Initialize();
+
         // Add human player
         _blackJackGame.AddPlayer(new BlackjackPlayer("Abe", _blackJackGame));
 
         // Add AI players
         BlackjackAIPlayer player = new BlackjackAIPlayer("Benny", _blackJackGame);
         _blackJackGame.AddPlayer(player);
-        player.Hit += player_Hit;
-        player.Stand += player_Stand;
+        player.Hit += Player_OnHit;
+        player.Stand += Player_OnStand;
 
         player = new BlackjackAIPlayer("Chuck", _blackJackGame);
         _blackJackGame.AddPlayer(player);
-        player.Hit += player_Hit;
-        player.Stand += player_Stand;
+        player.Hit += Player_OnHit;
+        player.Stand += Player_OnStand;
 
         // Load UI assets
         string[] assets = { "blackjack", "bust", "lose", "push", "win", "pass", "shuffle_" + _theme };
@@ -230,13 +223,10 @@ class GameplayScreen : GameScreen
     {
         // Reveal and enable all previously hidden components
         foreach (DrawableGameComponent component in _pauseEnabledComponents)
-        {
             component.Enabled = true;
-        }
+
         foreach (DrawableGameComponent component in _pauseVisibleComponents)
-        {
             component.Visible = true;
-        }
     }
     #endregion
 
@@ -247,7 +237,7 @@ class GameplayScreen : GameScreen
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
     /// <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void player_Stand(object sender, EventArgs e)
+    void Player_OnStand(object sender, EventArgs e)
     {
         _blackJackGame.Stand();
     }
@@ -258,7 +248,7 @@ class GameplayScreen : GameScreen
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
     /// <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void player_Split(object sender, EventArgs e)
+    void Player_OnSplit(object sender, EventArgs e)
     {
         _blackJackGame.Split();
     }
@@ -268,7 +258,7 @@ class GameplayScreen : GameScreen
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void player_Hit(object sender, EventArgs e)
+    void Player_OnHit(object sender, EventArgs e)
     {
         _blackJackGame.Hit();
     }
@@ -278,7 +268,7 @@ class GameplayScreen : GameScreen
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void player_Double(object sender, EventArgs e)
+    void Player_OnDouble(object sender, EventArgs e)
     {
         _blackJackGame.Double();
     }

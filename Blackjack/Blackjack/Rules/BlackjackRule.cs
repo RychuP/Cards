@@ -7,77 +7,66 @@
 //-----------------------------------------------------------------------------
 #endregion
 
-#region Using Statements
-using System;
 using System.Collections.Generic;
-using System.Text;
 using CardsFramework;
 
-#endregion
+namespace Blackjack;
 
-
-
-namespace Blackjack
+/// <summary>
+/// Represents a rule which checks if one of the player has achieved "blackjack".
+/// </summary>
+public class BlackJackRule : GameRule
 {
+    readonly List<BlackjackPlayer> _players = new();
+
     /// <summary>
-    /// Represents a rule which checks if one of the player has achieved "blackjack".
+    /// Creates a new instance of the <see cref="BlackJackRule"/> class.
     /// </summary>
-    public class BlackJackRule : GameRule
+    /// <param name="players">A list of players participating in the game.</param>
+    public BlackJackRule(List<Player> players)
     {
-        List<BlackjackPlayer> players;
+        for (int playerIndex = 0; playerIndex < players.Count; playerIndex++)
+            _players.Add((BlackjackPlayer)players[playerIndex]);
+    }
 
-        /// <summary>
-        /// Creates a new instance of the <see cref="BlackJackRule"/> class.
-        /// </summary>
-        /// <param name="players">A list of players participating in the game.</param>
-        public BlackJackRule(List<Player> players)
+    /// <summary>
+    /// Check if any of the players has a hand value of 21 in any of their hands.
+    /// </summary>
+    public override void Check()
+    {
+        for (int playerIndex = 0; playerIndex < _players.Count; playerIndex++)
         {
-            this.players = new List<BlackjackPlayer>();
-            for (int playerIndex = 0; playerIndex < players.Count; playerIndex++)
-            {
-                this.players.Add((BlackjackPlayer)players[playerIndex]);
-            }
-        }
+            _players[playerIndex].CalculateValues();
 
-        /// <summary>
-        /// Check if any of the players has a hand value of 21 in any of their hands.
-        /// </summary>
-        public override void Check()
-        {
-            for (int playerIndex = 0; playerIndex < players.Count; playerIndex++)
+            if (!_players[playerIndex].BlackJack)
             {
-                players[playerIndex].CalculateValues();
-
-                if (!players[playerIndex].BlackJack)
+                // Check to see if the hand is eligible for a Black Jack
+                if (((_players[playerIndex].FirstValue == 21) ||
+                    (_players[playerIndex].FirstValueConsiderAce &&
+                    _players[playerIndex].FirstValue + 10 == 21)) &&
+                    _players[playerIndex].Hand.Count == 2)
                 {
-                    // Check to see if the hand is eligible for a Black Jack
-                    if (((players[playerIndex].FirstValue == 21) ||
-                        (players[playerIndex].FirstValueConsiderAce &&
-                        players[playerIndex].FirstValue + 10 == 21)) &&
-                        players[playerIndex].Hand.Count == 2)
+                    FireRuleMatch(new BlackjackGameEventArgs()
                     {
-                        FireRuleMatch(new BlackjackGameEventArgs()
-                        {
-                            Player = players[playerIndex],
-                            Hand = HandTypes.First
-                        });
-                    }
+                        Player = _players[playerIndex],
+                        Hand = HandTypes.First
+                    });
                 }
-                if (!players[playerIndex].SecondBlackJack)
+            }
+            if (!_players[playerIndex].SecondBlackJack)
+            {
+                // Check to see if the hand is eligible for a Black Jack
+                // A Black Jack is only eligible with 2 cards in a hand                   
+                if ((_players[playerIndex].IsSplit) && ((_players[playerIndex].SecondValue == 21) ||
+                    (_players[playerIndex].SecondValueConsiderAce &&
+                     _players[playerIndex].SecondValue + 10 == 21)) &&
+                     _players[playerIndex].SecondHand.Count == 2)
                 {
-                    // Check to see if the hand is eligible for a Black Jack
-                    // A Black Jack is only eligible with 2 cards in a hand                   
-                    if ((players[playerIndex].IsSplit) && ((players[playerIndex].SecondValue == 21) ||
-                        (players[playerIndex].SecondValueConsiderAce &&
-                         players[playerIndex].SecondValue + 10 == 21)) &&
-                         players[playerIndex].SecondHand.Count == 2)
+                    FireRuleMatch(new BlackjackGameEventArgs()
                     {
-                        FireRuleMatch(new BlackjackGameEventArgs()
-                        {
-                            Player = players[playerIndex],
-                            Hand = HandTypes.Second
-                        });
-                    }
+                        Player = _players[playerIndex],
+                        Hand = HandTypes.Second
+                    });
                 }
             }
         }

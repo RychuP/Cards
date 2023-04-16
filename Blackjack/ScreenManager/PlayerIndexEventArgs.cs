@@ -7,10 +7,8 @@
 //-----------------------------------------------------------------------------
 #endregion
 
-#region Using Statements
 using System;
 using Microsoft.Xna.Framework;
-#endregion
 
 namespace GameStateManagement
 {
@@ -21,22 +19,14 @@ namespace GameStateManagement
     class PlayerIndexEventArgs : EventArgs
     {
         /// <summary>
-        /// Constructor.
-        /// </summary>
-        public PlayerIndexEventArgs(PlayerIndex playerIndex)
-        {
-            this.playerIndex = playerIndex;
-        }
-
-
-        /// <summary>
         /// Gets the index of the player who triggered this event.
         /// </summary>
-        public PlayerIndex PlayerIndex
-        {
-            get { return playerIndex; }
-        }
+        public PlayerIndex PlayerIndex { get; init; }
 
-        PlayerIndex playerIndex;
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public PlayerIndexEventArgs(PlayerIndex playerIndex) =>
+            PlayerIndex = playerIndex;
     }
 }

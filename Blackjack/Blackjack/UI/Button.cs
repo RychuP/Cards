@@ -195,10 +195,7 @@ namespace Blackjack
         /// </summary>
         public void FireClick()
         {
-            if (Click != null)
-            {
-                Click(this, EventArgs.Empty);
-            }
+            Click?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

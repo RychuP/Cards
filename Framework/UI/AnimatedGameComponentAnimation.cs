@@ -18,19 +18,23 @@ public class AnimatedGameComponentAnimation
 {
     #region Fields and Properties
     protected TimeSpan Elapsed { get; set; }
+
     public AnimatedGameComponent Component { get; internal set; }
+    
     /// <summary>
     /// An action to perform before the animation begins.
     /// </summary>
-    public Action<object> PerformBeforeStart;
-    public object PerformBeforSartArgs { get; set; }
+    public Action<object>? PerformBeforeStart;
+    public object PerformBeforeStartArgs { get; set; }
+
     /// <summary>
     /// An action to perform once the animation is complete.
     /// </summary>
-    public Action<object> PerformWhenDone;
+    public Action<object>? PerformWhenDone;
     public object PerformWhenDoneArgs { get; set; }
 
-    uint animationCycles = 1;
+    uint _animationCycles = 1;
+
     /// <summary>
     /// Sets the amount of cycles to perform for the animation.
     /// </summary>
@@ -38,13 +42,13 @@ public class AnimatedGameComponentAnimation
     {
         get
         {
-            return animationCycles;
+            return _animationCycles;
         }
         set
         {
             if (value > 0)
             {
-                animationCycles = value;
+                _animationCycles = value;
             }
         }
     }
@@ -58,7 +62,7 @@ public class AnimatedGameComponentAnimation
     {
         get
         {
-            if (isStarted)
+            if (_isStarted)
             {
                 return (Duration - Elapsed);
             }
@@ -71,9 +75,9 @@ public class AnimatedGameComponentAnimation
 
     public bool IsLooped { get; set; }
 
-    private bool isDone = false;
+    private bool _isDone = false;
 
-    private bool isStarted = false;
+    private bool _isStarted = false;
     #endregion
 
     #region Initiaizations
@@ -95,16 +99,16 @@ public class AnimatedGameComponentAnimation
     /// <returns>Whether or not the animation is done playing</returns>
     public bool IsDone()
     {
-        if (!isDone)
+        if (!_isDone)
         {
-            isDone = !IsLooped && (Elapsed >= Duration);
-            if (isDone && PerformWhenDone != null)
+            _isDone = !IsLooped && (Elapsed >= Duration);
+            if (_isDone && PerformWhenDone != null)
             {
                 PerformWhenDone(PerformWhenDoneArgs);
                 PerformWhenDone = null;
             }
         }
-        return isDone;
+        return _isDone;
     }
 
     /// <summary>
@@ -114,20 +118,20 @@ public class AnimatedGameComponentAnimation
     /// <returns>Whether or not the animation is started</returns>
     public bool IsStarted()
     {
-        if (!isStarted)
+        if (!_isStarted)
         {
             if (StartTime <= DateTime.Now)
             {
                 if (PerformBeforeStart != null)
                 {
-                    PerformBeforeStart(PerformBeforSartArgs);
+                    PerformBeforeStart(PerformBeforeStartArgs);
                     PerformBeforeStart = null;
                 }
                 StartTime = DateTime.Now;
-                isStarted = true;
+                _isStarted = true;
             }
         }
-        return isStarted;
+        return _isStarted;
     }
 
     /// <summary>
@@ -138,10 +142,8 @@ public class AnimatedGameComponentAnimation
     /// elapsed time.</param>
     internal void AccumulateElapsedTime(TimeSpan elapsedTime)
     {
-        if (isStarted)
-        {
+        if (_isStarted)
             Elapsed += elapsedTime;
-        }
     }
 
     /// <summary>

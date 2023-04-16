@@ -1,4 +1,2 @@
-using (Blackjack.BlackjackGame game = new Blackjack.BlackjackGame())
-{
-    game.Run();
-}
+using var game = new Blackjack.BlackjackGame();
+game.Run();
