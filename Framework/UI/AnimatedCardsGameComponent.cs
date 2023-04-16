@@ -47,8 +47,8 @@ namespace CardsFramework
             base.Update(gameTime);
 
 
-            CurrentFrame = IsFaceDown ? CardGame.cardsAssets["CardBack_" + CardGame.Theme] :
-                CardGame.cardsAssets[UIUtilty.GetCardAssetName(Card)];
+            CurrentFrame = IsFaceDown ? CardGame._cardAssets["CardBack_" + CardGame.Theme] :
+                CardGame._cardAssets[UIUtilty.GetCardAssetName(Card)];
         }
 
         /// <summary>

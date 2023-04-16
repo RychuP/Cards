@@ -7,13 +7,6 @@
 //-----------------------------------------------------------------------------
 #endregion
 
-#region Using Statements
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Xna.Framework;
-#endregion
-
 namespace CardsFramework;
 
 /// <summary>
@@ -26,6 +19,7 @@ public enum CardSuit
     Diamond = 0x02,
     Club = 0x04,
     Spade = 0x08,
+
     // Sets:
     AllSuits = Heart | Diamond | Club | Spade
 }
@@ -51,6 +45,7 @@ public enum CardValue
     King = 0x1000,
     FirstJoker = 0x2000,
     SecondJoker = 0x4000,
+
     // Sets:
     AllNumbers = 0x3FF,
     NonJokers = 0x1FFF,
@@ -63,8 +58,8 @@ public enum CardValue
 /// </summary>
 /// <remarks>
 /// Each card has a defined <see cref="CardSuit">Type</see> and <see cref="CardValue">Value</see>
-/// as well as the <see cref="CardPacket"/> in which it is being held.
-/// A card may not be held in more than one <see cref="CardPacket"/>. This is achived by enforcing any card transfer
+/// as well as the <see cref="CardsFramework.CardPacket"/> in which it is being held.
+/// A card may not be held in more than one <see cref="CardsFramework.CardPacket"/>. This is achived by enforcing any card transfer
 /// operation between <see cref="CarkPacket"/>s and <see cref="Hand"/>s to be performed only from within the card's 
 /// <see cref="MoveToHand"/> method only. This method accesses <c>internal</c> <see cref="Hand.Add"/> method and 
 /// <see cref="CardPacket.Remove"/> method accordingly to complete the card transfer operation.
@@ -74,10 +69,10 @@ public class TraditionalCard
     #region Properties
     public CardSuit Type { get; set; }
     public CardValue Value { get; set; }
-    public CardPacket HoldingCardCollection; 
+    public CardPacket CardPacket { get; private set; }
     #endregion
 
-    #region Initiaizations
+    #region Initializations
     /// <summary>
     /// Initializes a new instance of the <see cref="TraditionalCard"/> class.
     /// </summary>
@@ -85,8 +80,7 @@ public class TraditionalCard
     /// <param name="value">The card's value. Only single values are 
     /// supported.</param>
     /// <param name="holdingCardCollection">The holding card collection.</param>
-    internal TraditionalCard(CardSuit type, CardValue value,
-        CardPacket holdingCardCollection)
+    internal TraditionalCard(CardSuit type, CardValue value, CardPacket holdingCardCollection)
     {
         // Check for single type
         switch (type)
@@ -97,10 +91,7 @@ public class TraditionalCard
             case CardSuit.Spade:
                 break;
             default:
-                {
-                    throw new ArgumentException(
-                        "type must be single value", "type");
-                }
+                throw new ArgumentException("type must be a single value", nameof(type));
         }
 
         // Check for single value
@@ -123,28 +114,26 @@ public class TraditionalCard
             case CardValue.SecondJoker:
                 break;
             default:
-                {
-                    throw new ArgumentException(
-                        "value must be single value", "value");
-                }
+                throw new ArgumentException("value must be single value", nameof(value));
         }
 
         Type = type;
         Value = value;
-        HoldingCardCollection = holdingCardCollection;
-    } 
+        CardPacket = holdingCardCollection;
+    }
     #endregion
 
     /// <summary>
-    /// Moves the card from its current <see cref="CardPacket"/> to the specified <paramref name="hand"/>. 
+    /// Moves the card from its current <see cref="CardsFramework.CardPacket"/> 
+    /// to the specified <paramref name="hand"/>. 
     /// This method of operation prevents any one card instance from being held by more than one
-    /// <see cref="CardPacket"/> at the same time.
+    /// <see cref="CardsFramework.CardPacket"/> at the same time.
     /// </summary>
     /// <param name="hand">The receiving hand.</param>
     public void MoveToHand(Hand hand)
     {
-        HoldingCardCollection.Remove(this);
-        HoldingCardCollection = hand;
+        CardPacket.Remove(this);
+        CardPacket = hand;
         hand.Add(this);
     } 
 }

@@ -96,7 +96,7 @@ class BlackjackCardGame : CardsGame
         LoadContent();
 
         // Initialize a new bet component
-        _betGameComponent = new BetGameComponent(players, _screenManager.Input, this);
+        _betGameComponent = new BetGameComponent(_players, _screenManager.Input, this);
         Game.Components.Add(_betGameComponent);
 
         // Initialize the game buttons
@@ -172,7 +172,7 @@ class BlackjackCardGame : CardsGame
 
             case BlackjackGameState.Playing:
                 // Calculate players' current hand values
-                foreach (BlackjackPlayer player in players)
+                foreach (BlackjackPlayer player in _players)
                     player.CalculateValues();
 
                 _dealerPlayer.CalculateValues();
@@ -211,7 +211,7 @@ class BlackjackCardGame : CardsGame
                     _betGameComponent.CalculateBalance(_dealerPlayer);
                     // Check if there is enough money to play
                     // then show new game option or tell the player he has lost
-                    if (((BlackjackPlayer)players[0]).Balance < 5)
+                    if (((BlackjackPlayer)_players[0]).Balance < 5)
                     {
                         EndGame();
                     }
@@ -242,7 +242,7 @@ class BlackjackCardGame : CardsGame
         Game.Components.Add(animationComponent);
 
         animationComponent.AddAnimation(
-            new FramesetGameComponentAnimation(cardsAssets["shuffle_" + Theme], 32, 11, _frameSize)
+            new FramesetGameComponentAnimation(_cardAssets["shuffle_" + Theme], 32, 11, _frameSize)
         {
             Duration = TimeSpan.FromSeconds(1.5f),
             PerformBeforeStart = ShowComponent,
@@ -333,9 +333,9 @@ class BlackjackCardGame : CardsGame
         Color color = Color.Black;
         Player currentPlayer = GetCurrentPlayer();
 
-        for (int playerIndex = 0; playerIndex < players.Count; playerIndex++)
+        for (int playerIndex = 0; playerIndex < _players.Count; playerIndex++)
         {
-            BlackjackPlayer player = (BlackjackPlayer)players[playerIndex];
+            BlackjackPlayer player = (BlackjackPlayer)_players[playerIndex];
 
             // The current player's hand value will be red to serve as a visual
             // prompt for who the active player is
@@ -457,7 +457,7 @@ class BlackjackCardGame : CardsGame
             animatedHand.GetCardRelativePosition(hand.Count - 1);
         Vector2 measure = Font.MeasureString(value);
 
-        position.X += (cardsAssets["CardBack_" + Theme].Bounds.Width - measure.X) / 2;
+        position.X += (_cardAssets["CardBack_" + Theme].Bounds.Width - measure.X) / 2;
         position.Y -= measure.Y + 5;
 
         SpriteBatch.Draw(_screenManager.BlankTexture,
@@ -475,8 +475,8 @@ class BlackjackCardGame : CardsGame
     /// <param name="player">The player to add.</param>
     public override void AddPlayer(Player player)
     {
-        if (player is BlackjackPlayer && players.Count < MaximumPlayers)
-            players.Add(player);
+        if (player is BlackjackPlayer && _players.Count < MaximumPlayers)
+            _players.Add(player);
     }
 
     /// <summary>
@@ -486,9 +486,9 @@ class BlackjackCardGame : CardsGame
     /// finish playing.</returns>
     public override Player GetCurrentPlayer()
     {
-        for (int playerIndex = 0; playerIndex < players.Count; playerIndex++)
-            if (((BlackjackPlayer)players[playerIndex]).MadeBet && _turnFinishedByPlayer[playerIndex] == false)
-                return players[playerIndex];
+        for (int playerIndex = 0; playerIndex < _players.Count; playerIndex++)
+            if (((BlackjackPlayer)_players[playerIndex]).MadeBet && _turnFinishedByPlayer[playerIndex] == false)
+                return _players[playerIndex];
         return null;
     }
 
@@ -500,8 +500,8 @@ class BlackjackCardGame : CardsGame
     /// except for jack/queen/king which value at 10.</returns>
     /// <remarks>An ace's value will be 1. Game logic will treat it as 11 where
     /// appropriate.</remarks>
-    public override int CardValue(TraditionalCard card) =>
-        Math.Min(base.CardValue(card), 10);
+    public override int GetCardValue(TraditionalCard card) =>
+        Math.Min(base.GetCardValue(card), 10);
 
     /// <summary>
     /// Deals 2 cards to each player including the dealer and adds the appropriate 
@@ -514,20 +514,20 @@ class BlackjackCardGame : CardsGame
             TraditionalCard card;
             for (int dealIndex = 0; dealIndex < 2; dealIndex++)
             {
-                for (int playerIndex = 0; playerIndex < players.Count; playerIndex++)
+                for (int playerIndex = 0; playerIndex < _players.Count; playerIndex++)
                 {
-                    if (((BlackjackPlayer)players[playerIndex]).MadeBet)
+                    if (((BlackjackPlayer)_players[playerIndex]).MadeBet)
                     {
                         // Deal a card to one of the players
-                        card = dealer.DealCardToHand(players[playerIndex].Hand);
+                        card = _dealer.DealCardToHand(_players[playerIndex].Hand);
 
                         AddDealAnimation(card, _animatedHands[playerIndex], true, _dealDuration,
                             DateTime.Now + TimeSpan.FromSeconds(
-                            _dealDuration.TotalSeconds * (dealIndex * players.Count + playerIndex)));
+                            _dealDuration.TotalSeconds * (dealIndex * _players.Count + playerIndex)));
                     }
                 }
                 // Deal a card to the dealer
-                card = dealer.DealCardToHand(_dealerPlayer.Hand);
+                card = _dealer.DealCardToHand(_dealerPlayer.Hand);
                 AddDealAnimation(card, _dealerHandComponent, dealIndex == 0, _dealDuration, DateTime.Now);
             }
         }
@@ -540,25 +540,25 @@ class BlackjackCardGame : CardsGame
     public override void StartPlaying()
     {
         // Check that there are enough players to start playing
-        if ((MinimumPlayers <= players.Count && players.Count <= MaximumPlayers))
+        if ((MinimumPlayers <= _players.Count && _players.Count <= MaximumPlayers))
         {
             // Set up and register to gameplay events
-            GameRule gameRule = new BustRule(players);
-            rules.Add(gameRule);
+            GameRule gameRule = new BustRule(_players);
+            _rules.Add(gameRule);
             gameRule.RuleMatch += BustRule_OnMatch;
 
-            gameRule = new BlackJackRule(players);
-            rules.Add(gameRule);
+            gameRule = new BlackJackRule(_players);
+            _rules.Add(gameRule);
             gameRule.RuleMatch += BlackJackRule_OnMatch;
 
             gameRule = new InsuranceRule(_dealerPlayer.Hand);
-            rules.Add(gameRule);
+            _rules.Add(gameRule);
             gameRule.RuleMatch += InsuranceRule_OnMatch;
 
             // Display the hands participating in the game
-            for (int playerIndex = 0; playerIndex < players.Count; playerIndex++)
+            for (int playerIndex = 0; playerIndex < _players.Count; playerIndex++)
             {
-                if (((BlackjackPlayer)players[playerIndex]).MadeBet)
+                if (((BlackjackPlayer)_players[playerIndex]).MadeBet)
                     _animatedHands[playerIndex].Visible = false;
                 else
                     _animatedHands[playerIndex].Visible = true;
@@ -642,7 +642,7 @@ class BlackjackCardGame : CardsGame
         HandTypes animationHand, AnimatedHandGameComponent waitForHand)
     {
         // Get the position of the relevant hand
-        int playerIndex = players.IndexOf(player);
+        int playerIndex = _players.IndexOf(player);
         AnimatedHandGameComponent currentAnimatedHand;
         Vector2 currentPosition;
         if (playerIndex >= 0)
@@ -670,7 +670,7 @@ class BlackjackCardGame : CardsGame
         }
 
         // Add the animation component 
-        AnimatedGameComponent animationComponent = new(this, cardsAssets[assetName])
+        AnimatedGameComponent animationComponent = new(this, _cardAssets[assetName])
         {
             CurrentPosition = currentPosition,
             Visible = false
@@ -749,12 +749,12 @@ class BlackjackCardGame : CardsGame
         }
 
         // Show each player's result
-        for (int playerIndex = 0; playerIndex < players.Count; playerIndex++)
+        for (int playerIndex = 0; playerIndex < _players.Count; playerIndex++)
         {
-            ShowResultForPlayer((BlackjackPlayer)players[playerIndex], dealerValue, HandTypes.First);
-            if (((BlackjackPlayer)players[playerIndex]).IsSplit)
+            ShowResultForPlayer((BlackjackPlayer)_players[playerIndex], dealerValue, HandTypes.First);
+            if (((BlackjackPlayer)_players[playerIndex]).IsSplit)
             {
-                ShowResultForPlayer((BlackjackPlayer)players[playerIndex], dealerValue, HandTypes.Second);
+                ShowResultForPlayer((BlackjackPlayer)_players[playerIndex], dealerValue, HandTypes.Second);
             }
         }
     }
@@ -887,7 +887,7 @@ class BlackjackCardGame : CardsGame
         int cardsDealed = 0;
         while (dealerValue <= 17)
         {
-            TraditionalCard card = dealer.DealCardToHand(_dealerPlayer.Hand);
+            TraditionalCard card = _dealer.DealCardToHand(_dealerPlayer.Hand);
             AddDealAnimation(card, _dealerHandComponent, true, _dealDuration,
                 DateTime.Now.AddMilliseconds(1000 * (cardsDealed + 1)));
             cardsDealed++;
@@ -912,10 +912,10 @@ class BlackjackCardGame : CardsGame
     /// </summary>
     private void DisplayPlayingHands()
     {
-        for (int playerIndex = 0; playerIndex < players.Count; playerIndex++)
+        for (int playerIndex = 0; playerIndex < _players.Count; playerIndex++)
         {
             AnimatedHandGameComponent animatedHandGameComponent =
-                new BlackjackAnimatedPlayerHandComponent(playerIndex, players[playerIndex].Hand, this);
+                new BlackjackAnimatedPlayerHandComponent(playerIndex, _players[playerIndex].Hand, this);
             Game.Components.Add(animatedHandGameComponent);
             _animatedHands[playerIndex] = animatedHandGameComponent;
         }
@@ -930,7 +930,7 @@ class BlackjackCardGame : CardsGame
     {
         _playerHandValueTexts.Clear();
         AudioManager.PlaySound("Shuffle");
-        dealer.Shuffle();
+        _dealer.Shuffle();
         DisplayPlayingHands();
         State = BlackjackGameState.Shuffling;
     }
@@ -1136,10 +1136,10 @@ class BlackjackCardGame : CardsGame
         }
 
         // Reset player values
-        for (int playerIndex = 0; playerIndex < players.Count; playerIndex++)
+        for (int playerIndex = 0; playerIndex < _players.Count; playerIndex++)
         {
-            (players[playerIndex] as BlackjackPlayer).ResetValues();
-            players[playerIndex].Hand.DealCardsToHand(_usedCards, players[playerIndex].Hand.Count);
+            (_players[playerIndex] as BlackjackPlayer).ResetValues();
+            _players[playerIndex].Hand.DealCardsToHand(_usedCards, _players[playerIndex].Hand.Count);
             _turnFinishedByPlayer[playerIndex] = false;
             _animatedHands[playerIndex] = null;
             _animatedSecondHands[playerIndex] = null;
@@ -1154,7 +1154,7 @@ class BlackjackCardGame : CardsGame
         _dealerPlayer.ResetValues();
 
         // Reset rules
-        rules.Clear();
+        _rules.Clear();
     }
 
     /// <summary>
@@ -1179,7 +1179,7 @@ class BlackjackCardGame : CardsGame
         // using his next hand
         if (player.IsSplit == false)
         {
-            _turnFinishedByPlayer[players.IndexOf(player)] = true;
+            _turnFinishedByPlayer[_players.IndexOf(player)] = true;
         }
         else
         {
@@ -1188,7 +1188,7 @@ class BlackjackCardGame : CardsGame
                 case HandTypes.First:
                     if (player.SecondBlackJack)
                     {
-                        _turnFinishedByPlayer[players.IndexOf(player)] = true;
+                        _turnFinishedByPlayer[_players.IndexOf(player)] = true;
                     }
                     else
                     {
@@ -1196,7 +1196,7 @@ class BlackjackCardGame : CardsGame
                     }
                     break;
                 case HandTypes.Second:
-                    _turnFinishedByPlayer[players.IndexOf(player)] = true;
+                    _turnFinishedByPlayer[_players.IndexOf(player)] = true;
                     break;
                 default:
                     throw new Exception(
@@ -1214,7 +1214,7 @@ class BlackjackCardGame : CardsGame
     {
         BlackjackPlayer player = (BlackjackPlayer)GetCurrentPlayer();
 
-        int playerIndex = players.IndexOf(player);
+        int playerIndex = _players.IndexOf(player);
 
         player.InitializeSecondHand();
 
@@ -1247,10 +1247,10 @@ class BlackjackCardGame : CardsGame
         animatedGameComponet.AddAnimation(animation);
 
         // Deal an additional cards to each of the new hands
-        TraditionalCard card = dealer.DealCardToHand(player.Hand);
+        TraditionalCard card = _dealer.DealCardToHand(player.Hand);
         AddDealAnimation(card, _animatedHands[playerIndex], true, _dealDuration,
             DateTime.Now + animation.EstimatedTimeForAnimationCompletion);
-        card = dealer.DealCardToHand(player.SecondHand);
+        card = _dealer.DealCardToHand(player.SecondHand);
         AddDealAnimation(card, _animatedSecondHands[playerIndex], true, _dealDuration,
             DateTime.Now + animation.EstimatedTimeForAnimationCompletion +
             _dealDuration);
@@ -1263,7 +1263,7 @@ class BlackjackCardGame : CardsGame
     {
         BlackjackPlayer player = (BlackjackPlayer)GetCurrentPlayer();
 
-        int playerIndex = players.IndexOf(player);
+        int playerIndex = _players.IndexOf(player);
 
         switch (player.CurrentHandType)
         {
@@ -1310,18 +1310,18 @@ class BlackjackCardGame : CardsGame
         if (player == null)
             return;
 
-        int playerIndex = players.IndexOf(player);
+        int playerIndex = _players.IndexOf(player);
 
         // Draw a card to the appropriate hand
         switch (player.CurrentHandType)
         {
             case HandTypes.First:
-                TraditionalCard card = dealer.DealCardToHand(player.Hand);
+                TraditionalCard card = _dealer.DealCardToHand(player.Hand);
                 AddDealAnimation(card, _animatedHands[playerIndex], true,
                     _dealDuration, DateTime.Now);
                 break;
             case HandTypes.Second:
-                card = dealer.DealCardToHand(player.SecondHand);
+                card = _dealer.DealCardToHand(player.SecondHand);
                 AddDealAnimation(card, _animatedSecondHands[playerIndex], true,
                     _dealDuration, DateTime.Now);
                 break;
@@ -1366,7 +1366,7 @@ class BlackjackCardGame : CardsGame
     public void ShowPlayerPass(int indexPlayer)
     {
         // Add animation component
-        AnimatedGameComponent passComponent = new AnimatedGameComponent(this, cardsAssets["pass"])
+        AnimatedGameComponent passComponent = new AnimatedGameComponent(this, _cardAssets["pass"])
         {
             CurrentPosition = GameTable.PlaceOrder(indexPlayer),
             Visible = false
@@ -1410,7 +1410,7 @@ class BlackjackCardGame : CardsGame
     /// the event data.</param>
     void InsuranceRule_OnMatch(object sender, EventArgs e)
     {
-        BlackjackPlayer player = (BlackjackPlayer)players[0];
+        BlackjackPlayer player = (BlackjackPlayer)_players[0];
         if (player.Balance >= player.BetAmount / 2)
             _showInsurance = true;
     }
@@ -1440,12 +1440,12 @@ class BlackjackCardGame : CardsGame
                 }
                 else
                 {
-                    _turnFinishedByPlayer[players.IndexOf(player)] = true;
+                    _turnFinishedByPlayer[_players.IndexOf(player)] = true;
                 }
                 break;
             case HandTypes.Second:
                 player.SecondBust = true;
-                _turnFinishedByPlayer[players.IndexOf(player)] = true;
+                _turnFinishedByPlayer[_players.IndexOf(player)] = true;
                 break;
             default:
                 throw new Exception(
@@ -1478,14 +1478,14 @@ class BlackjackCardGame : CardsGame
                 }
                 else
                 {
-                    _turnFinishedByPlayer[players.IndexOf(player)] = true;
+                    _turnFinishedByPlayer[_players.IndexOf(player)] = true;
                 }
                 break;
             case HandTypes.Second:
                 player.SecondBlackJack = true;
                 if (player.CurrentHandType == HandTypes.Second)
                 {
-                    _turnFinishedByPlayer[players.IndexOf(player)] = true;
+                    _turnFinishedByPlayer[_players.IndexOf(player)] = true;
                 }
                 break;
             default:
@@ -1507,7 +1507,7 @@ class BlackjackCardGame : CardsGame
             return;
         player.IsInsurance = true;
         player.Balance -= player.BetAmount / 2f;
-        _betGameComponent.AddChips(players.IndexOf(player), player.BetAmount / 2, true, false);
+        _betGameComponent.AddChips(_players.IndexOf(player), player.BetAmount / 2, true, false);
         _showInsurance = false;
     }
 

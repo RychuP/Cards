@@ -7,15 +7,13 @@
 //-----------------------------------------------------------------------------
 #endregion
 
-#region Using Statements
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-#endregion
 
 namespace CardsFramework;
 
 /// <summary>
-/// A cards-game handler
+/// A cards-game handler.
 /// </summary>
 /// <remarks>
 /// Use a singleton of a class that derives from class to empower a cards-game, while making sure
@@ -24,15 +22,15 @@ namespace CardsFramework;
 public abstract class CardsGame
 {
     #region Fields and Properties
-    protected List<GameRule> rules;
-    protected List<Player> players;
-    protected CardPacket dealer;
+    protected List<GameRule> _rules = new();
+    protected List<Player> _players = new();
+    protected CardPacket _dealer;
 
     public int MinimumPlayers { get; protected set; }
     public int MaximumPlayers { get; protected set; }
 
     public string Theme { get; protected set; }
-    protected internal Dictionary<string, Texture2D> cardsAssets;
+    protected internal Dictionary<string, Texture2D> _cardAssets = new();
     public GameTable GameTable { get; protected set; }
     public SpriteFont Font { get; set; }
     public SpriteBatch SpriteBatch { get; set; }
@@ -53,26 +51,19 @@ public abstract class CardsGame
     /// for the game.</param>
     /// <param name="maximumPlayers">The maximal amount of players 
     /// for the game.</param>
-    /// <param name="tableBounds">The table bounds.</param>
-    /// <param name="dealerPosition">The dealer position.</param>
-    /// <param name="placeOrder">A function which translates a player's index to
-    /// his rendering location on the game table.</param>
     /// <param name="theme">The name of the theme to use for the 
     /// game's assets.</param>
     /// <param name="game">The associated game object.</param>
     public CardsGame(int decks, int jokersInDeck, CardSuit suits, CardValue cardValues,
         int minimumPlayers, int maximumPlayers, GameTable gameTable, string theme, Game game)
     {
-        rules = new List<GameRule>();
-        players = new List<Player>();
-        dealer = new CardPacket(decks, jokersInDeck, suits, cardValues);
+        _dealer = new CardPacket(decks, jokersInDeck, suits, cardValues);
 
         Game = game;
         MinimumPlayers = minimumPlayers;
         MaximumPlayers = maximumPlayers;
 
-        this.Theme = theme;
-        cardsAssets = new Dictionary<string, Texture2D>();
+        Theme = theme;
         GameTable = gameTable;
         GameTable.DrawOrder = -10000;
         game.Components.Add(GameTable);
@@ -85,10 +76,8 @@ public abstract class CardsGame
     /// </summary>
     public virtual void CheckRules()
     {
-        for (int ruleIndex = 0; ruleIndex < rules.Count; ruleIndex++)
-        {
-            rules[ruleIndex].Check();
-        }
+        for (int ruleIndex = 0; ruleIndex < _rules.Count; ruleIndex++)
+            _rules[ruleIndex].Check();
     }
 
     /// <summary>
@@ -96,39 +85,25 @@ public abstract class CardsGame
     /// </summary>
     /// <param name="card">The card for which to return the value.</param>
     /// <returns>The card's value.</returns>        
-    public virtual int CardValue(TraditionalCard card)
+    public virtual int GetCardValue(TraditionalCard card)
     {
-        switch (card.Value)
+        return card.Value switch
         {
-            case CardsFramework.CardValue.Ace:
-                return 1;
-            case CardsFramework.CardValue.Two:
-                return 2;
-            case CardsFramework.CardValue.Three:
-                return 3;
-            case CardsFramework.CardValue.Four:
-                return 4;
-            case CardsFramework.CardValue.Five:
-                return 5;
-            case CardsFramework.CardValue.Six:
-                return 6;
-            case CardsFramework.CardValue.Seven:
-                return 7;
-            case CardsFramework.CardValue.Eight:
-                return 8;
-            case CardsFramework.CardValue.Nine:
-                return 9;
-            case CardsFramework.CardValue.Ten:
-                return 10;
-            case CardsFramework.CardValue.Jack:
-                return 11;
-            case CardsFramework.CardValue.Queen:
-                return 12;
-            case CardsFramework.CardValue.King:
-                return 13;
-            default:
-                throw new ArgumentException("Ambigous card value");
-        }
+            CardValue.Ace => 1,
+            CardValue.Two => 2,
+            CardValue.Three => 3,
+            CardValue.Four => 4,
+            CardValue.Five => 5,
+            CardValue.Six => 6,
+            CardValue.Seven => 7,
+            CardValue.Eight => 8,
+            CardValue.Nine => 9,
+            CardValue.Ten => 10,
+            CardValue.Jack => 11,
+            CardValue.Queen => 12,
+            CardValue.King => 13,
+            _ => throw new ArgumentException("Ambigous card value"),
+        };
     }
     #endregion
 
@@ -163,9 +138,9 @@ public abstract class CardsGame
     public void LoadContent()
     {
         SpriteBatch = new SpriteBatch(Game.GraphicsDevice);
+
         // Initialize a full deck
-        CardPacket fullDeck = new CardPacket(1, 2, CardSuit.AllSuits,
-            CardsFramework.CardValue.NonJokers | CardsFramework.CardValue.Jokers);
+        CardPacket fullDeck = new(1, 2, CardSuit.AllSuits, CardValue.NonJokers | CardValue.Jokers);
         string assetName;
 
         // Load all card assets
@@ -178,7 +153,7 @@ public abstract class CardsGame
         LoadUITexture("Cards", "CardBack_" + Theme);
 
         // Load the game's font
-        Font = Game.Content.Load<SpriteFont>(string.Format(@"Fonts\Regular"));
+        Font = Game.Content.Load<SpriteFont>("Fonts\\Regular");
 
         GameTable.Initialize();
     }
@@ -193,9 +168,8 @@ public abstract class CardsGame
     /// <param name="assetName">The name of the asset.</param>
     public void LoadUITexture(string folder, string assetName)
     {
-        cardsAssets.Add(assetName,
-            Game.Content.Load<Texture2D>(string.Format(@"Images\{0}\{1}",
-            folder, assetName)));
+        var texture = Game.Content.Load<Texture2D>($"Images\\{folder}\\{assetName}");
+        _cardAssets.Add(assetName, texture);
     }
     #endregion
 }

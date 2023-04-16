@@ -127,7 +127,7 @@ namespace Blackjack
 
             for (int cardIndex = 0; cardIndex < hand.Count; cardIndex++)
             {
-                value += game.CardValue(hand[cardIndex]);
+                value += game.GetCardValue(hand[cardIndex]);
 
                 if (hand[cardIndex].Value == CardValue.Ace)
                 {

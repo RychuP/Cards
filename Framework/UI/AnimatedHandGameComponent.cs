@@ -55,8 +55,8 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     {
         Place = place;
         Hand = hand;
-        hand.ReceivedCard += Hand_ReceivedCard;
-        hand.LostCard += Hand_LostCard;
+        hand.CardReceived += Hand_ReceivedCard;
+        hand.CardRemoved += Hand_LostCard;
 
         // Set the component's position
         if (place == -1)
@@ -256,8 +256,8 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     {
         // Remove the registrations to the event to make this 
         // instance collectable by gc
-        Hand.ReceivedCard -= Hand_ReceivedCard;
-        Hand.LostCard -= Hand_LostCard;
+        Hand.CardReceived -= Hand_ReceivedCard;
+        Hand.CardRemoved -= Hand_LostCard;
 
         base.Dispose(disposing);
     }
