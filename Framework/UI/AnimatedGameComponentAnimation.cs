@@ -40,16 +40,11 @@ public class AnimatedGameComponentAnimation
     /// </summary>
     public uint AnimationCycles
     {
-        get
-        {
-            return _animationCycles;
-        }
+        get => _animationCycles;
         set
         {
             if (value > 0)
-            {
                 _animationCycles = value;
-            }
         }
     }
     public DateTime StartTime { get; set; }
@@ -58,20 +53,8 @@ public class AnimatedGameComponentAnimation
     /// <summary>
     /// Returns the time at which the animation is estimated to end.
     /// </summary>
-    public TimeSpan EstimatedTimeForAnimationCompletion
-    {
-        get
-        {
-            if (_isStarted)
-            {
-                return (Duration - Elapsed);
-            }
-            else
-            {
-                return StartTime - DateTime.Now + Duration;
-            }
-        }
-    }
+    public TimeSpan EstimatedTimeForAnimationCompletion =>
+        _isStarted ? Duration - Elapsed : StartTime - DateTime.Now + Duration;
 
     public bool IsLooped { get; set; }
 
@@ -80,7 +63,7 @@ public class AnimatedGameComponentAnimation
     private bool _isStarted = false;
     #endregion
 
-    #region Initiaizations
+    #region Initializations
     /// <summary>
     /// Initializes a new instance of the class. Be default, an animation starts
     /// immediately and has a duration of 150 milliseconds.
@@ -118,18 +101,15 @@ public class AnimatedGameComponentAnimation
     /// <returns>Whether or not the animation is started</returns>
     public bool IsStarted()
     {
-        if (!_isStarted)
+        if (!_isStarted && StartTime <= DateTime.Now)
         {
-            if (StartTime <= DateTime.Now)
+            if (PerformBeforeStart != null)
             {
-                if (PerformBeforeStart != null)
-                {
-                    PerformBeforeStart(PerformBeforeStartArgs);
-                    PerformBeforeStart = null;
-                }
-                StartTime = DateTime.Now;
-                _isStarted = true;
+                PerformBeforeStart(PerformBeforeStartArgs);
+                PerformBeforeStart = null;
             }
+            StartTime = DateTime.Now;
+            _isStarted = true;
         }
         return _isStarted;
     }

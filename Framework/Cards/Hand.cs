@@ -29,7 +29,7 @@ public class Hand : CardPacket
     internal void Add(TraditionalCard card)
     {
         Cards.Add(card);
-        CardReceived?.Invoke(this, new CardEventArgs { Card = card });
+        CardReceived?.Invoke(this, new CardEventArgs(card));
     }
 
     /// <summary>

@@ -26,7 +26,7 @@ namespace CardsFramework
         /// <summary>
         /// An event which triggers when the rule conditions are matched.
         /// </summary>
-        public event EventHandler RuleMatch;
+        public event EventHandler? RuleMatch;
 
         /// <summary>
         /// Checks whether the rule conditions are met. Should call 

@@ -44,7 +44,7 @@ class PauseScreen : MenuScreen
     /// <summary>
     /// Respond to "Return" Item Selection
     /// </summary>
-    void OnReturnGameMenuEntrySelected(object sender, EventArgs e)
+    void OnReturnGameMenuEntrySelected(object? sender, EventArgs e)
     {
         GameScreen[] screens = ScreenManager.GetScreens();
         GameplayScreen gameplayScreen = null;

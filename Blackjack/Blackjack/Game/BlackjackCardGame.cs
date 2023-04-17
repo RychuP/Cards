@@ -103,13 +103,12 @@ class BlackjackCardGame : CardsGame
         string[] buttonsText = { "Hit", "Stand", "Double", "Split", "Insurance" };
         for (int buttonIndex = 0; buttonIndex < buttonsText.Length; buttonIndex++)
         {
-            Button button = new Button("ButtonRegular", "ButtonPressed", _screenManager.Input, this)
+            Button button = new Button("ButtonRegular", "ButtonPressed", this)
             {
                 Text = buttonsText[buttonIndex],
                 Bounds = new Rectangle(_screenManager.SafeArea.Left + 10 + buttonIndex * 110,
                     _screenManager.SafeArea.Bottom - 60,
                 100, 50),
-                Font = this.Font,
                 Visible = false,
                 Enabled = false
             };
@@ -117,9 +116,8 @@ class BlackjackCardGame : CardsGame
             Game.Components.Add(button);
         }
 
-        _newGameButton = new Button("ButtonRegular", "ButtonPressed", _screenManager.Input, this)
+        _newGameButton = new Button("ButtonRegular", "ButtonPressed", this)
         {
-            Font = Font,
             Text = "New Hand",
             Visible = false,
             Enabled = false,
@@ -178,7 +176,7 @@ class BlackjackCardGame : CardsGame
                 _dealerPlayer.CalculateValues();
 
                 // Make sure no animations are running
-                if (!CheckForRunningAnimations<AnimatedCardsGameComponent>())
+                if (!CheckForRunningAnimations<AnimatedCardGameComponent>())
                 {
                     BlackjackPlayer player =
                         (BlackjackPlayer)GetCurrentPlayer();
@@ -242,7 +240,7 @@ class BlackjackCardGame : CardsGame
         Game.Components.Add(animationComponent);
 
         animationComponent.AddAnimation(
-            new FramesetGameComponentAnimation(_cardAssets["shuffle_" + Theme], 32, 11, _frameSize)
+            new FramesetGameComponentAnimation(CardAssets["shuffle_" + Theme], 32, 11, _frameSize)
         {
             Duration = TimeSpan.FromSeconds(1.5f),
             PerformBeforeStart = ShowComponent,
@@ -457,7 +455,7 @@ class BlackjackCardGame : CardsGame
             animatedHand.GetCardRelativePosition(hand.Count - 1);
         Vector2 measure = Font.MeasureString(value);
 
-        position.X += (_cardAssets["CardBack_" + Theme].Bounds.Width - measure.X) / 2;
+        position.X += (CardAssets["CardBack_" + Theme].Bounds.Width - measure.X) / 2;
         position.Y -= measure.Y + 5;
 
         SpriteBatch.Draw(_screenManager.BlankTexture,
@@ -572,18 +570,16 @@ class BlackjackCardGame : CardsGame
     /// Display an animation when a card is dealt.
     /// </summary>
     /// <param name="card">The card being dealt.</param>
-    /// <param name="animatedHand">The animated hand into which the card 
-    /// is dealt.</param>
+    /// <param name="animatedHand">The animated hand into which the card is dealt.</param>
     /// <param name="flipCard">Should the card be flipped after dealing it.</param>
     /// <param name="duration">The animations desired duration.</param>
-    /// <param name="startTime">The time at which the animation should 
-    /// start.</param>
+    /// <param name="startTime">The time at which the animation should start.</param>
     public void AddDealAnimation(TraditionalCard card, AnimatedHandGameComponent
         animatedHand, bool flipCard, TimeSpan duration, DateTime startTime)
     {
         // Get the card location and card component
         int cardLocationInHand = animatedHand.GetCardLocationInHand(card);
-        AnimatedCardsGameComponent cardComponent = animatedHand.GetCardGameComponent(cardLocationInHand);
+        AnimatedCardGameComponent cardComponent = animatedHand.GetCardGameComponent(cardLocationInHand);
 
         // Add the transition animation
         cardComponent.AddAnimation(
@@ -614,19 +610,15 @@ class BlackjackCardGame : CardsGame
     /// Helper method to play deal sound
     /// </summary>
     /// <param name="obj"></param>
-    void PlayDealSound(object obj)
-    {
+    void PlayDealSound(object obj) =>
         AudioManager.PlaySound("Deal");
-    }
 
     /// <summary>
     /// Helper method to play flip sound
     /// </summary>
     /// <param name="obj"></param>
-    void PlayFlipSound(object obj)
-    {
+    void PlayFlipSound(object obj) =>
         AudioManager.PlaySound("Flip");
-    }
 
     /// <summary>
     /// Adds an animation which displays an asset over a player's hand. The asset
@@ -639,7 +631,7 @@ class BlackjackCardGame : CardsGame
     /// <param name="waitForHand">Start the cue animation when the animation
     /// of this hand over null of the animation of the currentHand</param>
     void CueOverPlayerHand(BlackjackPlayer player, string assetName,
-        HandTypes animationHand, AnimatedHandGameComponent waitForHand)
+        HandTypes animationHand, AnimatedHandGameComponent? waitForHand)
     {
         // Get the position of the relevant hand
         int playerIndex = _players.IndexOf(player);
@@ -670,7 +662,7 @@ class BlackjackCardGame : CardsGame
         }
 
         // Add the animation component 
-        AnimatedGameComponent animationComponent = new(this, _cardAssets[assetName])
+        AnimatedGameComponent animationComponent = new(this, CardAssets[assetName])
         {
             CurrentPosition = currentPosition,
             Visible = false
@@ -727,7 +719,7 @@ class BlackjackCardGame : CardsGame
     private void RevealDealerFirstCard()
     {
         // Iterate over all dealer cards expect for the last
-        AnimatedCardsGameComponent cardComponent = _dealerHandComponent.GetCardGameComponent(1);
+        AnimatedCardGameComponent cardComponent = _dealerHandComponent.GetCardGameComponent(1);
         cardComponent.AddAnimation(new FlipGameComponentAnimation()
         {
             Duration = TimeSpan.FromSeconds(0.5),
@@ -1024,43 +1016,39 @@ class BlackjackCardGame : CardsGame
     {
         // Calculate the estimated time for all playing animations to end
         long estimatedTime = 0;
-        AnimatedGameComponent animationComponent;
         for (int componentIndex = 0; componentIndex < Game.Components.Count; componentIndex++)
         {
-            animationComponent = Game.Components[componentIndex] as AnimatedGameComponent;
-            if (animationComponent != null)
+            if (Game.Components[componentIndex] is AnimatedGameComponent animComp)
             {
                 estimatedTime = Math.Max(estimatedTime,
-                    animationComponent.EstimatedTimeForAnimationsCompletion().Ticks);
+                    animComp.EstimatedTimeForAnimationsCompletion().Ticks);
             }
         }
 
         // Add a component for an empty stalling animation. This actually acts
         // as a timer.
-        Texture2D texture = this.Game.Content.Load<Texture2D>(@"Images\youlose");
-        animationComponent = new AnimatedGameComponent(this, texture)
+        Texture2D texture = Game.Content.Load<Texture2D>(@"Images\youlose");
+        AnimatedGameComponent animationComponent = new(this, texture)
         {
             CurrentPosition = new Vector2(
-                this.Game.GraphicsDevice.Viewport.Bounds.Center.X - texture.Width / 2,
-                this.Game.GraphicsDevice.Viewport.Bounds.Center.Y - texture.Height / 2),
+                Game.GraphicsDevice.Viewport.Bounds.Center.X - texture.Width / 2,
+                Game.GraphicsDevice.Viewport.Bounds.Center.Y - texture.Height / 2),
             Visible = false
         };
-        this.Game.Components.Add(animationComponent);
+        Game.Components.Add(animationComponent);
 
         // Add a button to return to the main menu
-        Rectangle bounds = this.Game.GraphicsDevice.Viewport.Bounds;
-        Vector2 center = new Vector2(bounds.Center.X, bounds.Center.Y);
-        Button backButton = new Button("ButtonRegular", "ButtonPressed",
-            _screenManager.Input, this)
+        Rectangle bounds = Game.GraphicsDevice.Viewport.Bounds;
+        Vector2 center = new(bounds.Center.X, bounds.Center.Y);
+        Button backButton = new("ButtonRegular", "ButtonPressed", this)
         {
             Bounds = new Rectangle((int)center.X - 100, (int)center.Y + 80, 200, 50),
-            Font = this.Font,
             Text = "Main Menu",
             Visible = false,
             Enabled = true,
         };
 
-        backButton.Click += backButton_Click;
+        backButton.Click += BackButton_OnClick;
 
         // Add stalling animation
         animationComponent.AddAnimation(new AnimatedGameComponentAnimation()
@@ -1114,13 +1102,13 @@ class BlackjackCardGame : CardsGame
                 Game.Components[componentIndex] is ScreenManager ||
                 Game.Components[componentIndex] is InputHelper))
             {
-                if (Game.Components[componentIndex] is AnimatedCardsGameComponent)
+                if (Game.Components[componentIndex] is AnimatedCardGameComponent)
                 {
-                    AnimatedCardsGameComponent animatedCard =
-                        (Game.Components[componentIndex] as AnimatedCardsGameComponent);
+                    AnimatedCardGameComponent animatedCard =
+                        (Game.Components[componentIndex] as AnimatedCardGameComponent);
                     animatedCard.AddAnimation(
                         new TransitionGameComponentAnimation(animatedCard.CurrentPosition,
-                        new Vector2(animatedCard.CurrentPosition.X, this.Game.GraphicsDevice.Viewport.Height))
+                        new Vector2(animatedCard.CurrentPosition.X, Game.GraphicsDevice.Viewport.Height))
                         {
                             Duration = TimeSpan.FromSeconds(0.40),
                             PerformWhenDone = RemoveComponent,
@@ -1242,7 +1230,7 @@ class BlackjackCardGame : CardsGame
                 player.SecondHand, this);
         Game.Components.Add(_animatedSecondHands[playerIndex]);
 
-        AnimatedCardsGameComponent animatedGameComponet = _animatedSecondHands[playerIndex].GetCardGameComponent(0);
+        AnimatedCardGameComponent animatedGameComponet = _animatedSecondHands[playerIndex].GetCardGameComponent(0);
         animatedGameComponet.IsFaceDown = false;
         animatedGameComponet.AddAnimation(animation);
 
@@ -1366,7 +1354,7 @@ class BlackjackCardGame : CardsGame
     public void ShowPlayerPass(int indexPlayer)
     {
         // Add animation component
-        AnimatedGameComponent passComponent = new AnimatedGameComponent(this, _cardAssets["pass"])
+        AnimatedGameComponent passComponent = new AnimatedGameComponent(this, CardAssets["pass"])
         {
             CurrentPosition = GameTable.PlaceOrder(indexPlayer),
             Visible = false
@@ -1408,7 +1396,7 @@ class BlackjackCardGame : CardsGame
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="System.EventArgs"/> instance containing 
     /// the event data.</param>
-    void InsuranceRule_OnMatch(object sender, EventArgs e)
+    void InsuranceRule_OnMatch(object? sender, EventArgs e)
     {
         BlackjackPlayer player = (BlackjackPlayer)_players[0];
         if (player.Balance >= player.BetAmount / 2)
@@ -1421,10 +1409,11 @@ class BlackjackCardGame : CardsGame
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="EventArgs"/> instance containing 
     /// the event data.</param>
-    void BustRule_OnMatch(object sender, EventArgs e)
+    void BustRule_OnMatch(object? sender, EventArgs e)
     {
+        if (e is not BlackjackGameEventArgs args) return;
+
         _showInsurance = false;
-        BlackjackGameEventArgs args = (e as BlackjackGameEventArgs);
         BlackjackPlayer player = (BlackjackPlayer)args.Player;
 
         CueOverPlayerHand(player, "bust", args.Hand, null);
@@ -1459,10 +1448,11 @@ class BlackjackCardGame : CardsGame
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="System.EventArgs"/> instance containing 
     /// the event data.</param>
-    void BlackJackRule_OnMatch(object sender, EventArgs e)
+    void BlackJackRule_OnMatch(object? sender, EventArgs e)
     {
+        if (e is not BlackjackGameEventArgs args) return;
+
         _showInsurance = false;
-        BlackjackGameEventArgs args = (e as BlackjackGameEventArgs);
         BlackjackPlayer player = (BlackjackPlayer)args.Player;
 
         CueOverPlayerHand(player, "blackjack", args.Hand, null);
@@ -1500,7 +1490,7 @@ class BlackjackCardGame : CardsGame
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
     /// <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void InsuranceButton_OnClick(object sender, EventArgs e)
+    void InsuranceButton_OnClick(object? sender, EventArgs e)
     {
         BlackjackPlayer player = (BlackjackPlayer)GetCurrentPlayer();
         if (player == null)
@@ -1517,7 +1507,7 @@ class BlackjackCardGame : CardsGame
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
     /// <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void NewGameButton_OnClick(object sender, EventArgs e)
+    void NewGameButton_OnClick(object? sender, EventArgs e)
     {
         FinishTurn();
         StartRound();
@@ -1531,7 +1521,7 @@ class BlackjackCardGame : CardsGame
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
     /// <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void HitButton_OnClick(object sender, EventArgs e)
+    void HitButton_OnClick(object? sender, EventArgs e)
     {
         Hit();
         _showInsurance = false;
@@ -1543,7 +1533,7 @@ class BlackjackCardGame : CardsGame
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
     /// <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void StandButton_OnClick(object sender, EventArgs e)
+    void StandButton_OnClick(object? sender, EventArgs e)
     {
         Stand();
         _showInsurance = false;
@@ -1555,7 +1545,7 @@ class BlackjackCardGame : CardsGame
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
     /// <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void DoubleButton_OnClick(object sender, EventArgs e)
+    void DoubleButton_OnClick(object? sender, EventArgs e)
     {
         Double();
         _showInsurance = false;
@@ -1567,7 +1557,7 @@ class BlackjackCardGame : CardsGame
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
     /// <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void SplitButton_OnClick(object sender, EventArgs e)
+    void SplitButton_OnClick(object? sender, EventArgs e)
     {
         Split();
         _showInsurance = false;
@@ -1579,7 +1569,7 @@ class BlackjackCardGame : CardsGame
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">>The 
     /// <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void backButton_Click(object sender, EventArgs e)
+    void BackButton_OnClick(object? sender, EventArgs e)
     {
         // Remove all unnecessary components
         for (int componentIndex = 0; componentIndex < Game.Components.Count; componentIndex++)

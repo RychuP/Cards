@@ -15,6 +15,8 @@ namespace CardsFramework;
 public class CardEventArgs : EventArgs
 {
     public TraditionalCard Card { get; set; }
+    public CardEventArgs(TraditionalCard card) =>
+        Card = card;
 }
 
 /// <summary>
@@ -222,7 +224,7 @@ public class CardPacket
         if (Cards.Contains(card))
         {
             Cards.Remove(card);
-            CardRemoved?.Invoke(this, new CardEventArgs { Card = card });
+            CardRemoved?.Invoke(this, new CardEventArgs(card));
             return card;
         }
         return null;

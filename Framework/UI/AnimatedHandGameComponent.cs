@@ -7,9 +7,7 @@
 //-----------------------------------------------------------------------------
 #endregion
 
-#region Using Statements
 using Microsoft.Xna.Framework;
-#endregion
 
 namespace CardsFramework;
 
@@ -19,14 +17,14 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     public int Place { get; private set; }
     public readonly Hand Hand;
 
-    List<AnimatedCardsGameComponent> heldAnimatedCards = new();
+    readonly List<AnimatedCardGameComponent> _animatedCardsHeld = new();
 
     public override bool IsAnimating 
     { 
         get 
         {
-            for (int animationIndex = 0; animationIndex < heldAnimatedCards.Count; animationIndex++)
-                if (heldAnimatedCards[animationIndex].IsAnimating)
+            for (int animationIndex = 0; animationIndex < _animatedCardsHeld.Count; animationIndex++)
+                if (_animatedCardsHeld[animationIndex].IsAnimating)
                     return true;
             return false;
         } 
@@ -35,11 +33,11 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// <summary>
     /// Returns the animated cards contained in the hand.
     /// </summary>
-    public IEnumerable<AnimatedCardsGameComponent> AnimatedCards =>
-        heldAnimatedCards.AsReadOnly();
+    public IEnumerable<AnimatedCardGameComponent> AnimatedCards =>
+        _animatedCardsHeld.AsReadOnly();
     #endregion
 
-    #region Initiaizations
+    #region Initializations
     /// <summary>
     /// Initializes a new instance of the animated hand component. This means
     /// setting the hand's position and initializing all animated cards and their
@@ -50,39 +48,29 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// <param name="place">The player's place index (-1 for the dealer).</param>
     /// <param name="hand">The hand represented by this instance.</param>
     /// <param name="cardGame">The associated card game.</param>
-    public AnimatedHandGameComponent(int place, Hand hand, CardsGame cardGame)
-        : base(cardGame, null)
+    public AnimatedHandGameComponent(int place, Hand hand, CardsGame cardGame) : base(cardGame, null)
     {
         Place = place;
         Hand = hand;
-        hand.CardReceived += Hand_ReceivedCard;
-        hand.CardRemoved += Hand_LostCard;
+        hand.CardReceived += Hand_OnCardReceived;
+        hand.CardRemoved += Hand_OnCardRemoved;
 
         // Set the component's position
-        if (place == -1)
-        {
-            CurrentPosition = CardGame.GameTable.DealerPosition;
-        }
-        else
-        {
-            CurrentPosition = CardGame.GameTable[place];
-        }
+        CurrentPosition = place == -1 ? cardGame.GameTable.DealerPosition :
+            cardGame.GameTable[place];
 
-        // Create and initialize animated cards according to the cards in the 
-        // associated hand
+        // Create and initialize animated cards according to the cards in the associated hand
         for (int cardIndex = 0; cardIndex < hand.Count; cardIndex++)
         {
-            AnimatedCardsGameComponent animatedCardGameComponent =
-                new AnimatedCardsGameComponent(hand[cardIndex], CardGame)
-                {
-                    CurrentPosition = CurrentPosition + new Vector2(30 * cardIndex, 0)
-                };
-
-            heldAnimatedCards.Add(animatedCardGameComponent);
+            AnimatedCardGameComponent animatedCardGameComponent = new(hand[cardIndex], cardGame)
+            {
+                CurrentPosition = CurrentPosition + new Vector2(30 * cardIndex, 0)
+            };
+            _animatedCardsHeld.Add(animatedCardGameComponent);
             Game.Components.Add(animatedCardGameComponent);
         }
 
-        Game.Components.ComponentRemoved += Components_ComponentRemoved;
+        Game.Components.ComponentRemoved += Components_OnComponentRemoved;
     } 
     #endregion
 
@@ -95,14 +83,11 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     public override void Update(GameTime gameTime)
     {
         // Arrange the hand's animated cards' positions
-        for (int animationIndex = 0; animationIndex < heldAnimatedCards.Count; animationIndex++)
-        {
-            if (!heldAnimatedCards[animationIndex].IsAnimating)
-            {
-                heldAnimatedCards[animationIndex].CurrentPosition = CurrentPosition + 
+        for (int animationIndex = 0; animationIndex < _animatedCardsHeld.Count; animationIndex++)
+            if (!_animatedCardsHeld[animationIndex].IsAnimating)
+                _animatedCardsHeld[animationIndex].CurrentPosition = CurrentPosition + 
                     GetCardRelativePosition(animationIndex);
-            }
-        }
+
         base.Update(gameTime);
     }
     #endregion
@@ -114,10 +99,8 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// </summary>
     /// <param name="cardLocationInHand">The card index in the hand.</param>
     /// <returns></returns>
-    public virtual Vector2 GetCardRelativePosition(int cardLocationInHand)
-    {
-        return default(Vector2);
-    }
+    public virtual Vector2 GetCardRelativePosition(int cardLocationInHand) =>
+        default;
 
     /// <summary>
     /// Finds the index of a specified card in the hand.
@@ -127,13 +110,9 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// found.</returns>
     public int GetCardLocationInHand(TraditionalCard card)
     {
-        for (int animationIndex = 0; animationIndex < heldAnimatedCards.Count; animationIndex++)
-        {
-            if (heldAnimatedCards[animationIndex].Card == card)
-            {
+        for (int animationIndex = 0; animationIndex < _animatedCardsHeld.Count; animationIndex++)
+            if (_animatedCardsHeld[animationIndex].Card == card)
                 return animationIndex;
-            }
-        }
         return -1;
     }
 
@@ -144,13 +123,13 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// component.</param>
     /// <returns>The card's animation component, or null if such a card cannot
     /// be found in the hand.</returns>
-    public AnimatedCardsGameComponent GetCardGameComponent(TraditionalCard card)
+    public AnimatedCardGameComponent? GetCardGameComponent(TraditionalCard card)
     {
         int location = GetCardLocationInHand(card);
         if (location == -1)
             return null;
 
-        return heldAnimatedCards[location];
+        return _animatedCardsHeld[location];
     }
 
     /// <summary>
@@ -159,12 +138,12 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// <param name="location">The location where the desired card is 
     /// in the hand.</param>
     /// <returns>The card's animation component.</return>s 
-    public AnimatedCardsGameComponent GetCardGameComponent(int location)
+    public AnimatedCardGameComponent? GetCardGameComponent(int location)
     {
-        if (location == -1 || location >= heldAnimatedCards.Count)
+        if (location == -1 || location >= _animatedCardsHeld.Count)
             return null;
 
-        return heldAnimatedCards[location];
+        return _animatedCardsHeld[location];
     } 
     #endregion
 
@@ -174,53 +153,48 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
-    /// <see cref="Microsoft.Xna.Framework.GameComponentCollectionEventArgs"/> 
+    /// <see cref="GameComponentCollectionEventArgs"/> 
     /// instance containing the event data.</param>
-    void Components_ComponentRemoved(object sender, GameComponentCollectionEventArgs e)
+    void Components_OnComponentRemoved(object? sender, GameComponentCollectionEventArgs e)
     {
         if (e.GameComponent == this)
-        {
             Dispose();
-        }
     }
 
     /// <summary>
-    /// Handles the hand's LostCard event be removing the corresponding animated
+    /// Handles the hand's <see cref="CardPacket.CardRemoved"/> event be removing the corresponding animated
     /// card.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
-    /// <see cref="CardsFramework.CardEventArgs"/> 
+    /// <see cref="CardEventArgs"/> 
     /// instance containing the event data.</param>
-    void Hand_LostCard(object sender, CardEventArgs e)
+    void Hand_OnCardRemoved(object? sender, CardEventArgs e)
     {
         // Remove the card from screen
-        for (int animationIndex = 0; animationIndex < heldAnimatedCards.Count; animationIndex++)
+        for (int animationIndex = 0; animationIndex < _animatedCardsHeld.Count; animationIndex++)
         {
-            if (heldAnimatedCards[animationIndex].Card == e.Card)
+            if (_animatedCardsHeld[animationIndex].Card == e.Card)
             {
-                Game.Components.Remove(heldAnimatedCards[animationIndex]);
-                heldAnimatedCards.RemoveAt(animationIndex);
+                Game.Components.Remove(_animatedCardsHeld[animationIndex]);
+                _animatedCardsHeld.RemoveAt(animationIndex);
                 return;
             }
         }
     }
 
     /// <summary>
-    /// Handles the hand's ReceivedCard event be adding a corresponding 
+    /// Handles the <see cref="Hand.CardReceived"/> event be adding a corresponding 
     /// animated card.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
-    /// <see cref="CardsFramework.CardEventArgs"/> 
+    /// <see cref="CardEventArgs"/> 
     /// instance containing the event data.</param>
-    void Hand_ReceivedCard(object sender, CardEventArgs e)
+    void Hand_OnCardReceived(object? sender, CardEventArgs e)
     {
-        // Add the card to the screen
-        AnimatedCardsGameComponent animatedCardGameComponent =
-            new AnimatedCardsGameComponent(e.Card, CardGame) { Visible = false };
-
-        heldAnimatedCards.Add(animatedCardGameComponent);
+        AnimatedCardGameComponent animatedCardGameComponent = new(e.Card, CardGame) { Visible = false };
+        _animatedCardsHeld.Add(animatedCardGameComponent);
         Game.Components.Add(animatedCardGameComponent);
     }
     #endregion
@@ -236,11 +210,11 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
 
         if (IsAnimating)
         {
-            for (int animationIndex = 0; animationIndex < heldAnimatedCards.Count; animationIndex++)
+            for (int animationIndex = 0; animationIndex < _animatedCardsHeld.Count; animationIndex++)
             {
-                if (heldAnimatedCards[animationIndex].EstimatedTimeForAnimationsCompletion() > result)
+                if (_animatedCardsHeld[animationIndex].EstimatedTimeForAnimationsCompletion() > result)
                 {
-                    result = heldAnimatedCards[animationIndex].EstimatedTimeForAnimationsCompletion();
+                    result = _animatedCardsHeld[animationIndex].EstimatedTimeForAnimationsCompletion();
                 }
             }
         }
@@ -256,8 +230,8 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     {
         // Remove the registrations to the event to make this 
         // instance collectable by gc
-        Hand.CardReceived -= Hand_ReceivedCard;
-        Hand.CardRemoved -= Hand_LostCard;
+        Hand.CardReceived -= Hand_OnCardReceived;
+        Hand.CardRemoved -= Hand_OnCardRemoved;
 
         base.Dispose(disposing);
     }

@@ -30,7 +30,7 @@ public abstract class CardsGame
     public int MaximumPlayers { get; protected set; }
 
     public string Theme { get; protected set; }
-    protected internal Dictionary<string, Texture2D> _cardAssets = new();
+    protected internal Dictionary<string, Texture2D> CardAssets = new();
     public GameTable GameTable { get; protected set; }
     public SpriteFont Font { get; set; }
     public SpriteBatch SpriteBatch { get; set; }
@@ -169,7 +169,7 @@ public abstract class CardsGame
     public void LoadUITexture(string folder, string assetName)
     {
         var texture = Game.Content.Load<Texture2D>($"Images\\{folder}\\{assetName}");
-        _cardAssets.Add(assetName, texture);
+        CardAssets.Add(assetName, texture);
     }
     #endregion
 }

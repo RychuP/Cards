@@ -37,7 +37,7 @@ namespace CardsFramework
             new Vector2(TableBounds.Left, TableBounds.Top) + PlaceOrder(index);
         #endregion
 
-        #region Initiaizations
+        #region Initializations
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>

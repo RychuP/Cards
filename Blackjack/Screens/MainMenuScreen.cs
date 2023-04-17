@@ -50,7 +50,7 @@ class MainMenuScreen : MenuScreen
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    void StartButton_OnSelected(object sender, EventArgs e)
+    void StartButton_OnSelected(object? sender, EventArgs e)
     {
         foreach (GameScreen screen in ScreenManager.GetScreens())
             screen.ExitScreen();
@@ -63,7 +63,7 @@ class MainMenuScreen : MenuScreen
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    void ThemeButton_OnSelected(object sender, EventArgs e)
+    void ThemeButton_OnSelected(object? sender, EventArgs e)
     {
         ScreenManager.AddScreen(new OptionsMenu(), null);
     }
