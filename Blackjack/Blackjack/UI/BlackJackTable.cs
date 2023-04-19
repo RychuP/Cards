@@ -31,9 +31,7 @@ class BlackJackTable : GameTable
     /// </summary>
     protected override void LoadContent()
     {
-        string assetName = string.Format(@"Images\UI\ring");
-        RingTexture = Game.Content.Load<Texture2D>(assetName);
-
+        RingTexture = Game.Content.Load<Texture2D>(@"Images\UI\ring");
         base.LoadContent();
     }
 

@@ -35,7 +35,7 @@ public class CardPacket
     /// <summary>
     /// An event which triggers when a card is removed from the collection.
     /// </summary>
-    public event EventHandler<CardEventArgs>? CardRemoved;
+    public event EventHandler<CardEventArgs> CardRemoved;
 
     public int Count =>
         Cards.Count;
@@ -219,7 +219,7 @@ public class CardPacket
     /// other card-framework classes to maintain the principle that a card may only be held
     /// by one <see cref="CardPacket"/> only at any given time.
     /// </remarks>
-    internal TraditionalCard? Remove(TraditionalCard card)
+    internal TraditionalCard Remove(TraditionalCard card)
     {
         if (Cards.Contains(card))
         {

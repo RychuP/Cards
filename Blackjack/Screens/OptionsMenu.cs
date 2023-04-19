@@ -72,7 +72,7 @@ class OptionsMenu : MenuScreen
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    void ThemeButton_OnSelected(object? sender, EventArgs e)
+    void ThemeButton_OnSelected(object sender, EventArgs e)
     {
         MainMenuScreen.Theme = MainMenuScreen.Theme == "Red" ? "Blue" : "Red";
         _card.CurrentFrame = _themes[MainMenuScreen.Theme];

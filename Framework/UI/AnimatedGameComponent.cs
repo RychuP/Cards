@@ -20,9 +20,9 @@ namespace CardsFramework;
 public class AnimatedGameComponent : DrawableGameComponent
 {
     #region Fields and Properties
-    public Texture2D? CurrentFrame { get; set; }
+    public Texture2D CurrentFrame { get; set; }
     public Rectangle? CurrentSegment { get; set; }
-    public string? Text { get; set; }
+    public string Text { get; set; }
     public Color TextColor { get; set; } = Color.Black;
     public bool IsFaceDown { get; set; } = true;
     public Vector2 CurrentPosition { get; set; }
@@ -37,7 +37,7 @@ public class AnimatedGameComponent : DrawableGameComponent
     public virtual bool IsAnimating =>
         _runningAnimations.Count > 0;
 
-    public CardsGame? CardGame { get; private set; }
+    public CardsGame CardGame { get; private set; }
     #endregion
 
     #region Initializations
@@ -56,7 +56,7 @@ public class AnimatedGameComponent : DrawableGameComponent
     /// <param name="game">The associated game class.</param>
     /// <param name="currentFrame">The texture serving as the current frame
     /// to display as the component.</param>
-    public AnimatedGameComponent(Game game, Texture2D? currentFrame) : this(game)
+    public AnimatedGameComponent(Game game, Texture2D currentFrame) : this(game)
     {
         CurrentFrame = currentFrame;
     }
@@ -67,7 +67,7 @@ public class AnimatedGameComponent : DrawableGameComponent
     /// <param name="cardGame">The associated card game.</param>
     /// <param name="currentFrame">The texture serving as the current frame
     /// to display as the component.</param>
-    public AnimatedGameComponent(CardsGame cardGame, Texture2D? currentFrame) : this(cardGame.Game)
+    public AnimatedGameComponent(CardsGame cardGame, Texture2D currentFrame) : this(cardGame.Game)
     {
         CardGame = cardGame;
         CurrentFrame = currentFrame;

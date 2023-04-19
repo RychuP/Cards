@@ -705,7 +705,7 @@ public class BetGameComponent : DrawableGameComponent
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
     /// <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void ClearButton_OnClick(object? sender, EventArgs e)
+    void ClearButton_OnClick(object sender, EventArgs e)
     {
         // Clear current player chips from screen and resets his bet
         _currentBet = 0;
@@ -723,7 +723,7 @@ public class BetGameComponent : DrawableGameComponent
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
     /// <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void BetButton_OnClick(object? sender, EventArgs e)
+    void BetButton_OnClick(object sender, EventArgs e)
     {
         // Finish the bet
         int playerIndex = GetCurrentPlayer();

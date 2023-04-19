@@ -20,8 +20,8 @@ public class BlackjackGame : Game
     readonly GraphicsDeviceManager _graphics;
     readonly ScreenManager _screenManager;
 
-    public static float HeightScale = 1.0f;
-    public static float WidthScale = 1.0f;
+    public static float HeightScale { get; private set; } = 1.0f;
+    public static float WidthScale { get; private set; } = 1.0f;
 
     /// <summary>
     /// Initializes a new instance of the game.

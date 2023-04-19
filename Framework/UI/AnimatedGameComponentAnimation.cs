@@ -24,13 +24,13 @@ public class AnimatedGameComponentAnimation
     /// <summary>
     /// An action to perform before the animation begins.
     /// </summary>
-    public Action<object>? PerformBeforeStart;
+    public Action<object> PerformBeforeStart;
     public object PerformBeforeStartArgs { get; set; }
 
     /// <summary>
     /// An action to perform once the animation is complete.
     /// </summary>
-    public Action<object>? PerformWhenDone;
+    public Action<object> PerformWhenDone;
     public object PerformWhenDoneArgs { get; set; }
 
     uint _animationCycles = 1;

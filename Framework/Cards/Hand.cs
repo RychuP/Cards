@@ -46,5 +46,5 @@ public class Hand : CardPacket
     /// <summary>
     /// An event which triggers when a card is added to the hand.
     /// </summary>
-    public event EventHandler<CardEventArgs>? CardReceived;
+    public event EventHandler<CardEventArgs> CardReceived;
 }

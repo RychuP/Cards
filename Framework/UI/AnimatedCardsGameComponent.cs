@@ -14,7 +14,7 @@ namespace CardsFramework;
 /// <summary>
 /// An <see cref="AnimatedGameComponent"/> implemented for a card game
 /// </summary>
-public class AnimatedCardGameComponent : AnimatedGameComponent
+public class AnimatedCardsGameComponent : AnimatedGameComponent
 {
     public TraditionalCard Card { get; private set; }
 
@@ -23,7 +23,7 @@ public class AnimatedCardGameComponent : AnimatedGameComponent
     /// </summary>
     /// <param name="card">The card associated with the animation component.</param>
     /// <param name="cardGame">The associated game.</param>
-    public AnimatedCardGameComponent(TraditionalCard card, CardsGame cardGame) : base(cardGame, null)
+    public AnimatedCardsGameComponent(TraditionalCard card, CardsGame cardGame) : base(cardGame, null)
     {
         Card = card;
     }

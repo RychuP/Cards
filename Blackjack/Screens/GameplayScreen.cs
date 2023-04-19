@@ -237,7 +237,7 @@ class GameplayScreen : GameScreen
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
     /// <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void Player_OnStand(object? sender, EventArgs e)
+    void Player_OnStand(object sender, EventArgs e)
     {
         _blackJackGame.Stand();
     }
@@ -248,7 +248,7 @@ class GameplayScreen : GameScreen
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The 
     /// <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void Player_OnSplit(object? sender, EventArgs e)
+    void Player_OnSplit(object sender, EventArgs e)
     {
         _blackJackGame.Split();
     }
@@ -258,7 +258,7 @@ class GameplayScreen : GameScreen
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void Player_OnHit(object? sender, EventArgs e)
+    void Player_OnHit(object sender, EventArgs e)
     {
         _blackJackGame.Hit();
     }
@@ -268,7 +268,7 @@ class GameplayScreen : GameScreen
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-    void Player_OnDouble(object? sender, EventArgs e)
+    void Player_OnDouble(object sender, EventArgs e)
     {
         _blackJackGame.Double();
     }

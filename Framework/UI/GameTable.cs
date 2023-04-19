@@ -49,8 +49,7 @@ namespace CardsFramework
         /// <param name="theme">The theme used to display UI elements.</param>
         /// <param name="game">The associated game object.</param>
         public GameTable(Rectangle tableBounds, Vector2 dealerPosition, int places,
-            Func<int, Vector2> placeOrder, string theme, Game game)
-            : base(game)
+            Func<int, Vector2> placeOrder, string theme, Game game) : base(game)
         {
             TableBounds = tableBounds;
             DealerPosition = dealerPosition + new Vector2(tableBounds.Left, tableBounds.Top);
@@ -65,9 +64,7 @@ namespace CardsFramework
         /// </summary>
         protected override void LoadContent()
         {
-            string assetName = string.Format(@"Images\UI\table");
-            TableTexture = Game.Content.Load<Texture2D>(assetName);
-
+            TableTexture = Game.Content.Load<Texture2D>(@"Images\UI\table");
             base.LoadContent();
         }
         #endregion
@@ -81,12 +78,8 @@ namespace CardsFramework
         public override void Draw(GameTime gameTime)
         {
             SpriteBatch.Begin();
-
-            // Draw the table texture
             SpriteBatch.Draw(TableTexture, TableBounds, Color.White);
-
             SpriteBatch.End();
-
             base.Draw(gameTime);
         }
         #endregion

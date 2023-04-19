@@ -22,51 +22,36 @@ namespace GameStateManagement;
 abstract class MenuScreen : GameScreen
 {
     #region Fields
-
     // the number of pixels to pad above and below menu entries for touch input
-    const int menuEntryPadding = 35;
-
-    List<MenuEntry> menuEntries = new List<MenuEntry>();
-    int selectedEntry = 0;
-    string menuTitle;
-    bool isMouseDown = false;
-    Rectangle bounds;
+    const int MenuEntryPadding = 35;
+    readonly List<MenuEntry> _menuEntries = new();
+    int _selectedEntry = 0;
+    readonly string _menuTitle;
+    bool _isMouseDown = false;
     #endregion
 
     #region Properties
-
-
     /// <summary>
     /// Gets the list of menu entries, so derived classes can add
     /// or change the menu contents.
     /// </summary>
-    protected IList<MenuEntry> MenuEntries
-    {
-        get { return menuEntries; }
-    }
-
-
+    protected IList<MenuEntry> MenuEntries =>
+        _menuEntries;
     #endregion
 
     #region Initialization
-
-
     /// <summary>
     /// Constructor.
     /// </summary>
     public MenuScreen(string menuTitle)
     {
-        this.menuTitle = menuTitle;
-
+        _menuTitle = menuTitle;
         TransitionOnTime = TimeSpan.FromSeconds(0.5);
         TransitionOffTime = TimeSpan.FromSeconds(0.5);
     }
-
-
     #endregion
 
     #region Handle Input
-
     /// <summary>
     /// Allows the screen to create the hit bounds for a particular menu entry.
     /// </summary>
@@ -76,9 +61,9 @@ abstract class MenuScreen : GameScreen
         // with some additional padding above and below.
         return new Rectangle(
             0,
-            (int)entry.Destination.Y - menuEntryPadding,
+            entry.Destination.Y - MenuEntryPadding,
             ScreenManager.GraphicsDevice.Viewport.Width,
-            entry.GetHeight(this) + (menuEntryPadding * 2));
+            entry.GetHeight(this) + (MenuEntryPadding * 2));
     }
 
     /// <summary>
@@ -88,47 +73,43 @@ abstract class MenuScreen : GameScreen
     public override void HandleInput(InputState input)
     {
         // we cancel the current menu screen if the user presses the back button
-        PlayerIndex player;
-        if (input.IsNewButtonPress(Buttons.Back, ControllingPlayer, out player))
-        {
+        if (input.IsNewButtonPress(Buttons.Back, ControllingPlayer, out PlayerIndex player))
             OnCancel(player);
-        }
 
         // Take care of Keyboard input
         if (input.IsMenuUp(ControllingPlayer))
         {
-            selectedEntry--;
+            _selectedEntry--;
 
-            if (selectedEntry < 0)
-                selectedEntry = menuEntries.Count - 1;
+            if (_selectedEntry < 0)
+                _selectedEntry = _menuEntries.Count - 1;
         }
         else if (input.IsMenuDown(ControllingPlayer))
         {
-            selectedEntry++;
+            _selectedEntry++;
 
-            if (selectedEntry >= menuEntries.Count)
-                selectedEntry = 0;
+            if (_selectedEntry >= _menuEntries.Count)
+                _selectedEntry = 0;
         }
         else if (input.IsNewKeyPress(Keys.Enter, ControllingPlayer, out player) ||
             input.IsNewKeyPress(Keys.Space, ControllingPlayer, out player))
         {
-            OnSelectEntry(selectedEntry, player);
+            OnSelectEntry(_selectedEntry, player);
         }
-
 
         MouseState state = Mouse.GetState();
         if (state.LeftButton == ButtonState.Released)
         {
-            if (isMouseDown)
+            if (_isMouseDown)
             {
-                isMouseDown = false;
+                _isMouseDown = false;
                 // convert the position to a Point that we can test against a Rectangle
                 Point clickLocation = new Point(state.X, state.Y);
 
                 // iterate the entries to see if any were tapped
-                for (int i = 0; i < menuEntries.Count; i++)
+                for (int i = 0; i < _menuEntries.Count; i++)
                 {
-                    MenuEntry menuEntry = menuEntries[i];
+                    MenuEntry menuEntry = _menuEntries[i];
 
                     if (menuEntry.Destination.Contains(clickLocation))
                     {
@@ -143,29 +124,28 @@ abstract class MenuScreen : GameScreen
         }
         else if (state.LeftButton == ButtonState.Pressed)
         {
-            isMouseDown = true;
+            _isMouseDown = true;
 
             // convert the position to a Point that we can test against a Rectangle
             Point clickLocation = new Point(state.X, state.Y);
 
             // iterate the entries to see if any were tapped
-            for (int i = 0; i < menuEntries.Count; i++)
+            for (int i = 0; i < _menuEntries.Count; i++)
             {
-                MenuEntry menuEntry = menuEntries[i];
+                MenuEntry menuEntry = _menuEntries[i];
 
                 if (menuEntry.Destination.Contains(clickLocation))
-                    selectedEntry = i;
+                    _selectedEntry = i;
             }
         }
     }
-
 
     /// <summary>
     /// Handler for when the user has chosen a menu entry.
     /// </summary>
     protected virtual void OnSelectEntry(int entryIndex, PlayerIndex playerIndex)
     {
-        menuEntries[entryIndex].OnSelectEntry(playerIndex);
+        _menuEntries[entryIndex].OnSelectEntry(playerIndex);
     }
 
 
@@ -177,30 +157,16 @@ abstract class MenuScreen : GameScreen
         ExitScreen();
     }
 
-
     /// <summary>
     /// Helper overload makes it easy to use OnCancel as a MenuEntry event handler.
     /// </summary>
-    protected void ExitButtton_OnSelected(object? sender, PlayerIndexEventArgs e)
+    protected void ExitButtton_OnSelected(object sender, PlayerIndexEventArgs e)
     {
         OnCancel(e.PlayerIndex);
     }
-
-
-    #endregion
-
-    #region Loading
-    public override void LoadContent()
-    {
-        bounds = ScreenManager.SafeArea;
-
-        base.LoadContent();
-    } 
     #endregion
 
     #region Update and Draw
-
-
     /// <summary>
     /// Allows the screen the chance to position the menu entries. By default
     /// all menu entries are lined up in a vertical list, centered on the screen.
@@ -213,14 +179,14 @@ abstract class MenuScreen : GameScreen
         float transitionOffset = (float)Math.Pow(TransitionPosition, 2);
 
         // start at Y = 475; each X value is generated per entry
-        Vector2 position = new Vector2(0f,
+        Vector2 position = new(0f,
             ScreenManager.Game.Window.ClientBounds.Height / 2 -
-            (menuEntries[0].GetHeight(this) + (menuEntryPadding * 2) * menuEntries.Count));
+            (_menuEntries[0].GetHeight(this) + (MenuEntryPadding * 2) * _menuEntries.Count));
 
         // update each menu entry's location in turn
-        for (int i = 0; i < menuEntries.Count; i++)
+        for (int i = 0; i < _menuEntries.Count; i++)
         {
-            MenuEntry menuEntry = menuEntries[i];
+            MenuEntry menuEntry = _menuEntries[i];
 
             // each entry is to be centered horizontally
             position.X = ScreenManager.GraphicsDevice.Viewport.Width / 2 - menuEntry.GetWidth(this) / 2;
@@ -234,29 +200,25 @@ abstract class MenuScreen : GameScreen
             //menuEntry.Position = position;
 
             // move down for the next entry the size of this entry plus our padding
-            position.Y += menuEntry.GetHeight(this) + (menuEntryPadding * 2);
+            position.Y += menuEntry.GetHeight(this) + (MenuEntryPadding * 2);
         }
     }
 
     /// <summary>
     /// Updates the menu.
     /// </summary>
-    public override void Update(GameTime gameTime, bool otherScreenHasFocus,
-                                                   bool coveredByOtherScreen)
+    public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
     {
         base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 
-
-
         // Update each nested MenuEntry object.
-        for (int i = 0; i < menuEntries.Count; i++)
+        for (int i = 0; i < _menuEntries.Count; i++)
         {
-            bool isSelected = IsActive && (i == selectedEntry);
+            bool isSelected = IsActive && (i == _selectedEntry);
             UpdateMenuEntryDestination();
-            menuEntries[i].Update(this, isSelected, gameTime);
+            _menuEntries[i].Update(this, isSelected, gameTime);
         }
     }
-
 
     /// <summary>
     /// Draws the menu.
@@ -273,11 +235,11 @@ abstract class MenuScreen : GameScreen
         spriteBatch.Begin();
 
         // Draw each menu entry in turn.
-        for (int i = 0; i < menuEntries.Count; i++)
+        for (int i = 0; i < _menuEntries.Count; i++)
         {
-            MenuEntry menuEntry = menuEntries[i];
+            MenuEntry menuEntry = _menuEntries[i];
 
-            bool isSelected = IsActive && (i == selectedEntry);
+            bool isSelected = IsActive && (i == _selectedEntry);
 
             menuEntry.Draw(this, isSelected, gameTime);
         }
@@ -289,19 +251,17 @@ abstract class MenuScreen : GameScreen
 
         // Draw the menu title centered on the screen
         Vector2 titlePosition = new Vector2(graphics.Viewport.Width / 2, 375);
-        Vector2 titleOrigin = font.MeasureString(menuTitle) / 2;
+        Vector2 titleOrigin = font.MeasureString(_menuTitle) / 2;
         Color titleColor = new Color(192, 192, 192) * TransitionAlpha;
         float titleScale = 1.25f;
 
         titlePosition.Y -= transitionOffset * 100;
 
-        spriteBatch.DrawString(font, menuTitle, titlePosition, titleColor, 0,
+        spriteBatch.DrawString(font, _menuTitle, titlePosition, titleColor, 0,
                                titleOrigin, titleScale, SpriteEffects.None, 0);
 
         spriteBatch.End();
     }
-
-
     #endregion
 
     #region Public functions
@@ -310,25 +270,24 @@ abstract class MenuScreen : GameScreen
         Rectangle bounds = ScreenManager.SafeArea;
 
         Rectangle textureSize = ScreenManager.ButtonBackground.Bounds;
-        int xStep = bounds.Width / (menuEntries.Count + 2);
+        int xStep = bounds.Width / (_menuEntries.Count + 2);
         int maxWidth = 0;
 
-        for (int i = 0; i < menuEntries.Count; i++)
+        for (int i = 0; i < _menuEntries.Count; i++)
         {
-            int width = menuEntries[i].GetWidth(this);
+            int width = _menuEntries[i].GetWidth(this);
             if (width > maxWidth)
-            {
                 maxWidth = width;
-            }
         }
         maxWidth += 20;
 
-        for (int i = 0; i < menuEntries.Count; i++)
+        for (int i = 0; i < _menuEntries.Count; i++)
         {
-            menuEntries[i].Destination = 
-                new Rectangle(
-                    bounds.Left + (xStep - textureSize.Width) / 2 + (i + 1) * xStep,
-                    bounds.Bottom - textureSize.Height * 2, maxWidth, 50);
+            _menuEntries[i].Destination = new Rectangle(
+                bounds.Left + (xStep - textureSize.Width) / 2 + (i + 1) * xStep,
+                bounds.Bottom - textureSize.Height * 2, 
+                maxWidth, 50
+            );
         }
     }
     #endregion

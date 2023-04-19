@@ -30,8 +30,8 @@ public class Button : AnimatedGameComponent
     readonly string _regularTexture;
     readonly string _pressedTexture;
 
-    public event EventHandler? Click;
-    InputHelper? inputHelper;
+    public event EventHandler Click;
+    InputHelper inputHelper;
 
     #endregion
 

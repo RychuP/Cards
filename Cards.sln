@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Framework", "Framework\Fram
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blackjack", "Blackjack\Blackjack.csproj", "{DACB72FA-15A4-4C51-BBE7-2E2C99415936}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poker", "Poker\Poker.csproj", "{8A5DB250-F725-4571-8283-351C8FE69E41}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{DACB72FA-15A4-4C51-BBE7-2E2C99415936}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DACB72FA-15A4-4C51-BBE7-2E2C99415936}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DACB72FA-15A4-4C51-BBE7-2E2C99415936}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A5DB250-F725-4571-8283-351C8FE69E41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A5DB250-F725-4571-8283-351C8FE69E41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A5DB250-F725-4571-8283-351C8FE69E41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A5DB250-F725-4571-8283-351C8FE69E41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
