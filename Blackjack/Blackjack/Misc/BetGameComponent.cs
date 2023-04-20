@@ -23,7 +23,7 @@ public class BetGameComponent : DrawableGameComponent
     readonly List<Player> _players;
     readonly int[] _assetNames = { 5, 25, 100, 500 };
     readonly Dictionary<int, Texture2D> _chipsAssets = new();
-    readonly CardsGame _cardGame;
+    readonly CardGame _cardGame;
     Texture2D _blankChip;
     Vector2[] _positions;
     SpriteBatch _spriteBatch;
@@ -52,9 +52,9 @@ public class BetGameComponent : DrawableGameComponent
     /// <see cref="InputState"/> which can be used to 
     /// check user input.</param>
     /// <param name="theme">The name of the selcted card theme.</param>
-    /// <param name="cardGame">An instance of <see cref="CardsGame"/> which
+    /// <param name="cardGame">An instance of <see cref="CardGame"/> which
     /// is the current game.</param>
-    public BetGameComponent(List<Player> players, InputState input, CardsGame cardGame)
+    public BetGameComponent(List<Player> players, InputState input, CardGame cardGame)
         : base(cardGame.Game) =>
         (_players, _cardGame, _input) = (players, cardGame, input);
 

@@ -140,7 +140,7 @@ class GameplayScreen : GameScreen
         _blackJackGame.AddPlayer(new BlackjackPlayer("Abe", _blackJackGame));
 
         // Add AI players
-        BlackjackAIPlayer player = new BlackjackAIPlayer("Benny", _blackJackGame);
+        BlackjackAIPlayer player = new("Benny", _blackJackGame);
         _blackJackGame.AddPlayer(player);
         player.Hit += Player_OnHit;
         player.Stand += Player_OnStand;

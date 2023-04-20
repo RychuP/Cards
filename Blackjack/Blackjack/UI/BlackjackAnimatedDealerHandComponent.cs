@@ -23,7 +23,7 @@ public class BlackjackAnimatedDealerHandComponent : AnimatedHandGameComponent
     /// <param name="hand">The dealer's hand.</param>
     /// <param name="cardGame">The associated game.</param>
     public BlackjackAnimatedDealerHandComponent(int place, Hand hand, 
-        CardsGame cardGame) : base(place, hand, cardGame)
+        CardGame cardGame) : base(place, hand, cardGame)
     { }
 
     /// <summary>

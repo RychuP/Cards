@@ -23,7 +23,7 @@ public class AnimatedCardsGameComponent : AnimatedGameComponent
     /// </summary>
     /// <param name="card">The card associated with the animation component.</param>
     /// <param name="cardGame">The associated game.</param>
-    public AnimatedCardsGameComponent(TraditionalCard card, CardsGame cardGame) : base(cardGame, null)
+    public AnimatedCardsGameComponent(TraditionalCard card, CardGame cardGame) : base(cardGame, null)
     {
         Card = card;
     }

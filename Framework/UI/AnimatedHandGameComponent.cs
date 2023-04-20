@@ -48,7 +48,7 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// <param name="place">The player's place index (-1 for the dealer).</param>
     /// <param name="hand">The hand represented by this instance.</param>
     /// <param name="cardGame">The associated card game.</param>
-    public AnimatedHandGameComponent(int place, Hand hand, CardsGame cardGame) : base(cardGame, null)
+    public AnimatedHandGameComponent(int place, Hand hand, CardGame cardGame) : base(cardGame, null)
     {
         Place = place;
         Hand = hand;

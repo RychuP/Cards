@@ -82,7 +82,7 @@ public class BlackjackPlayer : Player
     /// </summary>
     /// <param name="name">The player's name.</param>
     /// <param name="game">The game associated with the player.</param>
-    public BlackjackPlayer(string name, CardsGame game) : base(name, game)
+    public BlackjackPlayer(string name, CardGame game) : base(name, game)
     {
         Balance = 500;
         CurrentHandType = HandTypes.First;
@@ -98,7 +98,7 @@ public class BlackjackPlayer : Player
     /// value.</param>
     /// <param name="considerAce">Whether or not an ace can be considered to
     /// make the hand have an alternative value.</param>
-    private static void CalulateValue(Hand hand, CardsGame game, out int value, out bool considerAce)
+    private static void CalulateValue(Hand hand, CardGame game, out int value, out bool considerAce)
     {
         value = 0;
         considerAce = false;

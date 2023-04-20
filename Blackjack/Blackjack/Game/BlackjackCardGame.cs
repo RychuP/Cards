@@ -30,7 +30,7 @@ public enum BlackjackGameState
     GameOver,
 }
 
-class BlackjackCardGame : CardsGame
+class BlackjackCardGame : CardGame
 {
     #region Fields and Properties
     readonly Dictionary<Player, string> _playerHandValueTexts = new();

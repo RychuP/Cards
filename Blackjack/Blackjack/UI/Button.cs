@@ -47,7 +47,7 @@ public class Button : AnimatedGameComponent
     /// <param name="cardGame">The associated card game.</param>
     /// <remarks>Texture names are relative to the "Images" content 
     /// folder.</remarks>
-    public Button(string regularTexture, string pressedTexture, CardsGame cardGame)
+    public Button(string regularTexture, string pressedTexture, CardGame cardGame)
         : base(cardGame, null)
     {
         _regularTexture = regularTexture;

@@ -26,7 +26,7 @@ class BlackjackAIPlayer : BlackjackPlayer
     /// </summary>
     /// <param name="name">The name.</param>
     /// <param name="game">The game.</param>
-    public BlackjackAIPlayer(string name, CardsGame game) : base(name, game) { }
+    public BlackjackAIPlayer(string name, CardGame game) : base(name, game) { }
 
     #region Pulic Methods
     /// <summary>

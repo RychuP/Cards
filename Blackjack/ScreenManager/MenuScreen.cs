@@ -148,7 +148,6 @@ abstract class MenuScreen : GameScreen
         _menuEntries[entryIndex].OnSelectEntry(playerIndex);
     }
 
-
     /// <summary>
     /// Handler for when the user has cancelled the menu.
     /// </summary>

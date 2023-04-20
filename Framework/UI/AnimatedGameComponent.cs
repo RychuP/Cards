@@ -37,7 +37,7 @@ public class AnimatedGameComponent : DrawableGameComponent
     public virtual bool IsAnimating =>
         _runningAnimations.Count > 0;
 
-    public CardsGame CardGame { get; private set; }
+    public CardGame CardGame { get; private set; }
     #endregion
 
     #region Initializations
@@ -67,7 +67,7 @@ public class AnimatedGameComponent : DrawableGameComponent
     /// <param name="cardGame">The associated card game.</param>
     /// <param name="currentFrame">The texture serving as the current frame
     /// to display as the component.</param>
-    public AnimatedGameComponent(CardsGame cardGame, Texture2D currentFrame) : this(cardGame.Game)
+    public AnimatedGameComponent(CardGame cardGame, Texture2D currentFrame) : this(cardGame.Game)
     {
         CardGame = cardGame;
         CurrentFrame = currentFrame;

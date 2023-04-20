@@ -19,7 +19,7 @@ namespace CardsFramework;
 /// Use a singleton of a class that derives from class to empower a cards-game, while making sure
 /// to call the various methods in order to allow the implementing instance to run the game.
 /// </remarks>
-public abstract class CardsGame
+public abstract class CardGame
 {
     #region Fields and Properties
     protected List<GameRule> _rules = new();
@@ -39,7 +39,7 @@ public abstract class CardsGame
 
     #region Initializations
     /// <summary>
-    /// Initializes a new instance of the <see cref="CardsGame"/> class.
+    /// Initializes a new instance of the <see cref="CardGame"/> class.
     /// </summary>
     /// <param name="decks">The amount of decks in the game.</param>
     /// <param name="jokersInDeck">The amount of jokers in each deck.</param>
@@ -54,7 +54,7 @@ public abstract class CardsGame
     /// <param name="theme">The name of the theme to use for the 
     /// game's assets.</param>
     /// <param name="game">The associated game object.</param>
-    public CardsGame(int decks, int jokersInDeck, CardSuit suits, CardValue cardValues,
+    public CardGame(int decks, int jokersInDeck, CardSuit suits, CardValue cardValues,
         int minimumPlayers, int maximumPlayers, GameTable gameTable, string theme, Game game)
     {
         _dealer = new CardPacket(decks, jokersInDeck, suits, cardValues);

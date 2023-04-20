@@ -25,7 +25,7 @@ public class BlackjackAnimatedPlayerHandComponent : AnimatedHandGameComponent
     /// game table.</param>
     /// <param name="hand">The player's hand.</param>
     /// <param name="cardGame">The associated game.</param>
-    public BlackjackAnimatedPlayerHandComponent(int place, Hand hand, CardsGame cardGame)
+    public BlackjackAnimatedPlayerHandComponent(int place, Hand hand, CardGame cardGame)
         : base(place, hand, cardGame) =>
         _offset = Vector2.Zero;
 
@@ -39,7 +39,7 @@ public class BlackjackAnimatedPlayerHandComponent : AnimatedHandGameComponent
     /// <param name="cardGame">The associated game.</param>
     /// <param name="offset">An offset which will be added to all card locations
     /// returned by this component.</param>
-    public BlackjackAnimatedPlayerHandComponent(int place, Vector2 offset, Hand hand, CardsGame cardGame)
+    public BlackjackAnimatedPlayerHandComponent(int place, Vector2 offset, Hand hand, CardGame cardGame)
         : base(place, hand, cardGame) =>
         _offset = offset;
     #endregion
