@@ -39,7 +39,7 @@ public class AnimatedCardsGameComponent : AnimatedGameComponent
 
         if (CardGame is not null)
         {
-            CurrentFrame = IsFaceDown ? CardGame.CardAssets["CardBack_" + CardGame.Theme] :
+            Texture = IsFaceDown ? CardGame.CardAssets["CardBack_" + CardGame.Theme] :
                 CardGame.CardAssets[UIUtilty.GetCardAssetName(Card)];
         }
     }
@@ -56,12 +56,12 @@ public class AnimatedCardsGameComponent : AnimatedGameComponent
 
         // Draw the current frame at the designated destination, or at the initial 
         // position if a destination has not been set
-        if (CurrentFrame != null)
+        if (Texture != null)
         {
-            if (CurrentDestination.HasValue)
-                SpriteBatch.Draw(CurrentFrame, CurrentDestination.Value, Color.White);
+            if (Destination.HasValue)
+                SpriteBatch.Draw(Texture, Destination.Value, Color.White);
             else
-                SpriteBatch.Draw(CurrentFrame, CurrentPosition, Color.White);
+                SpriteBatch.Draw(Texture, Position, Color.White);
         }
 
         SpriteBatch.End();

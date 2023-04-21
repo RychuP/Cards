@@ -227,7 +227,7 @@ class BlackjackCardGame : CardGame
         // Add shuffling animation
         AnimatedGameComponent animationComponent = new(Game)
         {
-            CurrentPosition = GameTable.DealerPosition,
+            Position = GameTable.DealerPosition,
             Visible = false
         };
         Game.Components.Add(animationComponent);
@@ -575,7 +575,7 @@ class BlackjackCardGame : CardGame
         // Add the transition animation
         cardComponent.AddAnimation(
             new TransitionGameComponentAnimation(GameTable.DealerPosition,
-            animatedHand.CurrentPosition +
+            animatedHand.Position +
             animatedHand.GetCardRelativePosition(cardLocationInHand))
         {
             StartTime = startTime,
@@ -634,12 +634,12 @@ class BlackjackCardGame : CardGame
             {
                 case HandTypes.First:
                     currentAnimatedHand = _animatedHands[playerIndex];
-                    currentPosition = currentAnimatedHand.CurrentPosition;
+                    currentPosition = currentAnimatedHand.Position;
                     break;
 
                 case HandTypes.Second:
                     currentAnimatedHand = _animatedSecondHands[playerIndex];
-                    currentPosition = currentAnimatedHand.CurrentPosition + _secondHandOffset;
+                    currentPosition = currentAnimatedHand.Position + _secondHandOffset;
                     break;
 
                 default:
@@ -649,13 +649,13 @@ class BlackjackCardGame : CardGame
         else
         {
             currentAnimatedHand = _dealerHandComponent;
-            currentPosition = currentAnimatedHand.CurrentPosition;
+            currentPosition = currentAnimatedHand.Position;
         }
 
         // Add the animation component 
         AnimatedGameComponent animationComponent = new(this, CardAssets[assetName])
         {
-            CurrentPosition = currentPosition,
+            Position = currentPosition,
             Visible = false
         };
         Game.Components.Add(animationComponent);
@@ -1011,7 +1011,7 @@ class BlackjackCardGame : CardGame
         Texture2D texture = Game.Content.Load<Texture2D>(@"Images\youlose");
         AnimatedGameComponent animationComponent = new(this, texture)
         {
-            CurrentPosition = new Vector2(
+            Position = new Vector2(
                 Game.GraphicsDevice.Viewport.Bounds.Center.X - texture.Width / 2,
                 Game.GraphicsDevice.Viewport.Bounds.Center.Y - texture.Height / 2),
             Visible = false
@@ -1086,8 +1086,8 @@ class BlackjackCardGame : CardGame
                 if (Game.Components[componentIndex] is AnimatedCardsGameComponent animatedCard)
                 {
                     animatedCard.AddAnimation(
-                        new TransitionGameComponentAnimation(animatedCard.CurrentPosition,
-                        new Vector2(animatedCard.CurrentPosition.X, Game.GraphicsDevice.Viewport.Height))
+                        new TransitionGameComponentAnimation(animatedCard.Position,
+                        new Vector2(animatedCard.Position.X, Game.GraphicsDevice.Viewport.Height))
                         {
                             Duration = TimeSpan.FromSeconds(0.40),
                             PerformWhenDone = RemoveComponent,
@@ -1190,8 +1190,8 @@ class BlackjackCardGame : CardGame
 
         player.InitializeSecondHand();
 
-        Vector2 sourcePosition = animatedCard1.CurrentPosition;
-        Vector2 targetPosition = animatedCard0.CurrentPosition + _secondHandOffset;
+        Vector2 sourcePosition = animatedCard1.Position;
+        Vector2 targetPosition = animatedCard0.Position + _secondHandOffset;
 
         // Create an animation moving the top card to the second hand location
         AnimatedGameComponentAnimation animation = new TransitionGameComponentAnimation(sourcePosition,
@@ -1339,7 +1339,7 @@ class BlackjackCardGame : CardGame
         // Add animation component
         AnimatedGameComponent passComponent = new(this, CardAssets["pass"])
         {
-            CurrentPosition = GameTable.PlaceOrder(indexPlayer),
+            Position = GameTable.PlaceOrder(indexPlayer),
             Visible = false
         };
         Game.Components.Add(passComponent);

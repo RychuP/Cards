@@ -65,11 +65,11 @@ public class FramesetGameComponentAnimation : AnimatedGameComponentAnimation
                     (int)_frameSize.X * (animationIndex % _numberOfFramePerRow), 
                     (int)_frameSize.Y * (animationIndex / _numberOfFramePerRow),
                     (int)_frameSize.X, (int)_frameSize.Y);
-            Component.CurrentFrame = _framesTexture;
+            Component.Texture = _framesTexture;
         }
         else
         {
-            Component.CurrentFrame = null;
+            Component.Texture = null;
             Component.CurrentSegment = null;
         }
         base.Run(gameTime);

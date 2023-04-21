@@ -20,13 +20,13 @@ namespace CardsFramework;
 public class AnimatedGameComponent : DrawableGameComponent
 {
     #region Fields and Properties
-    public Texture2D CurrentFrame { get; set; }
+    public Texture2D Texture { get; set; }
     public Rectangle? CurrentSegment { get; set; }
     public string Text { get; set; }
     public Color TextColor { get; set; } = Color.Black;
     public bool IsFaceDown { get; set; } = true;
-    public Vector2 CurrentPosition { get; set; }
-    public Rectangle? CurrentDestination { get; set; }
+    public Vector2 Position { get; set; }
+    public Rectangle? Destination { get; set; }
     protected SpriteBatch SpriteBatch { get; init; }
 
     readonly List<AnimatedGameComponentAnimation> _runningAnimations = new();
@@ -58,7 +58,7 @@ public class AnimatedGameComponent : DrawableGameComponent
     /// to display as the component.</param>
     public AnimatedGameComponent(Game game, Texture2D currentFrame) : this(game)
     {
-        CurrentFrame = currentFrame;
+        Texture = currentFrame;
     }
 
     /// <summary>
@@ -70,7 +70,7 @@ public class AnimatedGameComponent : DrawableGameComponent
     public AnimatedGameComponent(CardGame cardGame, Texture2D currentFrame) : this(cardGame.Game)
     {
         CardGame = cardGame;
-        CurrentFrame = currentFrame;
+        Texture = currentFrame;
     }
     #endregion
 
@@ -111,18 +111,18 @@ public class AnimatedGameComponent : DrawableGameComponent
         SpriteBatch.Begin();
 
         // Draw at the destination if one is set
-        if (CurrentDestination is Rectangle destination && CurrentFrame != null)
+        if (Destination is Rectangle destination && Texture != null)
         {
-            SpriteBatch.Draw(CurrentFrame, destination, CurrentSegment, Color.White);
+            SpriteBatch.Draw(Texture, destination, CurrentSegment, Color.White);
             if (CardGame != null && Text != null)
                 DrawText(Text, CardGame.Font, destination, destination.Location.ToVector2());
         }
         // Draw at the component's position if there is no destination
-        else if (CurrentFrame != null)
+        else if (Texture != null)
         {
-            SpriteBatch.Draw(CurrentFrame, CurrentPosition, CurrentSegment, Color.White);
+            SpriteBatch.Draw(Texture, Position, CurrentSegment, Color.White);
             if (CardGame != null && Text != null)
-                DrawText(Text, CardGame.Font, CurrentFrame.Bounds, CurrentPosition);
+                DrawText(Text, CardGame.Font, Texture.Bounds, Position);
         }
 
         SpriteBatch.End();

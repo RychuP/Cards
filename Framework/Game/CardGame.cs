@@ -153,7 +153,7 @@ public abstract class CardGame
         LoadUITexture("Cards", "CardBack_" + Theme);
 
         // Load the game's font
-        Font = Game.Content.Load<SpriteFont>("Fonts\\Regular");
+        Font = Game.Content.Load<SpriteFont>("Fonts/Regular");
 
         GameTable.Initialize();
     }

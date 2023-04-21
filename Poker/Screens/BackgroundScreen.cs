@@ -21,8 +21,6 @@ internal class BackgroundScreen : GameScreen
     public override void LoadContent()
     {
         _background = ScreenManager.Game.Content.Load<Texture2D>("Images/background");
-        
-        base.LoadContent();
     }
 
     public override void Draw(GameTime gameTime)

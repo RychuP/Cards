@@ -49,10 +49,10 @@ public class TransitionGameComponentAnimation : AnimatedGameComponentAnimation
             _percent += (float)(gameTime.ElapsedGameTime.TotalSeconds / Duration.TotalSeconds);
 
             // Move the component towards the destination as the animation progresses
-            Component.CurrentPosition = _sourcePosition + _positionDelta * _percent;
+            Component.Position = _sourcePosition + _positionDelta * _percent;
 
             if (IsDone())
-                Component.CurrentPosition = _destinationPosition;
+                Component.Position = _destinationPosition;
         }
     }
 }

@@ -1,6 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Poker.Screens;
 
 namespace Poker;
@@ -25,11 +23,6 @@ public class PokerGame : Game
         _graphics.PreferredBackBufferHeight = 720;
         _graphics.ApplyChanges();
         base.Initialize();
-    }
-
-    protected override void LoadContent()
-    {
-
     }
 
     static void Main()

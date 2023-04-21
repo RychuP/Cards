@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Poker.UI;
 using System.Collections.Generic;
 
 namespace Poker.Screens;
@@ -30,6 +31,7 @@ internal class ScreenManager : DrawableGameComponent
 
     public override void Initialize()
     {
+        Game.Components.Add(new Button("Raise", Game));
         foreach (GameScreen screen in _screens)
             screen.Initialize();
 

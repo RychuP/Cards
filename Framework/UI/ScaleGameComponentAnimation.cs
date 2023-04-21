@@ -44,7 +44,7 @@ public class ScaleGameComponentAnimation : AnimatedGameComponentAnimation
     {
         if (IsStarted())
         {
-            Texture2D texture = Component.CurrentFrame;
+            Texture2D texture = Component.Texture;
             if (texture != null)
             {
                 // Calculate the completion percent of animation
@@ -55,12 +55,12 @@ public class ScaleGameComponentAnimation : AnimatedGameComponentAnimation
                 // delta will have the component scale to the specified target
                 // scaling factor.
                 Rectangle bounds = texture.Bounds;
-                bounds.X = (int)Component.CurrentPosition.X;
-                bounds.Y = (int)Component.CurrentPosition.Y;
+                bounds.X = (int)Component.Position.X;
+                bounds.Y = (int)Component.Position.Y;
                 float currentFactor = _beginFactor + _factorDelta * _percent - 1;
                 bounds.Inflate((int)(bounds.Width * currentFactor), 
                     (int)(bounds.Height * currentFactor));
-                Component.CurrentDestination = bounds;
+                Component.Destination = bounds;
             }
         }
     }

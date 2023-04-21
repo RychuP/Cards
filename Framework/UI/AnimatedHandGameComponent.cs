@@ -56,7 +56,7 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
         hand.CardRemoved += Hand_OnCardRemoved;
 
         // Set the component's position
-        CurrentPosition = place == -1 ? cardGame.GameTable.DealerPosition :
+        Position = place == -1 ? cardGame.GameTable.DealerPosition :
             cardGame.GameTable[place];
 
         // Create and initialize animated cards according to the cards in the associated hand
@@ -64,7 +64,7 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
         {
             AnimatedCardsGameComponent animatedCardGameComponent = new(hand[cardIndex], cardGame)
             {
-                CurrentPosition = CurrentPosition + new Vector2(30 * cardIndex, 0)
+                Position = Position + new Vector2(30 * cardIndex, 0)
             };
             _animatedCardsHeld.Add(animatedCardGameComponent);
             Game.Components.Add(animatedCardGameComponent);
@@ -85,7 +85,7 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
         // Arrange the hand's animated cards' positions
         for (int animationIndex = 0; animationIndex < _animatedCardsHeld.Count; animationIndex++)
             if (!_animatedCardsHeld[animationIndex].IsAnimating)
-                _animatedCardsHeld[animationIndex].CurrentPosition = CurrentPosition + 
+                _animatedCardsHeld[animationIndex].Position = Position + 
                     GetCardRelativePosition(animationIndex);
 
         base.Update(gameTime);

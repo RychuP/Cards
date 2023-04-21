@@ -58,7 +58,7 @@ class OptionsMenu : MenuScreen
 
         _card = new AnimatedGameComponent(ScreenManager.Game, _themes[MainMenuScreen.Theme])
         {
-            CurrentPosition = new Vector2(_safeArea.Center.X, _safeArea.Center.Y - 50)
+            Position = new Vector2(_safeArea.Center.X, _safeArea.Center.Y - 50)
         };
 
         ScreenManager.Game.Components.Add(_card);
@@ -75,7 +75,7 @@ class OptionsMenu : MenuScreen
     void ThemeButton_OnSelected(object sender, EventArgs e)
     {
         MainMenuScreen.Theme = MainMenuScreen.Theme == "Red" ? "Blue" : "Red";
-        _card.CurrentFrame = _themes[MainMenuScreen.Theme];
+        _card.Texture = _themes[MainMenuScreen.Theme];
     }
 
     /// <summary>

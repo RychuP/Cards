@@ -32,11 +32,11 @@ public class FlipGameComponentAnimation : AnimatedGameComponentAnimation
             {
                 // Finish tha animation
                 Component.IsFaceDown = !IsFromFaceDownToFaceUp;
-                Component.CurrentDestination = null;
+                Component.Destination = null;
             }
             else
             {
-                Texture2D texture = Component.CurrentFrame;
+                Texture2D texture = Component.Texture;
                 if (texture != null)
                 {
                     // Calculate the completion percent of the animation
@@ -62,9 +62,9 @@ public class FlipGameComponentAnimation : AnimatedGameComponentAnimation
                         Component.IsFaceDown = !IsFromFaceDownToFaceUp;
                     }
                     // Shrink and widen the component to look like it is flipping
-                    Component.CurrentDestination = new Rectangle(
-                        (int)(Component.CurrentPosition.X + texture.Width * currentPercent / 100), 
-                        (int)Component.CurrentPosition.Y,
+                    Component.Destination = new Rectangle(
+                        (int)(Component.Position.X + texture.Width * currentPercent / 100), 
+                        (int)Component.Position.Y,
                         (int)(texture.Width - texture.Width * currentPercent / 100 * 2), 
                         texture.Height
                     );
