@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Poker.Screens;
+using Poker.UI;
 
 namespace Poker;
 
@@ -13,6 +14,7 @@ public class PokerGame : Game
         _graphics = new GraphicsDeviceManager(this);
         _screenManager = new(this);
         Content.RootDirectory = "Content";
+        Components.Add(new InputHelper(this));
         Components.Add(_screenManager);
         IsMouseVisible = true;
     }

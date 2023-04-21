@@ -1,9 +1,6 @@
 namespace Poker.Screens;
 
-internal class MenuScreen : GameScreen
+internal class MenuScreen 
 {
-    public override void LoadContent()
-    {
-        base.LoadContent();
-    }
+    
 }

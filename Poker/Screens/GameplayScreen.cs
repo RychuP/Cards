@@ -1,6 +1,6 @@
 namespace Poker.Screens;
 
-internal class GameplayScreen : GameScreen
+internal class GameplayScreen 
 {
 
 }

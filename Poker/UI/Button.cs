@@ -14,8 +14,8 @@ internal class Button : AnimatedGameComponent
     const int SegmentHeight = 64;
 
     // button size
-    const int Width = 175;
-    const int Height = SegmentHeight;
+    public const int Width = 175;
+    public const int Height = SegmentHeight;
 
     // button state segments
     readonly Rectangle _normalSegment = new(0, 0, SegmentWidth, SegmentHeight);
@@ -33,18 +33,15 @@ internal class Button : AnimatedGameComponent
     // text location
     Vector2 _textPosition;
 
-    public Button(string text, Game game) : base(game)
+    public Button(string text, int x, int y, Game game) : base(game)
     {
         Text = text;
-
-        int x = (Game.GraphicsDevice.Viewport.Width - Width) / 2;
-        int y = (Game.GraphicsDevice.Viewport.Height - Height) / 2;
         Destination = new(x, y, Width, Height);
     }
 
     protected override void LoadContent()
     {
-        Texture = Game.Content.Load<Texture2D>("Images/buttons");
+        Texture = Game.Content.Load<Texture2D>("Images/UI/buttons");
         _fontBold = Game.Content.Load<SpriteFont>("Fonts/Bold");
         _fontRegular = Game.Content.Load<SpriteFont>("Fonts/Regular");
     }
@@ -69,8 +66,8 @@ internal class Button : AnimatedGameComponent
         };
 
         var textSize = _currentFont.MeasureString(Text);
-        float x = dest.X + (dest.Width - textSize.X) / 2;
-        float y = dest.Y + (dest.Height - textSize.Y) / 2;
+        float x = dest.X + (Width - textSize.X) / 2;
+        float y = dest.Y + (Height - textSize.Y) / 2;
 
         _textPosition = State switch
         {
@@ -103,11 +100,19 @@ internal class Button : AnimatedGameComponent
         var mouseState = Mouse.GetState();
         if (dest.Contains(mouseState.Position))
         {
+            // change the button state depending on the mouse left button state
             State = mouseState.LeftButton switch
             {
                 MouseButtonState.Pressed => ButtonState.Pressed,
                 _ => ButtonState.Hover
             };
+
+            // check for clicks
+            if (mouseState.LeftButton == MouseButtonState.Released &&
+                InputHelper.PrevMouseState.LeftButton == MouseButtonState.Pressed)
+            {
+                OnClick();
+            }
         }
         else
             State = ButtonState.Normal;

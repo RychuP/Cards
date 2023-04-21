@@ -34,7 +34,7 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/Regular.spritefont
 
-#begin Images/background.jpg
+#begin Images/background.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -44,9 +44,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Images/background.jpg
+/build:Images/background.png
 
-#begin Images/background.jpg
+#begin Images/title.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -56,9 +56,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Images/background.jpg
+/build:Images/title.png
 
-#begin Images/buttons.png
+#begin Images/UI/buttons.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -68,9 +68,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Images/buttons.png
+/build:Images/UI/buttons.png
 
-#begin Images/buttons.png
+#begin Images/UI/table.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -80,7 +80,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Images/buttons.png
+/build:Images/UI/table.png
 
 #begin Images/UI/table.png
 /importer:TextureImporter
