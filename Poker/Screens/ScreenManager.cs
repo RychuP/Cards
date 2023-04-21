@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Poker.UI;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Poker.Screens;
 
@@ -72,5 +73,18 @@ internal class ScreenManager : DrawableGameComponent
     {
         _screens.Add(screen);
         screen.ScreenManager = this;
+    }
+
+    public void ShowGameplayScreen() =>
+        ShowGameScreen<GameplayScreen>();
+
+    void ShowGameScreen<T>() where T : GameScreen
+    {
+        var screen = _screens.Find((x) => x is T);
+        if (screen != null)
+        {
+            screen.Visible = true;
+            screen.Enabled = true;
+        }
     }
 }

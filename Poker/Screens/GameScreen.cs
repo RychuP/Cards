@@ -9,10 +9,14 @@ internal class GameScreen
     bool _visible = false;
     bool _enabled = false;
 
-    // y coordinate for buttons
+    /// <summary>
+    /// Y coordinate for buttons.
+    /// </summary>
     protected const int ButtonRow = 632;
 
-    // space between buttons
+    /// <summary>
+    /// Space between buttons.
+    /// </summary>
     protected const int ButtonSpacer = 80;
 
     // background texture for the display
@@ -21,7 +25,9 @@ internal class GameScreen
     // texture file name to load
     readonly string _textureName;
 
-    // texture destination
+    /// <summary>
+    /// Texture destination for drawing.
+    /// </summary>
     protected Rectangle Destination { get; private set; }
 
     /// <summary>
