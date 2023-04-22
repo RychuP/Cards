@@ -18,6 +18,7 @@ class BlackJackTable : GameTable
 {
     public Texture2D RingTexture { get; private set; }
     public Vector2 RingOffset { get; private set; }
+    public Texture2D TableTexture { get; private set; }
 
     public BlackJackTable(Vector2 ringOffset, Rectangle tableBounds, Vector2 dealerPosition, int places,
         Func<int, Vector2> placeOrder, string theme, Game game)
@@ -31,7 +32,8 @@ class BlackJackTable : GameTable
     /// </summary>
     protected override void LoadContent()
     {
-        RingTexture = Game.Content.Load<Texture2D>(@"Images\UI\ring");
+        RingTexture = Game.Content.Load<Texture2D>("Images/UI/ring");
+        TableTexture = Game.Content.Load<Texture2D>("Images/UI/table");
         base.LoadContent();
     }
 
@@ -41,9 +43,9 @@ class BlackJackTable : GameTable
     /// <param name="gameTime"></param>
     public override void Draw(GameTime gameTime)
     {
-        base.Draw(gameTime);
-
         SpriteBatch.Begin();
+
+        SpriteBatch.Draw(TableTexture, TableBounds, Color.White);
 
         for (int placeIndex = 0; placeIndex < Places; placeIndex++)
             SpriteBatch.Draw(RingTexture, PlaceOrder(placeIndex) + RingOffset, Color.White);

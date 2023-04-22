@@ -33,17 +33,23 @@ internal class Button : AnimatedGameComponent
     // text location
     Vector2 _textPosition;
 
-    public Button(string text, int x, int y, Game game) : base(game)
+    public Button(string text, int x, int y, Game game) : this(text, game)
+    {
+        Destination = new(x, y, Width, Height);
+    }
+
+    public Button(string text, Game game) : base(game)
     {
         Text = text;
-        Destination = new(x, y, Width, Height);
+        Visible = false;
+        Enabled = false;
     }
 
     protected override void LoadContent()
     {
         Texture = Game.Content.Load<Texture2D>("Images/UI/buttons");
         _fontBold = Game.Content.Load<SpriteFont>("Fonts/Bold");
-        _fontRegular = Game.Content.Load<SpriteFont>("Fonts/Regular");
+        _currentFont = _fontRegular = Game.Content.Load<SpriteFont>("Fonts/Regular");
     }
 
     public override void Update(GameTime gameTime)

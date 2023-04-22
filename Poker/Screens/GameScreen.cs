@@ -10,12 +10,12 @@ internal class GameScreen
     bool _enabled = false;
 
     /// <summary>
-    /// Y coordinate for buttons.
+    /// Y coordinate for buttons in pixels.
     /// </summary>
     protected const int ButtonRow = 632;
 
     /// <summary>
-    /// Space between buttons.
+    /// Space between buttons in pixels.
     /// </summary>
     protected const int ButtonSpacer = 80;
 
@@ -59,25 +59,22 @@ internal class GameScreen
     }
 
     /// <summary>
-    /// Whether this screen should process input.
-    /// </summary>
-    public bool Focused { get; set; } = false;
-
-    /// <summary>
     /// <see cref="ScreenManager"/> instance this <see cref="GameScreen"/> belongs to.
     /// </summary>
     public ScreenManager ScreenManager { get; set; }
 
-    public GameScreen(string textureName) =>
+    // constructor
+    public GameScreen(string textureName)
+    {
         _textureName = textureName;
+        Destination = PokerGame.Area;
+    }
 
     /// <summary>
     /// <see cref="ScreenManager"/> is available at this stage.
     /// </summary>
     public virtual void Initialize()
-    {
-        Destination = ScreenManager.GraphicsDevice.Viewport.Bounds;
-    }
+    { }
 
     public virtual void LoadContent()
     {
@@ -85,6 +82,24 @@ internal class GameScreen
     }
 
     public virtual void UnloadContent() { }
+
+    /// <summary>
+    /// Sets <see cref="Visible"/> and <see cref="Enabled"/> to true.
+    /// </summary>
+    public virtual void Show()
+    {
+        Visible = true;
+        Enabled = true;
+    }
+
+    /// <summary>
+    /// Sets <see cref="Visible"/> and <see cref="Enabled"/> to false.
+    /// </summary>
+    public virtual void Hide()
+    {
+        Visible = false;
+        Enabled = false;
+    }
 
     public virtual void Update(GameTime gameTime) { }
 

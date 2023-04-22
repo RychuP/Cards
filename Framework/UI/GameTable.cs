@@ -19,7 +19,6 @@ namespace CardsFramework
     {
         #region Fields and Properties and Indexer
         public string Theme { get; private set; }
-        public Texture2D TableTexture { get; private set; }
         public Vector2 DealerPosition { get; private set; }
         public SpriteBatch SpriteBatch { get; private set; }
         public Func<int, Vector2> PlaceOrder { get; private set; }
@@ -58,30 +57,18 @@ namespace CardsFramework
             Theme = theme;
             SpriteBatch = new SpriteBatch(game.GraphicsDevice);
         }
-
-        /// <summary>
-        /// Load the table texture.
-        /// </summary>
-        protected override void LoadContent()
-        {
-            TableTexture = Game.Content.Load<Texture2D>(@"Images\UI\table");
-            base.LoadContent();
-        }
         #endregion
 
-        #region Render
-        /// <summary>
-        /// Render the table.
-        /// </summary>
-        /// <param name="gameTime">Time passed since the last call to 
-        /// this method.</param>
-        public override void Draw(GameTime gameTime)
+        public virtual void Show()
         {
-            SpriteBatch.Begin();
-            SpriteBatch.Draw(TableTexture, TableBounds, Color.White);
-            SpriteBatch.End();
-            base.Draw(gameTime);
+            Visible = true;
+            Enabled = true;
         }
-        #endregion
+
+        public virtual void Hide()
+        {
+            Visible = false;
+            Enabled = false;
+        }
     }
 }

@@ -1,4 +1,5 @@
 using Poker.UI;
+using System;
 
 namespace Poker.Screens;
 
@@ -10,7 +11,7 @@ internal class MainMenuScreen : MenuScreen
     public MainMenuScreen() : base("title", 3)
     { }
 
-    public override void LoadContent()
+    public override void Initialize()
     {
         // calculate button positions
         int buttonCount = 3;
@@ -22,16 +23,18 @@ internal class MainMenuScreen : MenuScreen
         Button exit = new("Exit", x + (Button.Width + ButtonSpacer) * 2, ButtonRow, ScreenManager.Game);
 
         // click handlers
-        exit.Click += (o, e) => ScreenManager.Game.Exit();
+        start.Click += StartButton_OnClick;
+        exit.Click += ExitButton_OnClick;
 
         // save button references
-        Buttons.AddRange(new Button[] {start, theme, exit});
+        Buttons.AddRange(new Button[] { start, theme, exit });
 
-        // show content
-        Visible = true;
-        Enabled = true;
-
-        // add buttons to components andd load texture
-        base.LoadContent();
+        base.Initialize();
     }
+
+    void StartButton_OnClick(object o, EventArgs e) =>
+        ScreenManager.ShowScreen<GameplayScreen>();
+
+    void ExitButton_OnClick(object o, EventArgs e) =>
+        ScreenManager.Game.Exit();
 }

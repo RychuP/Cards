@@ -39,7 +39,6 @@ public class BetGameComponent : DrawableGameComponent
     readonly List<AnimatedGameComponent> _currentChipComponent = new();
     int _currentBet = 0;
 
-    readonly InputState _input;
     InputHelper _inputHelper;
     #endregion
 
@@ -54,9 +53,9 @@ public class BetGameComponent : DrawableGameComponent
     /// <param name="theme">The name of the selcted card theme.</param>
     /// <param name="cardGame">An instance of <see cref="CardGame"/> which
     /// is the current game.</param>
-    public BetGameComponent(List<Player> players, InputState input, CardGame cardGame)
+    public BetGameComponent(List<Player> players, CardGame cardGame)
         : base(cardGame.Game) =>
-        (_players, _cardGame, _input) = (players, cardGame, input);
+        (_players, _cardGame) = (players, cardGame);
 
     /// <summary>
     /// Initializes the component.
@@ -182,9 +181,9 @@ public class BetGameComponent : DrawableGameComponent
             }
 
             // Once all players are done betting, advance the game to the dealing stage
-            if (((BlackjackPlayer)_players[_players.Count - 1]).IsDoneBetting)
+            if (((BlackjackPlayer)_players[^1]).IsDoneBetting)
             {
-                BlackjackCardGame blackjackGame = ((BlackjackCardGame)_cardGame);
+                BlackjackCardGame blackjackGame = (BlackjackCardGame)_cardGame;
 
                 if (!blackjackGame.CheckForRunningAnimations<AnimatedGameComponent>())
                 {

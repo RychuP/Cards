@@ -6,6 +6,10 @@ namespace Poker;
 
 public class PokerGame : Game
 {
+    public const int Width = 1280;
+    public const int Height = 720;
+    public static readonly Rectangle Area = new(0, 0, Width, Height);
+
     readonly GraphicsDeviceManager _graphics;
     readonly ScreenManager _screenManager;
 
@@ -21,8 +25,8 @@ public class PokerGame : Game
 
     protected override void Initialize()
     {
-        _graphics.PreferredBackBufferWidth = 1280; 
-        _graphics.PreferredBackBufferHeight = 720;
+        _graphics.PreferredBackBufferWidth = Width; 
+        _graphics.PreferredBackBufferHeight = Height;
         _graphics.ApplyChanges();
         base.Initialize();
     }

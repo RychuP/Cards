@@ -11,13 +11,8 @@ namespace Poker.Screens;
 /// </summary>
 internal class ScreenManager : DrawableGameComponent
 {
+    GameScreen _activeScreen;
     readonly List<GameScreen> _screens = new();
-
-    public ScreenManager(Game game) : base(game)
-    {
-        AddScreen(new BackgroundScreen());
-        AddScreen(new MainMenuScreen());
-    }
 
     /// <summary>
     /// Default <see cref="SpriteBatch"/> shared by all the <see cref="GameScreen"/> objects.
@@ -28,6 +23,25 @@ internal class ScreenManager : DrawableGameComponent
     /// Default <see cref="SpriteFont"/> shared by all the <see cref="GameScreen"/> objects.
     /// </summary>
     public SpriteFont Font { get; private set; }
+    
+    public GameScreen ActiveScreen
+    {
+        get => _activeScreen;
+        set
+        {
+            if (_activeScreen == value) return;
+            var prevActScreen = _activeScreen;
+            _activeScreen = value;
+            OnActiveScreenChanged(prevActScreen, value);
+        }
+    }
+
+    public ScreenManager(Game game) : base(game)
+    {
+        AddScreen(new BackgroundScreen());
+        AddScreen(new MainMenuScreen());
+        AddScreen(new GameplayScreen());
+    }
 
     public override void Initialize()
     {
@@ -45,6 +59,9 @@ internal class ScreenManager : DrawableGameComponent
         // let each of the screens load their content
         foreach (GameScreen screen in _screens)
             screen.LoadContent();
+
+        // show main menu
+        ShowScreen<MainMenuScreen>();
     }
 
     protected override void UnloadContent()
@@ -73,16 +90,16 @@ internal class ScreenManager : DrawableGameComponent
         screen.ScreenManager = this;
     }
 
-    public void ShowGameplayScreen() =>
-        ShowGameScreen<GameplayScreen>();
-
-    void ShowGameScreen<T>() where T : GameScreen
+    public void ShowScreen<T>() where T : GameScreen
     {
         var screen = _screens.Find((x) => x is T);
-        if (screen != null)
-        {
-            screen.Visible = true;
-            screen.Enabled = true;
-        }
+        if (screen is not null)
+            ActiveScreen = screen;
+    }
+
+    static void OnActiveScreenChanged(GameScreen prevActScreen, GameScreen newActScreen)
+    {
+        prevActScreen?.Hide();
+        newActScreen?.Show();
     }
 }

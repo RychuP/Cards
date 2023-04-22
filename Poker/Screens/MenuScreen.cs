@@ -32,13 +32,12 @@ internal class MenuScreen : GameScreen
             button.Enabled = Enabled;
     }
 
-    public override void LoadContent()
+    public override void Initialize()
     {
         // add buttons to game components
         foreach (var button in Buttons)
             ScreenManager.Game.Components.Add(button);
 
-        // load texture
-        base.LoadContent();
+        base.Initialize();
     }
 }

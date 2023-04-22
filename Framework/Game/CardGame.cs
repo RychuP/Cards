@@ -22,9 +22,9 @@ namespace CardsFramework;
 public abstract class CardGame
 {
     #region Fields and Properties
-    protected List<GameRule> _rules = new();
-    protected List<Player> _players = new();
-    protected CardPacket _dealer;
+    protected List<GameRule> Rules = new();
+    protected List<Player> Players = new();
+    protected CardPacket Dealer;
 
     public int MinimumPlayers { get; protected set; }
     public int MaximumPlayers { get; protected set; }
@@ -57,7 +57,7 @@ public abstract class CardGame
     public CardGame(int decks, int jokersInDeck, CardSuit suits, CardValue cardValues,
         int minimumPlayers, int maximumPlayers, GameTable gameTable, string theme, Game game)
     {
-        _dealer = new CardPacket(decks, jokersInDeck, suits, cardValues);
+        Dealer = new CardPacket(decks, jokersInDeck, suits, cardValues);
 
         Game = game;
         MinimumPlayers = minimumPlayers;
@@ -76,8 +76,8 @@ public abstract class CardGame
     /// </summary>
     public virtual void CheckRules()
     {
-        for (int ruleIndex = 0; ruleIndex < _rules.Count; ruleIndex++)
-            _rules[ruleIndex].Check();
+        for (int ruleIndex = 0; ruleIndex < Rules.Count; ruleIndex++)
+            Rules[ruleIndex].Check();
     }
 
     /// <summary>
@@ -168,7 +168,7 @@ public abstract class CardGame
     /// <param name="assetName">The name of the asset.</param>
     public void LoadUITexture(string folder, string assetName)
     {
-        var texture = Game.Content.Load<Texture2D>($"Images\\{folder}\\{assetName}");
+        var texture = Game.Content.Load<Texture2D>($"Images/{folder}/{assetName}");
         CardAssets.Add(assetName, texture);
     }
     #endregion
