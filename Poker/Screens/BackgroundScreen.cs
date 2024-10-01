@@ -3,10 +3,20 @@ namespace Poker.Screens;
 /// <summary>
 /// Static background screen shown everywhere.
 /// </summary>
-internal class BackgroundScreen : GameScreen
+class BackgroundScreen : GameScreen
 {
-    public BackgroundScreen() : base("background")
+    public BackgroundScreen(ScreenManager screenManager) : base(screenManager)
+    { }
+
+    public override void Initialize()
     {
+        base.Initialize();
         Visible = true;
+    }
+
+    protected override void LoadContent()
+    {
+        base.LoadContent();
+        Texture = Art.Table;
     }
 }

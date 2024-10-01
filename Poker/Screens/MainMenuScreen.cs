@@ -1,26 +1,28 @@
+using Microsoft.Xna.Framework;
 using Poker.UI;
 using System;
 
 namespace Poker.Screens;
 
 /// <summary>
-/// Main menu screen shown when the game loads.
+/// Main menu screen shown before the game starts.
 /// </summary>
-internal class MainMenuScreen : MenuScreen
+class MainMenuScreen : MenuScreen
 {
-    public MainMenuScreen() : base("title", 3)
+    public MainMenuScreen(ScreenManager screenManager) : base(screenManager, 3)
     { }
 
     public override void Initialize()
     {
         // calculate button positions
         int buttonCount = 3;
-        int x = (Destination.Width - buttonCount * Button.Width - (buttonCount - 1) * ButtonSpacer) / 2;
+        int x = (Constants.GameWidth - buttonCount * Constants.ButtonWidthWithMargin 
+            + Constants.SpaceBetweenButtons) / 2;
 
         // create buttons
-        Button start = new("Play", x, ButtonRow, ScreenManager.Game);
-        Button theme = new("Theme", x + Button.Width + ButtonSpacer, ButtonRow, ScreenManager.Game);
-        Button exit = new("Exit", x + (Button.Width + ButtonSpacer) * 2, ButtonRow, ScreenManager.Game);
+        Button start = new(Constants.ButtonPlayText, x, Game);
+        Button theme = new(Constants.ButtonThemeText, x + Constants.ButtonWidthWithMargin, Game);
+        Button exit = new(Constants.ButtonExitText, x + Constants.ButtonWidthWithMargin * 2, Game);
 
         // click handlers
         start.Click += StartButton_OnClick;
@@ -32,9 +34,39 @@ internal class MainMenuScreen : MenuScreen
         base.Initialize();
     }
 
+    protected override void LoadContent()
+    {
+        Texture = Art.PokerTitle;
+        base.LoadContent();
+    }
+
+    protected override void OnVisibleChanged(object sender, EventArgs args)
+    {
+        base.OnVisibleChanged(sender, args);
+
+        // show buttons
+        if (Visible)
+        {
+            foreach (var button in Buttons)
+                button.Visible = Visible;
+        }
+    }
+
+    protected override void OnEnabledChanged(object sender, EventArgs args)
+    {
+        base.OnEnabledChanged(sender, args);
+
+        // hide buttons
+        if (Enabled)
+        {
+            foreach (var button in Buttons)
+                button.Enabled = Enabled;
+        }
+    }
+
     void StartButton_OnClick(object o, EventArgs e) =>
         ScreenManager.ShowScreen<GameplayScreen>();
 
     void ExitButton_OnClick(object o, EventArgs e) =>
-        ScreenManager.Game.Exit();
+        Game.Exit();
 }

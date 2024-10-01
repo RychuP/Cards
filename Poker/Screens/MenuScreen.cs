@@ -1,4 +1,6 @@
+using Microsoft.Xna.Framework;
 using Poker.UI;
+using System;
 using System.Collections.Generic;
 
 namespace Poker.Screens;
@@ -6,38 +8,48 @@ namespace Poker.Screens;
 /// <summary>
 /// Base class for menu screens with buttons.
 /// </summary>
-internal class MenuScreen : GameScreen
+abstract class MenuScreen : GameScreen
 {
     /// <summary>
     /// List of buttons in this menu screen.
     /// </summary>
     protected List<Button> Buttons { get; init; }
 
-    public MenuScreen(string textureName, int buttonCount) : base(textureName)
+    public MenuScreen(ScreenManager screenManager, int buttonCount) : base(screenManager)
     {
         Buttons = new(buttonCount);
-    }
-
-    protected override void OnVisibleChanged()
-    {
-        base.OnVisibleChanged();
-        foreach (var button in Buttons)
-            button.Visible = Visible;
-    }
-
-    protected override void OnEnabledChanged()
-    {
-        base.OnEnabledChanged();
-        foreach (var button in Buttons)
-            button.Enabled = Enabled;
     }
 
     public override void Initialize()
     {
         // add buttons to game components
         foreach (var button in Buttons)
-            ScreenManager.Game.Components.Add(button);
+            Game.Components.Add(button);
 
         base.Initialize();
+    }
+
+    protected override void OnVisibleChanged(object sender, EventArgs args)
+    {
+        base.OnVisibleChanged(sender, args);
+
+        // show buttons
+        if (!Visible)
+        {
+            foreach (var button in Buttons)
+                button.Visible = Visible;
+        }
+    }
+
+    protected override void OnEnabledChanged(object sender, EventArgs args)
+    {
+        base.OnEnabledChanged(sender, args);
+
+        // hide buttons
+        if (!Enabled)
+        {
+            foreach (var button in Buttons)
+                button.Enabled = Enabled;
+        }
     }
 }

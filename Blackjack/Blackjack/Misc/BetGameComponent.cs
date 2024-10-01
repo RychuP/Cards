@@ -499,7 +499,7 @@ public class BetGameComponent : DrawableGameComponent
             if (amount >= 5)
             {
                 // Add the chip with the highest possible value
-                for (int chipIndex = assetNames.Length; chipIndex > 0; chipIndex--)
+                for (int chipIndex = assetNames.Length - 1; chipIndex > 0; chipIndex--)
                 {
                     int chip = assetNames[chipIndex];
                     while (chip <= amount)

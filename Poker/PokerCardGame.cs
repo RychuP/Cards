@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace Poker;
 
-internal class PokerCardGame : CardGame
+class PokerCardGame : CardGame
 {
     public PokerCardGame(Game game) : base(1, 0, CardSuit.AllSuits, CardValue.NonJokers, 1, 4, 
         new PokerTable(game), "Red", game)

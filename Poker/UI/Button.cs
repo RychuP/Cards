@@ -3,82 +3,78 @@ using CardsFramework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using MouseButtonState = Microsoft.Xna.Framework.Input.ButtonState;
+using InputButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 
 namespace Poker.UI;
 
 internal class Button : AnimatedGameComponent
 {
-    // segment size
-    const int SegmentWidth = 291;
-    const int SegmentHeight = 64;
+    // text positions
+    Vector2 _textPosition;
+    Vector2 _regularFontTextPos;
+    Vector2 _boldFontTextPos;
+    Vector2 _boldFontWithOffsetTextPos;
 
-    // button size
-    public const int Width = 175;
-    public const int Height = SegmentHeight;
-
-    // button state segments
-    readonly Rectangle _normalSegment = new(0, 0, SegmentWidth, SegmentHeight);
-    readonly Rectangle _hoverSegment = new(0, SegmentHeight, SegmentWidth, SegmentHeight);
-    readonly Rectangle _pressedSegment = new(0, SegmentHeight * 2, SegmentWidth, SegmentHeight);
-
-    // button state (mouse controlled)
     public ButtonState State { get; private set; }
-
-    // fonts
-    SpriteFont _fontBold;
-    SpriteFont _fontRegular;
     SpriteFont _currentFont;
 
-    // text location
-    Vector2 _textPosition;
+    // constructor for buttons with variable position
+    public Button(string text, Game game) : this(text, 0, game)
+    { }
 
-    public Button(string text, int x, int y, Game game) : this(text, game)
-    {
-        Destination = new(x, y, Width, Height);
-    }
-
-    public Button(string text, Game game) : base(game)
+    // constructor for static buttons
+    public Button(string text, int x, Game game) : base(game)
     {
         Text = text;
-        Visible = false;
-        Enabled = false;
+        Destination = new(x, Constants.ButtonPositionY, Constants.ButtonWidth, Constants.ButtonSpriteHeight);
+    }
+
+    public override void Initialize()
+    {
+        // calculate button positions
+        var dest = Destination ?? Rectangle.Empty;
+        _regularFontTextPos = CalculateButtonPosition(Art.RegularFont.MeasureString(Text));
+        _boldFontTextPos = CalculateButtonPosition(Art.BoldFont.MeasureString(Text));
+        _boldFontWithOffsetTextPos = _boldFontTextPos + new Vector2(0, 2);
+
+        base.Initialize();
+
+        Vector2 CalculateButtonPosition(Vector2 textSize)
+        {
+            float x = dest.X + (Constants.ButtonWidth - textSize.X) / 2;
+            float y = dest.Y + (Constants.ButtonSpriteHeight - textSize.Y) / 2;
+            return new Vector2(x, y);
+        }
     }
 
     protected override void LoadContent()
     {
-        Texture = Game.Content.Load<Texture2D>("Images/UI/buttons");
-        _fontBold = Game.Content.Load<SpriteFont>("Fonts/Bold");
-        _currentFont = _fontRegular = Game.Content.Load<SpriteFont>("Fonts/Regular");
+        Texture = Art.ButtonSpriteSheet;
+        _currentFont = Art.RegularFont;
     }
 
     public override void Update(GameTime gameTime)
     {
-        if (Destination is not Rectangle dest) return;
-
         HandleMouse();
 
         CurrentSegment = State switch
         {
-            ButtonState.Hover => _hoverSegment,
-            ButtonState.Pressed => _pressedSegment,
-            _ => _normalSegment
+            ButtonState.Hover => Constants.ButtonSpriteHoverSource,
+            ButtonState.Pressed => Constants.ButtonSpritePressedSource,
+            _ => Constants.ButtonSpriteRegularSource
         };
 
         _currentFont = State switch
         {
-            ButtonState.Normal => _fontRegular,
-            _ => _fontBold
+            ButtonState.Normal => Art.RegularFont,
+            _ => Art.BoldFont
         };
-
-        var textSize = _currentFont.MeasureString(Text);
-        float x = dest.X + (Width - textSize.X) / 2;
-        float y = dest.Y + (Height - textSize.Y) / 2;
 
         _textPosition = State switch
         {
-            ButtonState.Pressed => new(x, y + 2),
-            _ => new(x, y)
+            ButtonState.Hover => _boldFontTextPos,
+            ButtonState.Pressed => _boldFontWithOffsetTextPos,
+            _ => _regularFontTextPos
         };
         
         base.Update(gameTime);
@@ -88,15 +84,10 @@ internal class Button : AnimatedGameComponent
     {
         if (Destination is not Rectangle dest) return;
 
-        SpriteBatch.Begin();
-
-        // draw button
-        SpriteBatch.Draw(Texture, dest, CurrentSegment, Color.White);
-
-        // draw text
-        SpriteBatch.DrawString(_currentFont, Text, _textPosition, Color.White);
-
-        SpriteBatch.End();
+        Art.SpriteBatch.Begin();
+        Art.SpriteBatch.Draw(Texture, dest, CurrentSegment, Color.White);
+        Art.SpriteBatch.DrawString(_currentFont, Text, _textPosition, Color.White);
+        Art.SpriteBatch.End();
     }
 
     void HandleMouse()
@@ -109,19 +100,37 @@ internal class Button : AnimatedGameComponent
             // change the button state depending on the mouse left button state
             State = mouseState.LeftButton switch
             {
-                MouseButtonState.Pressed => ButtonState.Pressed,
+                InputButtonState.Pressed => ButtonState.Pressed,
                 _ => ButtonState.Hover
             };
 
             // check for clicks
-            if (mouseState.LeftButton == MouseButtonState.Released &&
-                InputHelper.PrevMouseState.LeftButton == MouseButtonState.Pressed)
+            if (mouseState.LeftButton == InputButtonState.Released &&
+                InputHelper.PrevMouseState.LeftButton == InputButtonState.Pressed)
             {
                 OnClick();
             }
         }
         else
             State = ButtonState.Normal;
+    }
+
+    /// <summary>
+    /// Sets <see cref="Visible"/> and <see cref="Enabled"/> to true.
+    /// </summary>
+    public void Show()
+    {
+        Visible = true;
+        Enabled = true;
+    }
+
+    /// <summary>
+    /// Sets <see cref="Visible"/> and <see cref="Enabled"/> to false.
+    /// </summary>
+    public void Hide()
+    {
+        Visible = false;
+        Enabled = false;
     }
 
     void OnClick()

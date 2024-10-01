@@ -1,87 +1,24 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Poker.Screens;
 
-internal class GameScreen
+abstract class GameScreen : DrawableGameComponent
 {
-    bool _visible = false;
-    bool _enabled = false;
+    protected Texture2D Texture { get; set; }
 
-    /// <summary>
-    /// Y coordinate for buttons in pixels.
-    /// </summary>
-    protected const int ButtonRow = 632;
+    protected ScreenManager ScreenManager { get; }
 
-    /// <summary>
-    /// Space between buttons in pixels.
-    /// </summary>
-    protected const int ButtonSpacer = 80;
-
-    // background texture for the display
-    Texture2D _texture;
-
-    // texture file name to load
-    readonly string _textureName;
-
-    /// <summary>
-    /// Texture destination for drawing.
-    /// </summary>
-    protected Rectangle Destination { get; private set; }
-
-    /// <summary>
-    /// Whether this screen should process draw.
-    /// </summary>
-    public bool Visible
+    public GameScreen(ScreenManager screenManager) : base(screenManager.Game)
     {
-        get => _visible;
-        set
-        {
-            if (_visible == value) return;
-            _visible = value;
-            OnVisibleChanged();
-        }
+        ScreenManager = screenManager;
     }
 
-    /// <summary>
-    /// Whether this screen should process update.
-    /// </summary>
-    public bool Enabled
+    public override void Initialize()
     {
-        get => _enabled;
-        set
-        {
-            if (_enabled == value) return;
-            _enabled = value;
-            OnEnabledChanged();
-        }
+        Hide();
+        base.Initialize();
     }
-
-    /// <summary>
-    /// <see cref="ScreenManager"/> instance this <see cref="GameScreen"/> belongs to.
-    /// </summary>
-    public ScreenManager ScreenManager { get; set; }
-
-    // constructor
-    public GameScreen(string textureName)
-    {
-        _textureName = textureName;
-        Destination = PokerGame.Area;
-    }
-
-    /// <summary>
-    /// <see cref="ScreenManager"/> is available at this stage.
-    /// </summary>
-    public virtual void Initialize()
-    { }
-
-    public virtual void LoadContent()
-    {
-        _texture = ScreenManager.Game.Content.Load<Texture2D>($"Images/{_textureName}");
-    }
-
-    public virtual void UnloadContent() { }
 
     /// <summary>
     /// Sets <see cref="Visible"/> and <see cref="Enabled"/> to true.
@@ -101,25 +38,11 @@ internal class GameScreen
         Enabled = false;
     }
 
-    public virtual void Update(GameTime gameTime) { }
-
-    public virtual void Draw(GameTime gameTime)
+    public override void Draw(GameTime gameTime)
     {
-        ScreenManager.SpriteBatch.Begin();
-        ScreenManager.SpriteBatch.Draw(_texture, Destination, Color.White);
-        ScreenManager.SpriteBatch.End();
+        Art.SpriteBatch.Begin();
+        Art.SpriteBatch.Draw(Texture, Constants.GameArea, Color.White);
+        Art.SpriteBatch.End();
+        base.Draw(gameTime);
     }
-
-    protected virtual void OnVisibleChanged()
-    {
-        VisibleChanged?.Invoke(this, EventArgs.Empty);
-    }
-
-    protected virtual void OnEnabledChanged()
-    {
-        EnabledChanged?.Invoke(this, EventArgs.Empty);
-    }
-
-    public event EventHandler VisibleChanged;
-    public event EventHandler EnabledChanged;
 }

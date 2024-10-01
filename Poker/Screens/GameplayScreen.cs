@@ -3,26 +3,24 @@ using System;
 
 namespace Poker.Screens;
 
-internal class GameplayScreen : MenuScreen
+class GameplayScreen : MenuScreen
 {
     PokerCardGame _pokerCardGame;
 
-    public GameplayScreen() : base("card_outlines", 5)
-    {
-
-    }
+    public GameplayScreen(ScreenManager screenManager) : base(screenManager, 4)
+    { }
 
     public override void Initialize()
     {
         // create the card game
-        _pokerCardGame = new(ScreenManager.Game);
+        _pokerCardGame = new(Game);
 
         // create buttons
-        var raise = new Button("Raise", -Button.Width, ButtonRow, ScreenManager.Game);
-        var check = new Button("Check", -Button.Width, ButtonRow, ScreenManager.Game);
-        var fold = new Button("Fold", -Button.Width, ButtonRow, ScreenManager.Game);
-        var call = new Button("Call", -Button.Width, ButtonRow, ScreenManager.Game);
-        var allin = new Button("All In", -Button.Width, ButtonRow, ScreenManager.Game);
+        var raise = new Button(Constants.ButtonRaiseText, Game);
+        var check = new Button(Constants.ButtonCheckText, Game);
+        var fold = new Button(Constants.ButtonFoldText, Game);
+        var call = new Button(Constants.ButtonCallText, Game);
+        var allin = new Button(Constants.ButtonAllInText, Game);
 
         // event handlers
         raise.Click += RaiseButton_OnClick;
@@ -36,9 +34,9 @@ internal class GameplayScreen : MenuScreen
         base.Initialize();
     }
 
-    public override void LoadContent()
+    protected override void LoadContent()
     {
-        _pokerCardGame.LoadContent();
+        Texture = Art.TableCardOutlines;
         base.LoadContent();
     }
 

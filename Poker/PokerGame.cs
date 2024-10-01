@@ -4,31 +4,33 @@ using Poker.UI;
 
 namespace Poker;
 
-public class PokerGame : Game
+class PokerGame : Game
 {
-    public const int Width = 1280;
-    public const int Height = 720;
-    public static readonly Rectangle Area = new(0, 0, Width, Height);
-
-    readonly GraphicsDeviceManager _graphics;
-    readonly ScreenManager _screenManager;
+    readonly GraphicsDeviceManager _graphicsDeviceManager;
 
     public PokerGame()
     {
-        _graphics = new GraphicsDeviceManager(this);
-        _screenManager = new(this);
         Content.RootDirectory = "Content";
+        _graphicsDeviceManager = new GraphicsDeviceManager(this);
         Components.Add(new InputHelper(this));
-        Components.Add(_screenManager);
+        Components.Add(new ScreenManager(this));
         IsMouseVisible = true;
     }
 
     protected override void Initialize()
     {
-        _graphics.PreferredBackBufferWidth = Width; 
-        _graphics.PreferredBackBufferHeight = Height;
-        _graphics.ApplyChanges();
+        _graphicsDeviceManager.PreferredBackBufferWidth = Constants.GameWidth;
+        _graphicsDeviceManager.PreferredBackBufferHeight = Constants.GameHeight;
+        _graphicsDeviceManager.ApplyChanges();
+
+        Art.Initialize(this);
         base.Initialize();
+    }
+
+    protected override void BeginRun()
+    {
+        Components.Find<ScreenManager>().ShowScreen<MainMenuScreen>();
+        base.BeginRun();
     }
 
     static void Main()
