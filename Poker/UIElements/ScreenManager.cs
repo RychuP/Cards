@@ -32,6 +32,7 @@ class ScreenManager : GameComponent
         AddScreen(new MainMenuScreen(this));
         AddScreen(new ThemeScreen(this));
         AddScreen(new GameplayScreen(this));
+        AddScreen(new PauseScreen(this));
     }
 
     void AddScreen(GameScreen screen)

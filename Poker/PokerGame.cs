@@ -11,6 +11,7 @@ class PokerGame : Game
     readonly GraphicsDeviceManager _graphicsDeviceManager;
     public GameManager GameManager { get; private set; }
     public ScreenManager ScreenManager { get; private set; }
+    public AudioManager AudioManager { get; private set; }
 
     public PokerGame()
     {
@@ -28,8 +29,9 @@ class PokerGame : Game
         _graphicsDeviceManager.PreferredBackBufferHeight = Constants.GameHeight;
         _graphicsDeviceManager.ApplyChanges();
 
+        Art.Initialize(this); // leave it here!
         GameManager = new GameManager(this);
-        Art.Initialize(this);
+        AudioManager = new AudioManager(this);
         base.Initialize();
     }
 

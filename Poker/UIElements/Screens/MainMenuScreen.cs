@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-using Poker.Misc;
 using System;
 
 namespace Poker.UIElements.Screens;
@@ -40,8 +38,11 @@ class MainMenuScreen : StaticScreen
         base.LoadContent();
     }
 
-    void StartButton_OnClick(object o, EventArgs e) =>
+    void StartButton_OnClick(object o, EventArgs e)
+    {
         ScreenManager.ShowScreen<GameplayScreen>();
+        ((PokerGame)Game).GameManager.StartPlaying();
+    }
 
     void ThemeButton_OnClick(object o, EventArgs e) =>
         ScreenManager.ShowScreen<ThemeScreen>();

@@ -16,6 +16,8 @@ static class Art
     public static Texture2D PokerTitle { get; private set; }
     public static Texture2D ThemeTitle { get; private set; }
     public static Texture2D ButtonSpriteSheet { get; private set; }
+    public static Texture2D RedShuffleSpriteSheet { get; private set; }
+    public static Texture2D BlueShuffleSpriteSheet { get; private set; }
 
     public static void Initialize(Game game)
     {
@@ -35,11 +37,13 @@ static class Art
         BoldFont = LoadFont(Constants.BoldFontTextureName);
 
         // textures
-        ButtonSpriteSheet = LoadTexture("UI", Constants.ButtonSpriteSheetTextureName);
+        ButtonSpriteSheet = LoadTexture("UI", Constants.ButtonSpriteSheetName);
         Table = LoadTexture(Constants.BackgroundScreenTextureName);
         TableCardOutlines = LoadTexture(Constants.TableCardOutlinesTextureName);
         PokerTitle = LoadTexture(Constants.PokerTitleTextureName);
         ThemeTitle = LoadTexture(Constants.ThemeScreenTextureName);
+        RedShuffleSpriteSheet = LoadTexture(Constants.ShuffleSpriteSheetName + Constants.RedThemeText);
+        BlueShuffleSpriteSheet = LoadTexture(Constants.ShuffleSpriteSheetName + Constants.BlueThemeText);
     }
 
     static Texture2D LoadTexture(string textureName) =>

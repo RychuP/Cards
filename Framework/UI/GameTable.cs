@@ -18,7 +18,7 @@ namespace CardsFramework;
 public class GameTable : DrawableGameComponent
 {
     #region Fields and Properties and Indexer
-    public string Theme { get; private set; }
+    public string Theme { get; protected set; }
     public Vector2 DealerPosition { get; private set; }
     public SpriteBatch SpriteBatch { get; private set; }
     public Func<int, Vector2> PlaceOrder { get; private set; }

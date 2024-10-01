@@ -5,13 +5,14 @@ namespace Poker.GameElements;
 
 class GameManager : CardGame
 {
-    string _theme = Constants.RedThemeText;
-    
+    readonly CardPile _cardPile;
 
     public GameManager(Game game) : base(1, 0, CardSuits.AllSuits, CardValues.NonJokers,
-        Constants.MinPlayers, Constants.MaxPlayers, new PokerTable(game), Constants.RedThemeText, game)
+        Constants.MinPlayers, Constants.MaxPlayers, new PokerTable(game), Constants.DefaultTheme, game)
     {
-
+        SpriteBatch = Art.SpriteBatch;
+        _cardPile = new CardPile(this);
+        game.Components.Add(_cardPile);
     }
 
     /// <summary>
@@ -20,18 +21,18 @@ class GameManager : CardGame
     /// <param name="theme">New card theme.</param>
     public void SetTheme(string theme)
     {
-        if (theme == _theme) return;
-        else if (theme != Constants.RedThemeText || theme != Constants.BlueThemeText) return;
+        if (Theme == theme) return;
+        else if (theme != Constants.RedThemeText && theme != Constants.BlueThemeText) return;
         else
         {
-            _theme = theme;
+            Theme = theme;
             OnThemeChanged(theme);
         }
     }
 
     public override void StartPlaying()
     {
-        throw new System.NotImplementedException();
+        _cardPile.PlayShuffleAnimation();
     }
 
     /// <summary>
