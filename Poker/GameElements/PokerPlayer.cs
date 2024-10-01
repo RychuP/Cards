@@ -1,6 +1,6 @@
 using CardsFramework;
 
-namespace Poker.Players;
+namespace Poker.GameElements;
 
 internal class PokerPlayer : Player
 {

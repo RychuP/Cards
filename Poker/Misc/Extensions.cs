@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Linq;
 
-namespace Poker;
+namespace Poker.Misc;
 
 static class Extensions
 {

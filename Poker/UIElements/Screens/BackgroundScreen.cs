@@ -1,4 +1,6 @@
-namespace Poker.Screens;
+using Poker.Misc;
+
+namespace Poker.UIElements.Screens;
 
 /// <summary>
 /// Static background screen shown everywhere.

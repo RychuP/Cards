@@ -1,20 +1,15 @@
-using Poker.UI;
+using Poker.Misc;
 using System;
 
-namespace Poker.Screens;
+namespace Poker.UIElements.Screens;
 
 class GameplayScreen : MenuScreen
 {
-    PokerCardGame _pokerCardGame;
-
     public GameplayScreen(ScreenManager screenManager) : base(screenManager, 4)
     { }
 
     public override void Initialize()
     {
-        // create the card game
-        _pokerCardGame = new(Game);
-
         // create buttons
         var raise = new Button(Constants.ButtonRaiseText, Game);
         var check = new Button(Constants.ButtonCheckText, Game);
@@ -42,13 +37,13 @@ class GameplayScreen : MenuScreen
 
     public override void Show()
     {
-        _pokerCardGame.GameTable.Show();
+        ((PokerGame)Game).GameManager.GameTable.Show();
         base.Show();
     }
 
     public override void Hide()
     {
-        _pokerCardGame.GameTable.Hide();
+        ((PokerGame)Game).GameManager.GameTable.Hide();
         base.Hide();
     }
 

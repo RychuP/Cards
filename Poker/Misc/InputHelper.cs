@@ -1,7 +1,6 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace Poker.UI;
+namespace Poker.Misc;
 
 /// <summary>
 /// Keeps track of the input states in the previous frame.
@@ -18,6 +17,6 @@ internal class InputHelper : GameComponent
 
     public override void Update(GameTime gameTime)
     {
-        PrevMouseState = Mouse.GetState(); 
+        PrevMouseState = Mouse.GetState();
     }
 }

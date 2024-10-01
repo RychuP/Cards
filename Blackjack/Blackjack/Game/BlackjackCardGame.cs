@@ -471,7 +471,7 @@ class BlackjackCardGame : CardGame
     /// <summary>
     /// Gets the active player.
     /// </summary>
-    /// <returns>The first payer who has placed a bet and has not 
+    /// <returns>The first player who has placed a bet and has not 
     /// finish playing.</returns>
     public override Player GetCurrentPlayer()
     {

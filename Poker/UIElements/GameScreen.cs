@@ -1,7 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Poker.Misc;
 
-namespace Poker.Screens;
+namespace Poker.UIElements;
 
 abstract class GameScreen : DrawableGameComponent
 {

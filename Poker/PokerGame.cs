@@ -1,19 +1,24 @@
-﻿using Microsoft.Xna.Framework;
-using Poker.Screens;
-using Poker.UI;
+﻿global using Microsoft.Xna.Framework;
+global using Poker.Misc;
+
+using Poker.GameElements;
+using Poker.UIElements;
 
 namespace Poker;
 
 class PokerGame : Game
 {
     readonly GraphicsDeviceManager _graphicsDeviceManager;
+    public GameManager GameManager { get; private set; }
+    public ScreenManager ScreenManager { get; private set; }
 
     public PokerGame()
     {
-        Content.RootDirectory = "Content";
         _graphicsDeviceManager = new GraphicsDeviceManager(this);
+        Content.RootDirectory = "Content";
+        ScreenManager = new ScreenManager(this);
         Components.Add(new InputHelper(this));
-        Components.Add(new ScreenManager(this));
+        Components.Add(ScreenManager);
         IsMouseVisible = true;
     }
 
@@ -23,13 +28,14 @@ class PokerGame : Game
         _graphicsDeviceManager.PreferredBackBufferHeight = Constants.GameHeight;
         _graphicsDeviceManager.ApplyChanges();
 
+        GameManager = new GameManager(this);
         Art.Initialize(this);
         base.Initialize();
     }
 
     protected override void BeginRun()
     {
-        Components.Find<ScreenManager>().ShowScreen<MainMenuScreen>();
+        ScreenManager.BeginRun();
         base.BeginRun();
     }
 

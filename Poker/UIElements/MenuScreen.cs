@@ -1,9 +1,8 @@
 using Microsoft.Xna.Framework;
-using Poker.UI;
 using System;
 using System.Collections.Generic;
 
-namespace Poker.Screens;
+namespace Poker.UIElements;
 
 /// <summary>
 /// Base class for menu screens with buttons.
@@ -29,27 +28,10 @@ abstract class MenuScreen : GameScreen
         base.Initialize();
     }
 
-    protected override void OnVisibleChanged(object sender, EventArgs args)
+    public override void Hide()
     {
-        base.OnVisibleChanged(sender, args);
-
-        // show buttons
-        if (!Visible)
-        {
-            foreach (var button in Buttons)
-                button.Visible = Visible;
-        }
-    }
-
-    protected override void OnEnabledChanged(object sender, EventArgs args)
-    {
-        base.OnEnabledChanged(sender, args);
-
-        // hide buttons
-        if (!Enabled)
-        {
-            foreach (var button in Buttons)
-                button.Enabled = Enabled;
-        }
+        base.Hide();
+        foreach (var button in Buttons)
+            button.Hide();
     }
 }

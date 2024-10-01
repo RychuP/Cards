@@ -1,11 +1,10 @@
 using System;
 using CardsFramework;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using InputButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 
-namespace Poker.UI;
+namespace Poker.UIElements;
 
 internal class Button : AnimatedGameComponent
 {
@@ -15,7 +14,7 @@ internal class Button : AnimatedGameComponent
     Vector2 _boldFontTextPos;
     Vector2 _boldFontWithOffsetTextPos;
 
-    public ButtonState State { get; private set; }
+    public PokerButtonState State { get; private set; }
     SpriteFont _currentFont;
 
     // constructor for buttons with variable position
@@ -59,24 +58,24 @@ internal class Button : AnimatedGameComponent
 
         CurrentSegment = State switch
         {
-            ButtonState.Hover => Constants.ButtonSpriteHoverSource,
-            ButtonState.Pressed => Constants.ButtonSpritePressedSource,
+            PokerButtonState.Hover => Constants.ButtonSpriteHoverSource,
+            PokerButtonState.Pressed => Constants.ButtonSpritePressedSource,
             _ => Constants.ButtonSpriteRegularSource
         };
 
         _currentFont = State switch
         {
-            ButtonState.Normal => Art.RegularFont,
+            PokerButtonState.Normal => Art.RegularFont,
             _ => Art.BoldFont
         };
 
         _textPosition = State switch
         {
-            ButtonState.Hover => _boldFontTextPos,
-            ButtonState.Pressed => _boldFontWithOffsetTextPos,
+            PokerButtonState.Hover => _boldFontTextPos,
+            PokerButtonState.Pressed => _boldFontWithOffsetTextPos,
             _ => _regularFontTextPos
         };
-        
+
         base.Update(gameTime);
     }
 
@@ -100,8 +99,8 @@ internal class Button : AnimatedGameComponent
             // change the button state depending on the mouse left button state
             State = mouseState.LeftButton switch
             {
-                InputButtonState.Pressed => ButtonState.Pressed,
-                _ => ButtonState.Hover
+                InputButtonState.Pressed => PokerButtonState.Pressed,
+                _ => PokerButtonState.Hover
             };
 
             // check for clicks
@@ -112,7 +111,7 @@ internal class Button : AnimatedGameComponent
             }
         }
         else
-            State = ButtonState.Normal;
+            State = PokerButtonState.Normal;
     }
 
     /// <summary>

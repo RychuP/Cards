@@ -1,13 +1,12 @@
-﻿using Microsoft.Xna.Framework;
-
-namespace Poker;
+﻿namespace Poker.Misc;
 
 static class Constants
 {
     // texture names
-    public static readonly string ButtonSpriteSheetTextureName = "buttons";
-    public static readonly string BackgroundScreenTextureName = "background";
     public static readonly string TableCardOutlinesTextureName = "card_outlines";
+    public static readonly string BackgroundScreenTextureName = "background";
+    public static readonly string ButtonSpriteSheetTextureName = "buttons";
+    public static readonly string ThemeScreenTextureName = "theme";
     public static readonly string PokerTitleTextureName = "title";
 
     // font texture names
@@ -24,6 +23,11 @@ static class Constants
     public static readonly string ButtonPlayText = "Play";
     public static readonly string ButtonThemeText = "Theme";
     public static readonly string ButtonExitText = "Exit";
+    public static readonly string ButtonReturnText = "Return";
+
+    // themes
+    public static readonly string RedThemeText = "Red";
+    public static readonly string BlueThemeText = "Blue";
 
     // dimensions
     public static readonly int GameWidth = 1280;
@@ -34,6 +38,10 @@ static class Constants
     public static readonly int ButtonWidthWithMargin = ButtonWidth + SpaceBetweenButtons;
     public static readonly int ButtonSpriteHeight = 64;
     public static readonly int ButtonSpriteWidth = 291;
+
+    // quantities
+    public static readonly int MaxPlayers = 4;
+    public static readonly int MinPlayers = 1;
 
     // sprite source rectangles
     public static readonly Rectangle ButtonSpriteRegularSource =

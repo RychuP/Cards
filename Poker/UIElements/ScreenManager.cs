@@ -1,7 +1,8 @@
-using Microsoft.Xna.Framework;
+using Poker.UIElements.Screens;
+using System;
 using System.Collections.Generic;
 
-namespace Poker.Screens;
+namespace Poker.UIElements;
 
 /// <summary>
 /// The screen manager is a component which manages one or more GameScreen instances. 
@@ -12,7 +13,7 @@ class ScreenManager : GameComponent
 {
     GameScreen _activeScreen;
     readonly List<GameScreen> _screens = new();
-    
+
     public GameScreen ActiveScreen
     {
         get => _activeScreen;
@@ -29,6 +30,7 @@ class ScreenManager : GameComponent
     {
         AddScreen(new BackgroundScreen(this));
         AddScreen(new MainMenuScreen(this));
+        AddScreen(new ThemeScreen(this));
         AddScreen(new GameplayScreen(this));
     }
 
@@ -45,9 +47,21 @@ class ScreenManager : GameComponent
             ActiveScreen = screen;
     }
 
-    static void OnActiveScreenChanged(GameScreen prevActScreen, GameScreen newActScreen)
+    /// <summary>
+    /// Final call before the first Update.
+    /// </summary>
+    public void BeginRun()
     {
-        prevActScreen?.Hide();
-        newActScreen.Show();
+        ShowScreen<MainMenuScreen>();
     }
+
+    public void OnActiveScreenChanged(GameScreen prevScreen, GameScreen newScreen)
+    {
+        prevScreen?.Hide();
+        newScreen.Show();
+
+        ScreenChanged?.Invoke(this, new ScreenChangedEventArgs(prevScreen, newScreen));
+    }
+
+    public event EventHandler<ScreenChangedEventArgs> ScreenChanged;
 }
