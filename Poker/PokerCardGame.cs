@@ -5,7 +5,7 @@ namespace Poker;
 
 class PokerCardGame : CardGame
 {
-    public PokerCardGame(Game game) : base(1, 0, CardSuit.AllSuits, CardValue.NonJokers, 1, 4, 
+    public PokerCardGame(Game game) : base(1, 0, CardSuits.AllSuits, CardValues.NonJokers, 1, 4, 
         new PokerTable(game), "Red", game)
     { 
     

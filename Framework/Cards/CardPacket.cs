@@ -64,7 +64,7 @@ public class CardPacket
     /// as flags and several can be added.</param>
     /// <param name="cardValues">The card values which will appear in each deck.
     /// values are specified as flags and several can be added.</param>
-    public CardPacket(int numberOfDecks, int jokersInDeck, CardSuit suits, CardValue cardValues)
+    public CardPacket(int numberOfDecks, int jokersInDeck, CardSuits suits, CardValues cardValues)
     {
         for (int deckIndex = 0; deckIndex < numberOfDecks; deckIndex++)
         {
@@ -72,13 +72,13 @@ public class CardPacket
 
             for (int j = 0; j < jokersInDeck / 2; j++)
             {
-                Cards.Add(new TraditionalCard(CardSuit.Club, CardValue.FirstJoker, this));
-                Cards.Add(new TraditionalCard(CardSuit.Club, CardValue.SecondJoker, this));
+                Cards.Add(new TraditionalCard(CardSuits.Club, CardValues.FirstJoker, this));
+                Cards.Add(new TraditionalCard(CardSuits.Club, CardValues.SecondJoker, this));
             }
 
             if (jokersInDeck % 2 == 1)
             {
-                Cards.Add(new TraditionalCard(CardSuit.Club, CardValue.FirstJoker, this));
+                Cards.Add(new TraditionalCard(CardSuits.Club, CardValues.FirstJoker, this));
             }
         }
     }
@@ -92,26 +92,26 @@ public class CardPacket
     /// as flags and several can be added.</param>
     /// <param name="cardValues">The card values which will appear in each deck.
     /// values are specified as flags and several can be added.</param>
-    private void AddSuit(CardSuit suits, CardValue cardValues)
+    private void AddSuit(CardSuits suits, CardValues cardValues)
     {
-        if ((suits & CardSuit.Club) == CardSuit.Club)
+        if ((suits & CardSuits.Club) == CardSuits.Club)
         {
-            AddCards(CardSuit.Club, cardValues);
+            AddCards(CardSuits.Club, cardValues);
         }
 
-        if ((suits & CardSuit.Diamond) == CardSuit.Diamond)
+        if ((suits & CardSuits.Diamond) == CardSuits.Diamond)
         {
-            AddCards(CardSuit.Diamond, cardValues);
+            AddCards(CardSuits.Diamond, cardValues);
         }
 
-        if ((suits & CardSuit.Heart) == CardSuit.Heart)
+        if ((suits & CardSuits.Heart) == CardSuits.Heart)
         {
-            AddCards(CardSuit.Heart, cardValues);
+            AddCards(CardSuits.Heart, cardValues);
         }
 
-        if ((suits & CardSuit.Spade) == CardSuit.Spade)
+        if ((suits & CardSuits.Spade) == CardSuits.Spade)
         {
-            AddCards(CardSuit.Spade, cardValues);
+            AddCards(CardSuits.Spade, cardValues);
         }
     }
 
@@ -121,71 +121,71 @@ public class CardPacket
     /// <param name="suit">The suit of the added cards.</param>
     /// <param name="cardValues">The card values which will appear in each deck.
     /// values are specified as flags and several can be added.</param>
-    private void AddCards(CardSuit suit, CardValue cardValues)
+    private void AddCards(CardSuits suit, CardValues cardValues)
     {
-        if ((cardValues & CardValue.Ace) == CardValue.Ace)
+        if ((cardValues & CardValues.Ace) == CardValues.Ace)
         {
-            Cards.Add(new TraditionalCard(suit, CardValue.Ace, this));
+            Cards.Add(new TraditionalCard(suit, CardValues.Ace, this));
         }
 
-        if ((cardValues & CardValue.Two) == CardValue.Two)
+        if ((cardValues & CardValues.Two) == CardValues.Two)
         {
-            Cards.Add(new TraditionalCard(suit, CardValue.Two, this));
+            Cards.Add(new TraditionalCard(suit, CardValues.Two, this));
         }
 
-        if ((cardValues & CardValue.Three) == CardValue.Three)
+        if ((cardValues & CardValues.Three) == CardValues.Three)
         {
-            Cards.Add(new TraditionalCard(suit, CardValue.Three, this));
+            Cards.Add(new TraditionalCard(suit, CardValues.Three, this));
         }
 
-        if ((cardValues & CardValue.Four) == CardValue.Four)
+        if ((cardValues & CardValues.Four) == CardValues.Four)
         {
-            Cards.Add(new TraditionalCard(suit, CardValue.Four, this));
+            Cards.Add(new TraditionalCard(suit, CardValues.Four, this));
         }
 
-        if ((cardValues & CardValue.Five) == CardValue.Five)
+        if ((cardValues & CardValues.Five) == CardValues.Five)
         {
-            Cards.Add(new TraditionalCard(suit, CardValue.Five, this));
+            Cards.Add(new TraditionalCard(suit, CardValues.Five, this));
         }
 
-        if ((cardValues & CardValue.Six) == CardValue.Six)
+        if ((cardValues & CardValues.Six) == CardValues.Six)
         {
-            Cards.Add(new TraditionalCard(suit, CardValue.Six, this));
+            Cards.Add(new TraditionalCard(suit, CardValues.Six, this));
         }
 
-        if ((cardValues & CardValue.Seven) == CardValue.Seven)
+        if ((cardValues & CardValues.Seven) == CardValues.Seven)
         {
-            Cards.Add(new TraditionalCard(suit, CardValue.Seven, this));
+            Cards.Add(new TraditionalCard(suit, CardValues.Seven, this));
         }
 
-        if ((cardValues & CardValue.Eight) == CardValue.Eight)
+        if ((cardValues & CardValues.Eight) == CardValues.Eight)
         {
-            Cards.Add(new TraditionalCard(suit, CardValue.Eight, this));
+            Cards.Add(new TraditionalCard(suit, CardValues.Eight, this));
         }
 
-        if ((cardValues & CardValue.Nine) == CardValue.Nine)
+        if ((cardValues & CardValues.Nine) == CardValues.Nine)
         {
-            Cards.Add(new TraditionalCard(suit, CardValue.Nine, this));
+            Cards.Add(new TraditionalCard(suit, CardValues.Nine, this));
         }
 
-        if ((cardValues & CardValue.Ten) == CardValue.Ten)
+        if ((cardValues & CardValues.Ten) == CardValues.Ten)
         {
-            Cards.Add(new TraditionalCard(suit, CardValue.Ten, this));
+            Cards.Add(new TraditionalCard(suit, CardValues.Ten, this));
         }
 
-        if ((cardValues & CardValue.Jack) == CardValue.Jack)
+        if ((cardValues & CardValues.Jack) == CardValues.Jack)
         {
-            Cards.Add(new TraditionalCard(suit, CardValue.Jack, this));
+            Cards.Add(new TraditionalCard(suit, CardValues.Jack, this));
         }
 
-        if ((cardValues & CardValue.Queen) == CardValue.Queen)
+        if ((cardValues & CardValues.Queen) == CardValues.Queen)
         {
-            Cards.Add(new TraditionalCard(suit, CardValue.Queen, this));
+            Cards.Add(new TraditionalCard(suit, CardValues.Queen, this));
         }
 
-        if ((cardValues & CardValue.King) == CardValue.King)
+        if ((cardValues & CardValues.King) == CardValues.King)
         {
-            Cards.Add(new TraditionalCard(suit, CardValue.King, this));
+            Cards.Add(new TraditionalCard(suit, CardValues.King, this));
         }
     }
     #endregion

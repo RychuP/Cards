@@ -19,10 +19,10 @@ public static class UIUtilty
     public static string GetCardAssetName(TraditionalCard card)
     {
         return string.Format("{0}{1}",
-            ((card.Value | CardValue.FirstJoker) == 
-                CardValue.FirstJoker ||
-            (card.Value | CardValue.SecondJoker) == 
-            CardValue.SecondJoker) ?
+            ((card.Value | CardValues.FirstJoker) == 
+                CardValues.FirstJoker ||
+            (card.Value | CardValues.SecondJoker) == 
+            CardValues.SecondJoker) ?
                 "" : card.Type.ToString(), card.Value);
     }
 }

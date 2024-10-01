@@ -13,7 +13,7 @@ namespace CardsFramework;
 /// Enum defining the various types of cards for a traditional-western card-set
 /// </summary>
 [Flags]
-public enum CardSuit
+public enum CardSuits
 {
     Heart = 0x01,
     Diamond = 0x02,
@@ -28,7 +28,7 @@ public enum CardSuit
 /// Enum defining the various types of card values for a traditional-western card-set
 /// </summary>
 [Flags]
-public enum CardValue
+public enum CardValues
 {
     Ace = 0x01,
     Two = 0x02,
@@ -57,7 +57,7 @@ public enum CardValue
 /// Traditional-western card
 /// </summary>
 /// <remarks>
-/// Each card has a defined <see cref="CardSuit">Type</see> and <see cref="CardValue">Value</see>
+/// Each card has a defined <see cref="CardSuits">Type</see> and <see cref="CardValues">Value</see>
 /// as well as the <see cref="CardsFramework.CardPacket"/> in which it is being held.
 /// A card may not be held in more than one <see cref="CardsFramework.CardPacket"/>. This is achived by enforcing any card transfer
 /// operation between <see cref="CarkPacket"/>s and <see cref="Hand"/>s to be performed only from within the card's 
@@ -67,8 +67,8 @@ public enum CardValue
 public class TraditionalCard
 {
     #region Properties
-    public CardSuit Type { get; set; }
-    public CardValue Value { get; set; }
+    public CardSuits Type { get; set; }
+    public CardValues Value { get; set; }
     public CardPacket CardPacket { get; private set; }
     #endregion
 
@@ -80,15 +80,15 @@ public class TraditionalCard
     /// <param name="value">The card's value. Only single values are 
     /// supported.</param>
     /// <param name="holdingCardCollection">The holding card collection.</param>
-    internal TraditionalCard(CardSuit type, CardValue value, CardPacket holdingCardCollection)
+    internal TraditionalCard(CardSuits type, CardValues value, CardPacket holdingCardCollection)
     {
         // Check for single type
         switch (type)
         {
-            case CardSuit.Club:
-            case CardSuit.Diamond:
-            case CardSuit.Heart:
-            case CardSuit.Spade:
+            case CardSuits.Club:
+            case CardSuits.Diamond:
+            case CardSuits.Heart:
+            case CardSuits.Spade:
                 break;
             default:
                 throw new ArgumentException("type must be a single value", nameof(type));
@@ -97,21 +97,21 @@ public class TraditionalCard
         // Check for single value
         switch (value)
         {
-            case CardValue.Ace:
-            case CardValue.Two:
-            case CardValue.Three:
-            case CardValue.Four:
-            case CardValue.Five:
-            case CardValue.Six:
-            case CardValue.Seven:
-            case CardValue.Eight:
-            case CardValue.Nine:
-            case CardValue.Ten:
-            case CardValue.Jack:
-            case CardValue.Queen:
-            case CardValue.King:
-            case CardValue.FirstJoker:
-            case CardValue.SecondJoker:
+            case CardValues.Ace:
+            case CardValues.Two:
+            case CardValues.Three:
+            case CardValues.Four:
+            case CardValues.Five:
+            case CardValues.Six:
+            case CardValues.Seven:
+            case CardValues.Eight:
+            case CardValues.Nine:
+            case CardValues.Ten:
+            case CardValues.Jack:
+            case CardValues.Queen:
+            case CardValues.King:
+            case CardValues.FirstJoker:
+            case CardValues.SecondJoker:
                 break;
             default:
                 throw new ArgumentException("value must be single value", nameof(value));

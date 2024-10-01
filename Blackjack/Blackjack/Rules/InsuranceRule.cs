@@ -34,7 +34,7 @@ class InsuranceRule : GameRule
     {
         if (!_done && _dealerHand.Count > 0)
         {
-            if (_dealerHand[0].Value == CardValue.Ace)
+            if (_dealerHand[0].Value == CardValues.Ace)
                 FireRuleMatch(EventArgs.Empty);
 
             _done = true;

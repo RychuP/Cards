@@ -54,7 +54,7 @@ public abstract class CardGame
     /// <param name="theme">The name of the theme to use for the 
     /// game's assets.</param>
     /// <param name="game">The associated game object.</param>
-    public CardGame(int decks, int jokersInDeck, CardSuit suits, CardValue cardValues,
+    public CardGame(int decks, int jokersInDeck, CardSuits suits, CardValues cardValues,
         int minimumPlayers, int maximumPlayers, GameTable gameTable, string theme, Game game)
     {
         Dealer = new CardPacket(decks, jokersInDeck, suits, cardValues);
@@ -89,19 +89,19 @@ public abstract class CardGame
     {
         return card.Value switch
         {
-            CardValue.Ace => 1,
-            CardValue.Two => 2,
-            CardValue.Three => 3,
-            CardValue.Four => 4,
-            CardValue.Five => 5,
-            CardValue.Six => 6,
-            CardValue.Seven => 7,
-            CardValue.Eight => 8,
-            CardValue.Nine => 9,
-            CardValue.Ten => 10,
-            CardValue.Jack => 11,
-            CardValue.Queen => 12,
-            CardValue.King => 13,
+            CardValues.Ace => 1,
+            CardValues.Two => 2,
+            CardValues.Three => 3,
+            CardValues.Four => 4,
+            CardValues.Five => 5,
+            CardValues.Six => 6,
+            CardValues.Seven => 7,
+            CardValues.Eight => 8,
+            CardValues.Nine => 9,
+            CardValues.Ten => 10,
+            CardValues.Jack => 11,
+            CardValues.Queen => 12,
+            CardValues.King => 13,
             _ => throw new ArgumentException("Ambigous card value"),
         };
     }
@@ -140,7 +140,7 @@ public abstract class CardGame
         SpriteBatch = new SpriteBatch(Game.GraphicsDevice);
 
         // Initialize a full deck
-        CardPacket fullDeck = new(1, 2, CardSuit.AllSuits, CardValue.NonJokers | CardValue.Jokers);
+        CardPacket fullDeck = new(1, 2, CardSuits.AllSuits, CardValues.NonJokers | CardValues.Jokers);
         string assetName;
 
         // Load all card assets

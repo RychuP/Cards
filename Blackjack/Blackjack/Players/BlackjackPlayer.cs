@@ -107,7 +107,7 @@ public class BlackjackPlayer : Player
         {
             value += game.GetCardValue(hand[cardIndex]);
 
-            if (hand[cardIndex].Value == CardValue.Ace)
+            if (hand[cardIndex].Value == CardValues.Ace)
             {
                 considerAce = true;
             }
