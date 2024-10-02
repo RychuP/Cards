@@ -1,6 +1,6 @@
 using Framework.UI;
 
-namespace Poker.GameElements;
+namespace Poker.UI;
 
 class PokerTable : GameTable
 {

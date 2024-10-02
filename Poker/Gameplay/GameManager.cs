@@ -1,8 +1,9 @@
 using Framework.Engine;
 using Framework.Misc;
+using Poker.UI;
 using System;
 
-namespace Poker.GameElements;
+namespace Poker.Gameplay;
 
 class GameManager : CardGame
 {
@@ -43,7 +44,7 @@ class GameManager : CardGame
             name = Constants.Names[Math.Min(index + offset, Constants.Names.Length - 1)];
 
             // repeat until a unique name is selected
-        } while(Players.Find(p => p.Name == name) is PokerPlayer);
+        } while (Players.Find(p => p.Name == name) is PokerPlayer);
 
         return name;
     }
@@ -85,12 +86,12 @@ class GameManager : CardGame
 
     public override void Deal()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public override Player GetCurrentPlayer()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     void OnThemeChanged(string theme)

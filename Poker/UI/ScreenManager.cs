@@ -2,7 +2,7 @@ using System;
 using Poker.UIElements.Screens;
 using System.Collections.Generic;
 
-namespace Poker.UIElements;
+namespace Poker.UI;
 
 /// <summary>
 /// The screen manager is a component which manages one or more GameScreen instances. 

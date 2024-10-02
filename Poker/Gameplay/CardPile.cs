@@ -3,7 +3,7 @@ using Framework.UI;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace Poker.GameElements;
+namespace Poker.Gameplay;
 
 /// <summary>
 /// Pile of cards on the table. Manages shuffling and card dealing animations.

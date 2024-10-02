@@ -1,4 +1,6 @@
-﻿namespace Poker.UIElements.Screens;
+﻿using Poker.UI;
+
+namespace Poker.UIElements.Screens;
 
 class PauseScreen : StaticScreen
 {

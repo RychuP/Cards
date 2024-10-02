@@ -1,8 +1,8 @@
 ﻿global using Microsoft.Xna.Framework;
 global using Poker.Misc;
 using Framework.Engine;
-using Poker.GameElements;
-using Poker.UIElements;
+using Poker.Gameplay;
+using Poker.UI;
 using System;
 
 namespace Poker;

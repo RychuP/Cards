@@ -1,6 +1,6 @@
 ﻿using Framework.Engine;
 
-namespace Poker.GameElements;
+namespace Poker.Gameplay;
 
 class HumanPlayer : PokerPlayer
 {

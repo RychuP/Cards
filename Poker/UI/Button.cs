@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using InputButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 
-namespace Poker.UIElements;
+namespace Poker.UI;
 
 internal class Button : AnimatedGameComponent
 {
