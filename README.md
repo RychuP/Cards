@@ -2,7 +2,7 @@
 
 Card games based on the [XNA Game Studio](https://github.com/SimonDarksideJ/XNAGameStudio) sample ported by [RB Whitaker](https://github.com/rbwhitaker/MonoGameSamples) to Monogame.
 
-I am working on modernizing the code base to C#10 and adding some card game projects of my own.
+The project has been heavily modified to my liking. I am working on adding a poker game based on the common framework.
 
 ## Screenshots:
 
