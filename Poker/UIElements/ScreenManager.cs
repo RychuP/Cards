@@ -1,5 +1,5 @@
-using Poker.UIElements.Screens;
 using System;
+using Poker.UIElements.Screens;
 using System.Collections.Generic;
 
 namespace Poker.UIElements;

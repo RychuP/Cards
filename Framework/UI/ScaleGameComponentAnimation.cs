@@ -1,29 +1,17 @@
-#region File Description
-//-----------------------------------------------------------------------------
-// ScaleGameComponentAnimation.cs
-//
-// Microsoft XNA Community Game Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace CardsFramework;
+namespace Framework.UI;
 
 /// <summary>
 /// An animation which scales a component.
 /// </summary>
 public class ScaleGameComponentAnimation : AnimatedGameComponentAnimation
 {
-    #region Fields
     float _percent = 0;
     readonly float _beginFactor;
-    readonly float _factorDelta; 
-    #endregion
+    readonly float _factorDelta;
 
-    #region Initialzations
     /// <summary>
     /// Initializes a new instance of the class.
     /// </summary>
@@ -33,8 +21,7 @@ public class ScaleGameComponentAnimation : AnimatedGameComponentAnimation
     {
         _beginFactor = beginFactor;
         _factorDelta = endFactor - beginFactor;
-    } 
-    #endregion
+    }
 
     /// <summary>
     /// Runs the scaling animation.
@@ -48,8 +35,8 @@ public class ScaleGameComponentAnimation : AnimatedGameComponentAnimation
             if (texture != null)
             {
                 // Calculate the completion percent of animation
-                _percent += (float)(gameTime.ElapsedGameTime.TotalSeconds / 
-                    Duration.TotalSeconds);                    
+                _percent += (float)(gameTime.ElapsedGameTime.TotalSeconds /
+                    Duration.TotalSeconds);
 
                 // Inflate the component with an increasing delta. The eventual
                 // delta will have the component scale to the specified target
@@ -58,7 +45,7 @@ public class ScaleGameComponentAnimation : AnimatedGameComponentAnimation
                 bounds.X = (int)Component.Position.X;
                 bounds.Y = (int)Component.Position.Y;
                 float currentFactor = _beginFactor + _factorDelta * _percent - 1;
-                bounds.Inflate((int)(bounds.Width * currentFactor), 
+                bounds.Inflate((int)(bounds.Width * currentFactor),
                     (int)(bounds.Height * currentFactor));
                 Component.Destination = bounds;
             }

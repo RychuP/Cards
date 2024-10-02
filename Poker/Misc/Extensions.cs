@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Poker.Misc;
 

@@ -1,18 +1,13 @@
-#region File Description
-//-----------------------------------------------------------------------------
-// AnimatedCardsGameComponent.cs
-//
-// Microsoft XNA Community Game Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
+using Framework.Assets;
+using Framework.Engine;
+using Framework.Misc;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
-namespace CardsFramework;
+namespace Framework.UI;
 
 /// <summary>
-/// An <see cref="AnimatedGameComponent"/> implemented for a card game
+/// An <see cref="AnimatedGameComponent"/> implemented for a card.
 /// </summary>
 public class AnimatedCardsGameComponent : AnimatedGameComponent
 {
@@ -28,7 +23,6 @@ public class AnimatedCardsGameComponent : AnimatedGameComponent
         Card = card;
     }
 
-    #region Update and Render
     /// <summary>
     /// Updates the component.
     /// </summary>
@@ -39,8 +33,8 @@ public class AnimatedCardsGameComponent : AnimatedGameComponent
 
         if (CardGame is not null)
         {
-            Texture = IsFaceDown ? CardGame.CardAssets["CardBack_" + CardGame.Theme] :
-                CardGame.CardAssets[UIUtilty.GetCardAssetName(Card)];
+            Texture = IsFaceDown ? CardAssets.CardBacks[CardGame.Theme] :
+                CardAssets.CardFaces[UIUtilty.GetCardAssetName(Card)];
         }
     }
 
@@ -52,19 +46,19 @@ public class AnimatedCardsGameComponent : AnimatedGameComponent
     {
         base.Draw(gameTime);
 
-        SpriteBatch.Begin();
+        var sb = Game.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
+        sb.Begin();
 
         // Draw the current frame at the designated destination, or at the initial 
         // position if a destination has not been set
         if (Texture != null)
         {
             if (Destination.HasValue)
-                SpriteBatch.Draw(Texture, Destination.Value, Color.White);
+                sb.Draw(Texture, Destination.Value, Color.White);
             else
-                SpriteBatch.Draw(Texture, Position, Color.White);
+                sb.Draw(Texture, Position, Color.White);
         }
 
-        SpriteBatch.End();
+        sb.End();
     }
-    #endregion
 }

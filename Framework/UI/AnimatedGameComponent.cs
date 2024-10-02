@@ -1,25 +1,15 @@
-#region File Description
-//-----------------------------------------------------------------------------
-// AnimatedGameComponent.cs
-//
-// Microsoft XNA Community Game Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
+using Framework.Assets;
+using Framework.Engine;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace CardsFramework;
+namespace Framework.UI;
 
 /// <summary>
-/// A game component.
-/// Enable variable display while managing and displaying a set of
-/// <see cref="AnimatedGameComponentAnimation">Animations</see>
+/// Game component with variable display and a set of <see cref="AnimatedGameComponentAnimation">Animations</see>
 /// </summary>
 public class AnimatedGameComponent : DrawableGameComponent
 {
-    #region Fields and Properties
     public Texture2D Texture { get; set; }
     public Rectangle? CurrentSegment { get; set; }
     public string Text { get; set; }
@@ -27,7 +17,6 @@ public class AnimatedGameComponent : DrawableGameComponent
     public bool IsFaceDown { get; set; } = true;
     public Vector2 Position { get; set; }
     public Rectangle? Destination { get; set; }
-    protected SpriteBatch SpriteBatch { get; init; }
 
     readonly List<AnimatedGameComponentAnimation> _runningAnimations = new();
 
@@ -38,17 +27,9 @@ public class AnimatedGameComponent : DrawableGameComponent
         _runningAnimations.Count > 0;
 
     public CardGame CardGame { get; private set; }
-    #endregion
 
-    #region Initializations
-    /// <summary>
-    /// Initializes a new instance of the class, using black text color.
-    /// </summary>
-    /// <param name="game">The associated game class.</param>
-    public AnimatedGameComponent(Game game): base(game)
-    {
-        SpriteBatch = CardGame != null ? CardGame.SpriteBatch : new SpriteBatch(game.GraphicsDevice);
-    }
+    public AnimatedGameComponent(Game game) : base(game)
+    { }
 
     /// <summary>
     /// Initializes a new instance of the class, using black text color.
@@ -72,9 +53,7 @@ public class AnimatedGameComponent : DrawableGameComponent
         CardGame = cardGame;
         Texture = currentFrame;
     }
-    #endregion
 
-    #region Update and Render
     /// <summary>
     /// Keeps track of the component's animations.
     /// </summary>
@@ -108,35 +87,36 @@ public class AnimatedGameComponent : DrawableGameComponent
     {
         base.Draw(gameTime);
 
-        SpriteBatch.Begin();
+        var sb = Game.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
+        sb.Begin();
 
         // Draw at the destination if one is set
         if (Destination is Rectangle destination && Texture != null)
         {
-            SpriteBatch.Draw(Texture, destination, CurrentSegment, Color.White);
+            sb.Draw(Texture, destination, CurrentSegment, Color.White);
             if (CardGame != null && Text != null)
-                DrawText(Text, CardGame.Font, destination, destination.Location.ToVector2());
+                DrawText(Text, Fonts.Moire.Regular, destination, destination.Location.ToVector2());
         }
         // Draw at the component's position if there is no destination
         else if (Texture != null)
         {
-            SpriteBatch.Draw(Texture, Position, CurrentSegment, Color.White);
+            sb.Draw(Texture, Position, CurrentSegment, Color.White);
             if (CardGame != null && Text != null)
-                DrawText(Text, CardGame.Font, Texture.Bounds, Position);
+                DrawText(Text, Fonts.Moire.Regular, Texture.Bounds, Position);
         }
 
-        SpriteBatch.End();
+        sb.End();
     }
 
     void DrawText(string text, SpriteFont font, Rectangle destination, Vector2 position)
     {
+        var sb = Game.Services.GetService(typeof (SpriteBatch)) as SpriteBatch;
         Vector2 size = font.MeasureString(Text);
         float x = position.X + (destination.Width - size.X) / 2;
         float y = position.Y + (destination.Height - size.Y) / 2;
         Vector2 textPosition = new(x, y);
-        SpriteBatch.DrawString(font, text, textPosition, TextColor);
+        sb.DrawString(font, text, textPosition, TextColor);
     }
-    #endregion
 
     /// <summary>
     /// Adds an animation to the animated component.

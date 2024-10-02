@@ -1,5 +1,3 @@
-using Poker.Misc;
-
 namespace Poker.UIElements.Screens;
 
 /// <summary>

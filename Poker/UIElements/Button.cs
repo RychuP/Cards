@@ -1,5 +1,6 @@
 using System;
-using CardsFramework;
+using Framework.Assets;
+using Framework.UI;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using InputButtonState = Microsoft.Xna.Framework.Input.ButtonState;
@@ -32,8 +33,8 @@ internal class Button : AnimatedGameComponent
     {
         // calculate button positions
         var dest = Destination ?? Rectangle.Empty;
-        _regularFontTextPos = CalculateButtonPosition(Art.RegularFont.MeasureString(Text));
-        _boldFontTextPos = CalculateButtonPosition(Art.BoldFont.MeasureString(Text));
+        _regularFontTextPos = CalculateButtonPosition(Fonts.Moire.Regular.MeasureString(Text));
+        _boldFontTextPos = CalculateButtonPosition(Fonts.Moire.Bold.MeasureString(Text));
         _boldFontWithOffsetTextPos = _boldFontTextPos + new Vector2(0, 2);
 
         base.Initialize();
@@ -49,7 +50,7 @@ internal class Button : AnimatedGameComponent
     protected override void LoadContent()
     {
         Texture = Art.ButtonSpriteSheet;
-        _currentFont = Art.RegularFont;
+        _currentFont = Fonts.Moire.Regular;
     }
 
     public override void Update(GameTime gameTime)
@@ -65,8 +66,8 @@ internal class Button : AnimatedGameComponent
 
         _currentFont = State switch
         {
-            PokerButtonState.Normal => Art.RegularFont,
-            _ => Art.BoldFont
+            PokerButtonState.Normal => Fonts.Moire.Regular,
+            _ => Fonts.Moire.Bold
         };
 
         _textPosition = State switch
@@ -83,10 +84,11 @@ internal class Button : AnimatedGameComponent
     {
         if (Destination is not Rectangle dest) return;
 
-        Art.SpriteBatch.Begin();
-        Art.SpriteBatch.Draw(Texture, dest, CurrentSegment, Color.White);
-        Art.SpriteBatch.DrawString(_currentFont, Text, _textPosition, Color.White);
-        Art.SpriteBatch.End();
+        var sb = Game.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
+        sb.Begin();
+        sb.Draw(Texture, dest, CurrentSegment, Color.White);
+        sb.DrawString(_currentFont, Text, _textPosition, Color.White);
+        sb.End();
     }
 
     void HandleMouse()

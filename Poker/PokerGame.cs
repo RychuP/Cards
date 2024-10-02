@@ -1,8 +1,9 @@
 ﻿global using Microsoft.Xna.Framework;
 global using Poker.Misc;
-
+using Framework.Engine;
 using Poker.GameElements;
 using Poker.UIElements;
+using System;
 
 namespace Poker;
 
@@ -11,7 +12,7 @@ class PokerGame : Game
     readonly GraphicsDeviceManager _graphicsDeviceManager;
     public GameManager GameManager { get; private set; }
     public ScreenManager ScreenManager { get; private set; }
-    public AudioManager AudioManager { get; private set; }
+    public Random Random { get; private set; }
 
     public PokerGame()
     {
@@ -29,9 +30,12 @@ class PokerGame : Game
         _graphicsDeviceManager.PreferredBackBufferHeight = Constants.GameHeight;
         _graphicsDeviceManager.ApplyChanges();
 
-        Art.Initialize(this); // leave it here!
+        Art.Initialize(this);
+        CardGame.Initialize(this);
+
+        Random = new Random();
         GameManager = new GameManager(this);
-        AudioManager = new AudioManager(this);
+
         base.Initialize();
     }
 

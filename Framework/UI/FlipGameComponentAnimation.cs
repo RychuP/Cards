@@ -1,23 +1,12 @@
-#region File Description
-//-----------------------------------------------------------------------------
-// FlipGameComponentAnimation.cs
-//
-// Microsoft XNA Community Game Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace CardsFramework;
+namespace Framework.UI;
 
 public class FlipGameComponentAnimation : AnimatedGameComponentAnimation
 {
-    #region Fields
     protected int _percent = 0;
     public bool IsFromFaceDownToFaceUp = true;
-    #endregion
 
     /// <summary>
     /// Runs the flip animation, which makes the component appear as if it has
@@ -40,8 +29,8 @@ public class FlipGameComponentAnimation : AnimatedGameComponentAnimation
                 if (texture != null)
                 {
                     // Calculate the completion percent of the animation
-                    _percent += (int)(((gameTime.ElapsedGameTime.TotalMilliseconds /
-                        (Duration.TotalMilliseconds / AnimationCycles)) * 100));
+                    _percent += (int)(gameTime.ElapsedGameTime.TotalMilliseconds /
+                        (Duration.TotalMilliseconds / AnimationCycles) * 100);
 
                     if (_percent >= 100)
                         _percent = 0;
@@ -63,9 +52,9 @@ public class FlipGameComponentAnimation : AnimatedGameComponentAnimation
                     }
                     // Shrink and widen the component to look like it is flipping
                     Component.Destination = new Rectangle(
-                        (int)(Component.Position.X + texture.Width * currentPercent / 100), 
+                        (int)(Component.Position.X + texture.Width * currentPercent / 100),
                         (int)Component.Position.Y,
-                        (int)(texture.Width - texture.Width * currentPercent / 100 * 2), 
+                        texture.Width - texture.Width * currentPercent / 100 * 2,
                         texture.Height
                     );
                 }

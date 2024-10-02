@@ -1,33 +1,23 @@
-#region File Description
-//-----------------------------------------------------------------------------
-// AnimatedHandGameComponent.cs
-//
-// Microsoft XNA Community Game Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
+using Framework.Engine;
+using Framework.Misc;
 using Microsoft.Xna.Framework;
 
-namespace CardsFramework;
+namespace Framework.UI;
 
 public class AnimatedHandGameComponent : AnimatedGameComponent
 {
-    #region Fields and Properties
-    public int Place { get; private set; }
     public readonly Hand Hand;
-
     readonly List<AnimatedCardsGameComponent> _animatedCardsHeld = new();
 
-    public override bool IsAnimating 
-    { 
-        get 
+    public override bool IsAnimating
+    {
+        get
         {
             for (int animationIndex = 0; animationIndex < _animatedCardsHeld.Count; animationIndex++)
                 if (_animatedCardsHeld[animationIndex].IsAnimating)
                     return true;
             return false;
-        } 
+        }
     }
 
     /// <summary>
@@ -35,9 +25,7 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// </summary>
     public IEnumerable<AnimatedCardsGameComponent> AnimatedCards =>
         _animatedCardsHeld.AsReadOnly();
-    #endregion
 
-    #region Initializations
     /// <summary>
     /// Initializes a new instance of the animated hand component. This means
     /// setting the hand's position and initializing all animated cards and their
@@ -50,7 +38,6 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// <param name="cardGame">The associated card game.</param>
     public AnimatedHandGameComponent(int place, Hand hand, CardGame cardGame) : base(cardGame, null)
     {
-        Place = place;
         Hand = hand;
         hand.CardReceived += Hand_OnCardReceived;
         hand.CardRemoved += Hand_OnCardRemoved;
@@ -71,10 +58,8 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
         }
 
         Game.Components.ComponentRemoved += Components_OnComponentRemoved;
-    } 
-    #endregion
+    }
 
-    #region Update
     /// <summary>
     /// Updates the component.
     /// </summary>
@@ -85,14 +70,12 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
         // Arrange the hand's animated cards' positions
         for (int animationIndex = 0; animationIndex < _animatedCardsHeld.Count; animationIndex++)
             if (!_animatedCardsHeld[animationIndex].IsAnimating)
-                _animatedCardsHeld[animationIndex].Position = Position + 
+                _animatedCardsHeld[animationIndex].Position = Position +
                     GetCardRelativePosition(animationIndex);
 
         base.Update(gameTime);
     }
-    #endregion
 
-    #region Public Methods
     /// <summary>
     /// Gets the card's offset from the hand position according to its index
     /// in the hand.
@@ -144,10 +127,8 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
             return null;
 
         return _animatedCardsHeld[location];
-    } 
-    #endregion
+    }
 
-    #region Event Handlers
     /// <summary>
     /// Handles the ComponentRemoved event of the Components control.
     /// </summary>
@@ -197,7 +178,6 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
         _animatedCardsHeld.Add(animatedCardGameComponent);
         Game.Components.Add(animatedCardGameComponent);
     }
-    #endregion
 
     /// <summary>
     /// Calculate the estimated time at which the longest lasting animation currently managed 

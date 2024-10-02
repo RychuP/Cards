@@ -1,16 +1,7 @@
-#region File Description
-//-----------------------------------------------------------------------------
-// GameTable.cs
-//
-// Microsoft XNA Community Game Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace CardsFramework;
+namespace Framework.UI;
 
 /// <summary>
 /// The UI representation of the table where the game is played.

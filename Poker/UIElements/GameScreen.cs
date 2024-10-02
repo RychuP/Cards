@@ -1,6 +1,4 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Poker.Misc;
 
 namespace Poker.UIElements;
 
@@ -41,9 +39,10 @@ abstract class GameScreen : DrawableGameComponent
 
     public override void Draw(GameTime gameTime)
     {
-        Art.SpriteBatch.Begin();
-        Art.SpriteBatch.Draw(Texture, Constants.GameArea, Color.White);
-        Art.SpriteBatch.End();
+        var sb = Game.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
+        sb.Begin();
+        sb.Draw(Texture, Constants.GameArea, Color.White);
+        sb.End();
         base.Draw(gameTime);
     }
 }

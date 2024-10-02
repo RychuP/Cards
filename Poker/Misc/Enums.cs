@@ -1,10 +1,21 @@
 namespace Poker.Misc;
 
+/// <summary>
+/// Possible states of the onscreen buttons.
+/// </summary>
 enum PokerButtonState
 {
     Normal,
     Hover,
     Pressed
+}
+
+/// <summary>
+/// Used for player classes.
+/// </summary>
+public enum Gender {
+    Male,
+    Female
 }
 
 /// <summary>

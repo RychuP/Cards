@@ -8,12 +8,6 @@ static class Constants
     public static readonly string ButtonSpriteSheetName = "buttons";
     public static readonly string ThemeScreenTextureName = "theme";
     public static readonly string PokerTitleTextureName = "title";
-    public static readonly string ShuffleSpriteSheetName = "Shuffle_";
-
-    // font texture names
-    public static readonly string RegularFontTextureName = "regular";
-    public static readonly string BoldFontTextureName = "bold";
-    public static readonly string MenuFontTextureName = "menufont";
 
     // button texts
     public static readonly string ButtonRaiseText = "Raise";
@@ -25,6 +19,11 @@ static class Constants
     public static readonly string ButtonThemeText = "Theme";
     public static readonly string ButtonExitText = "Exit";
     public static readonly string ButtonReturnText = "Return";
+
+    // npc names
+    public static readonly string[] Names = new[] {
+        "Liam", "Noah", "Oliver", "James", "Elijah", "Theodore", "Henry", "Lucas", "William",
+        "Olivia", "Emily", "Charlotte", "Amelia", "Sophia", "Mia", "Isabella", "Ava", "Evelyn"};
 
     // themes
     public static readonly string RedThemeText = "Red";
@@ -39,7 +38,6 @@ static class Constants
     public static readonly int ButtonWidthWithMargin = ButtonWidth + SpaceBetweenButtons;
     public static readonly int ButtonSpriteHeight = 64;
     public static readonly int ButtonSpriteWidth = 291;
-    //public static readonly int ShuffleFrameSize = 180;   // shuffle frame is square 180 x 180
     public static readonly Rectangle GameArea = new(0, 0, GameWidth, GameHeight);
     public static readonly Rectangle CardPileFrameSource = new(0, 60, 95, 120);  // card pile in shuffle sprite
     public static readonly Vector2 ShuffleFrameSize = new(180, 180);
