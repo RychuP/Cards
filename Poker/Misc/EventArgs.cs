@@ -1,4 +1,4 @@
-using Poker.UI;
+using Poker.UI.ScreenElements;
 using System;
 
 namespace Poker.Misc;

@@ -10,19 +10,11 @@ class BlackJackTable : GameTable
 {
     public Vector2 RingOffset { get; private set; }
 
-    public BlackJackTable(Vector2 ringOffset, Rectangle tableBounds, Vector2 dealerPosition, int places,
-        Func<int, Vector2> placeOrder, string theme, Game game)
-        : base(tableBounds, dealerPosition, places, placeOrder, theme, game)
+    public BlackJackTable(Vector2 ringOffset, Rectangle tableBounds, Vector2 dealerPosition, 
+        int places, Func<int, Vector2> placeOrder, Game game)
+        : base(tableBounds, dealerPosition, places, placeOrder, game)
     {
         RingOffset = ringOffset;
-    }
-
-    /// <summary>
-    /// Load the component assets
-    /// </summary>
-    protected override void LoadContent()
-    {
-        base.LoadContent();
     }
 
     /// <summary>
@@ -31,13 +23,11 @@ class BlackJackTable : GameTable
     /// <param name="gameTime"></param>
     public override void Draw(GameTime gameTime)
     {
-        SpriteBatch.Begin();
-
-        SpriteBatch.Draw(Art.Table, TableBounds, Color.White);
-
+        var sb = Game.Services.GetService<SpriteBatch>();
+        sb.Begin();
+        sb.Draw(Art.Table, TableBounds, Color.White);
         for (int placeIndex = 0; placeIndex < Places; placeIndex++)
-            SpriteBatch.Draw(Art.Ring, PlaceOrder(placeIndex) + RingOffset, Color.White);
-
-        SpriteBatch.End();
+            sb.Draw(Art.Ring, PlaceOrder(placeIndex) + RingOffset, Color.White);
+        sb.End();
     }
 }

@@ -1,7 +1,7 @@
-﻿using Poker.UI;
+﻿using Poker.UI.ScreenElements;
 using System;
 
-namespace Poker.UIElements.Screens;
+namespace Poker.UI.Screens;
 
 class ThemeScreen : StaticScreen
 {
@@ -11,13 +11,13 @@ class ThemeScreen : StaticScreen
     public override void Initialize()
     {
         // calculate left most button position
-        int x = (Constants.GameWidth - Buttons.Capacity * Constants.ButtonWidthWithMargin
-            + Constants.SpaceBetweenButtons) / 2;
+        int x = (Constants.GameWidth - Buttons.Capacity * Constants.ButtonWidthWithPadding
+            + Constants.ButtonPadding) / 2;
 
         // create buttons
         Button redThemeButton = new(Constants.RedThemeText, x, Game);
-        Button blueThemeButton = new(Constants.BlueThemeText, x + Constants.ButtonWidthWithMargin, Game);
-        Button returnButton = new(Constants.ButtonReturnText, x + Constants.ButtonWidthWithMargin * 2, Game);
+        Button blueThemeButton = new(Constants.BlueThemeText, x + Constants.ButtonWidthWithPadding, Game);
+        Button returnButton = new(Constants.ButtonReturnText, x + Constants.ButtonWidthWithPadding * 2, Game);
 
         // click handlers
         redThemeButton.Click += RedThemeButton_OnClick;
@@ -25,7 +25,10 @@ class ThemeScreen : StaticScreen
         returnButton.Click += ReturnButton_OnClick;
 
         // save button references
-        Buttons.AddRange(new Button[] {redThemeButton, blueThemeButton, returnButton});
+        Buttons.AddRange(new Button[] { redThemeButton, blueThemeButton, returnButton });
+
+        // register event handlers
+        ScreenManager.ScreenChanged += ScreenManager_ScreenChanged;
 
         base.Initialize();
     }
@@ -34,6 +37,18 @@ class ThemeScreen : StaticScreen
     {
         Texture = Art.ThemeTitle;
         base.LoadContent();
+    }
+
+    void ScreenManager_ScreenChanged(object o, ScreenChangedEventArgs e)
+    {
+        var cardPile = Game.Components.Find<CardPile>();
+        if (cardPile is not null)
+        {
+            if (e.NewScreen == this)
+                cardPile.Show();
+            else if (e.PrevScreen == this)
+                cardPile.Hide();
+        }
     }
 
     void RedThemeButton_OnClick(object o, EventArgs e) =>

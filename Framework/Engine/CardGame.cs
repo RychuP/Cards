@@ -57,6 +57,10 @@ public abstract class CardGame
         game.Components.Add(GameTable);
     }
 
+    /// <summary>
+    /// Initializes static asset classes and adds SpriteBatch service.
+    /// </summary>
+    /// <param name="game"></param>
     public static void Initialize(Game game)
     {
         game.Services.AddService(typeof(SpriteBatch), new SpriteBatch(game.GraphicsDevice));
@@ -124,7 +128,7 @@ public abstract class CardGame
     public abstract void Deal();
 
     /// <summary>
-    /// Initializes the game lets the players start playing.
+    /// Initializes the game and lets the players start playing.
     /// </summary>
     public abstract void StartPlaying();
 }

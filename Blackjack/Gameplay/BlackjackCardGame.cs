@@ -63,7 +63,7 @@ class BlackjackCardGame : CardGame
         Func<int, Vector2> placeOrder, ScreenManager screenManager, string theme)
         : base(6, 0, CardSuits.AllSuits, CardValues.NonJokers, MinPlayers, MaxPlayers,
         new BlackJackTable(RingOffset, tableBounds, dealerPosition, MaxPlayers,
-            placeOrder, theme, screenManager.Game),
+            placeOrder, screenManager.Game),
         theme, screenManager.Game)
     {
         _dealerPlayer = new BlackjackPlayer("Dealer", this);
@@ -158,7 +158,7 @@ class BlackjackCardGame : CardGame
                 _dealerPlayer.CalculateValues();
 
                 // Make sure no animations are running
-                if (!CheckForRunningAnimations<AnimatedCardsGameComponent>())
+                if (!CheckForRunningAnimations<AnimatedCardGameComponent>())
                 {
                     BlackjackPlayer player = (BlackjackPlayer)GetCurrentPlayer();
                     // If the current player is an AI player, make it play
@@ -305,7 +305,7 @@ class BlackjackCardGame : CardGame
     /// </summary>
     private void ShowPlayerValues()
     {
-        Color color = Color.Black;
+        Color color;
         Player currentPlayer = GetCurrentPlayer();
 
         for (int playerIndex = 0; playerIndex < Players.Count; playerIndex++)
@@ -453,8 +453,7 @@ class BlackjackCardGame : CardGame
     /// <summary>
     /// Gets the active player.
     /// </summary>
-    /// <returns>The first player who has placed a bet and has not 
-    /// finish playing.</returns>
+    /// <returns>The first player who has placed a bet and has not finished playing.</returns>
     public override Player GetCurrentPlayer()
     {
         for (int playerIndex = 0; playerIndex < Players.Count; playerIndex++)
@@ -550,7 +549,7 @@ class BlackjackCardGame : CardGame
     {
         // Get the card location and card component
         int cardLocationInHand = animatedHand.GetCardLocationInHand(card);
-        AnimatedCardsGameComponent cardComponent = animatedHand.GetCardGameComponent(cardLocationInHand);
+        AnimatedCardGameComponent cardComponent = animatedHand.GetCardGameComponent(cardLocationInHand);
 
         // Add the transition animation
         cardComponent.AddAnimation(
@@ -561,7 +560,7 @@ class BlackjackCardGame : CardGame
                 StartTime = startTime,
                 PerformBeforeStart = ShowComponent,
                 PerformBeforeStartArgs = cardComponent,
-                PerformWhenDone = PlayDealSound
+                PerformWhenDone = PlayDealSound,
             });
 
         if (flipCard)
@@ -688,8 +687,8 @@ class BlackjackCardGame : CardGame
     /// </summary>
     private void RevealDealerFirstCard()
     {
-        // Iterate over all dealer cards expect for the last
-        AnimatedCardsGameComponent cardComponent = _dealerHandComponent.GetCardGameComponent(1);
+        // Iterate over all dealer cards except for the last
+        AnimatedCardGameComponent cardComponent = _dealerHandComponent.GetCardGameComponent(1);
         cardComponent?.AddAnimation(new FlipGameComponentAnimation()
         {
             Duration = TimeSpan.FromSeconds(0.5),
@@ -1061,7 +1060,7 @@ class BlackjackCardGame : CardGame
                 Game.Components[componentIndex] is Button ||
                 Game.Components[componentIndex] is ScreenManager))
             {
-                if (Game.Components[componentIndex] is AnimatedCardsGameComponent animatedCard)
+                if (Game.Components[componentIndex] is AnimatedCardGameComponent animatedCard)
                 {
                     animatedCard.AddAnimation(
                         new TransitionGameComponentAnimation(animatedCard.Position,
@@ -1162,8 +1161,8 @@ class BlackjackCardGame : CardGame
         if (_animatedHands[playerIndex] is not AnimatedHandGameComponent animatedHand)
             throw new Exception("Animated hand not initialized.");
 
-        if (animatedHand.GetCardGameComponent(1) is not AnimatedCardsGameComponent animatedCard1 ||
-            animatedHand.GetCardGameComponent(0) is not AnimatedCardsGameComponent animatedCard0)
+        if (animatedHand.GetCardGameComponent(1) is not AnimatedCardGameComponent animatedCard1 ||
+            animatedHand.GetCardGameComponent(0) is not AnimatedCardGameComponent animatedCard0)
             throw new InvalidOperationException("Missing card game components.");
 
         player.InitializeSecondHand();
@@ -1191,7 +1190,7 @@ class BlackjackCardGame : CardGame
         _animatedSecondHands[playerIndex] = animatedSecondHand;
         Game.Components.Add(animatedSecondHand);
 
-        AnimatedCardsGameComponent animatedGameComponet = animatedSecondHand.GetCardGameComponent(0);
+        AnimatedCardGameComponent animatedGameComponet = animatedSecondHand.GetCardGameComponent(0);
         animatedGameComponet.IsFaceDown = false;
         animatedGameComponet.AddAnimation(animation);
 

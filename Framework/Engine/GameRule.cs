@@ -15,7 +15,7 @@ public abstract class GameRule
 
     /// <summary>
     /// Checks whether the rule conditions are met. Should call 
-    /// <see cref="FireRuleMatch"/>.
+    /// <see cref="OnRuleMatch"/>.
     /// </summary>
     public abstract void Check();
 
@@ -23,11 +23,8 @@ public abstract class GameRule
     /// Fires the rule's event.
     /// </summary>
     /// <param name="e">Event arguments.</param>
-    protected void FireRuleMatch(EventArgs e)
+    protected void OnRuleMatch(EventArgs e)
     {
-        if (RuleMatch != null)
-        {
-            RuleMatch(this, e);
-        }
+        RuleMatch?.Invoke(this, e);
     }
 }

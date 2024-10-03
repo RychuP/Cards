@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Poker.UI;
+namespace Poker.UI.ScreenElements;
 
 /// <summary>
 /// Base class for menu screens with buttons.

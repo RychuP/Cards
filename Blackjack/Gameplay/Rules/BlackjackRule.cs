@@ -39,7 +39,7 @@ public class BlackJackRule : GameRule
                     _players[playerIndex].FirstValue + 10 == 21) &&
                     _players[playerIndex].Hand.Count == 2)
                 {
-                    FireRuleMatch(new BlackjackGameEventArgs()
+                    OnRuleMatch(new BlackjackGameEventArgs()
                     {
                         Player = _players[playerIndex],
                         Hand = HandTypes.First
@@ -55,7 +55,7 @@ public class BlackJackRule : GameRule
                      _players[playerIndex].SecondValue + 10 == 21) &&
                      _players[playerIndex].SecondHand.Count == 2)
                 {
-                    FireRuleMatch(new BlackjackGameEventArgs()
+                    OnRuleMatch(new BlackjackGameEventArgs()
                     {
                         Player = _players[playerIndex],
                         Hand = HandTypes.Second

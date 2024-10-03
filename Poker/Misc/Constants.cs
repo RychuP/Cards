@@ -1,4 +1,6 @@
-﻿namespace Poker.Misc;
+﻿using System;
+
+namespace Poker.Misc;
 
 static class Constants
 {
@@ -24,6 +26,7 @@ static class Constants
     public static readonly string[] Names = new[] {
         "Liam", "Noah", "Oliver", "James", "Elijah", "Theodore", "Henry", "Lucas", "William",
         "Olivia", "Emily", "Charlotte", "Amelia", "Sophia", "Mia", "Isabella", "Ava", "Evelyn"};
+    public static readonly string CommunityCardsName = "Community Cards";
 
     // themes
     public static readonly string RedThemeText = "Red";
@@ -33,27 +36,50 @@ static class Constants
     // dimensions
     public static readonly int GameWidth = 1280;
     public static readonly int GameHeight = 720;
-    public static readonly int SpaceBetweenButtons = 80;
+    /// <summary>
+    /// Space between buttons.
+    /// </summary>
+    public static readonly int ButtonPadding = 80;
     public static readonly int ButtonWidth = 175;
-    public static readonly int ButtonWidthWithMargin = ButtonWidth + SpaceBetweenButtons;
+    public static readonly int ButtonWidthWithPadding = ButtonWidth + ButtonPadding;
     public static readonly int ButtonSpriteHeight = 64;
     public static readonly int ButtonSpriteWidth = 291;
+    public static readonly Point CardSize = new(80, 106);
     public static readonly Rectangle GameArea = new(0, 0, GameWidth, GameHeight);
-    public static readonly Rectangle CardPileFrameSource = new(0, 60, 95, 120);  // card pile in shuffle sprite
-    public static readonly Vector2 ShuffleFrameSize = new(180, 180);
 
     // quantities
     public static readonly int MaxPlayers = 4;
     public static readonly int MinPlayers = 4;
 
     // sprite source rectangles
-    public static readonly Rectangle ButtonSpriteRegularSource =
-        new(0, 0, ButtonSpriteWidth, ButtonSpriteHeight);
-    public static readonly Rectangle ButtonSpriteHoverSource =
-        ButtonSpriteRegularSource.Move(0, ButtonSpriteHeight);
-    public static readonly Rectangle ButtonSpritePressedSource =
-        ButtonSpriteRegularSource.Move(0, ButtonSpriteHeight * 2);
+    public static readonly Point ShuffleFrameSize = new(180, 180);
+    /// <summary>
+    /// Card pile sprite in shuffle sprite sheet.
+    /// </summary>
+    public static readonly Rectangle CardPileFrameSource = new(0, 60, 95, 120);
+    public static readonly Rectangle ButtonSpriteRegularSource = new(0, 0, ButtonSpriteWidth, ButtonSpriteHeight);
+    public static readonly Rectangle ButtonSpriteHoverSource = ButtonSpriteRegularSource.Move(0, ButtonSpriteHeight);
+    public static readonly Rectangle ButtonSpritePressedSource = ButtonSpriteRegularSource.Move(0, ButtonSpriteHeight * 2);
 
     // coordinates
+    public static readonly Vector2 CommunityCardsPosition = new(376, 301);
+    public static readonly Vector2 DealerPosition = new(585, 68);
     public static readonly int ButtonPositionY = 632;
+    /// <summary>
+    /// Distance between player cards.
+    /// </summary>
+    public static readonly int PlayerCardPadding = 11;
+    /// <summary>
+    /// Distance between community cards.
+    /// </summary>
+    public static readonly int CommunityCardPadding = 32;
+    /// <summary>
+    /// Distance between the card and an edge of the screen.
+    /// </summary>
+    public static readonly int PlayerCardMargin = 31;
+    
+
+    // times
+    public static readonly TimeSpan DealAnimationDuration = TimeSpan.FromMilliseconds(500);
+    public static readonly TimeSpan FlipAnimationDuration = TimeSpan.FromMilliseconds(500);
 }

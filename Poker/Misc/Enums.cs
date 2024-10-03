@@ -25,7 +25,6 @@ public enum PokerGameState
 {
     Shuffling,
     Dealing,
-    Flop,
     FirstBet,
     Turn,
     SecondBet,

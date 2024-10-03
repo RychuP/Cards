@@ -10,6 +10,12 @@ static class Extensions
     public static T Find<T>(this GameComponentCollection components) =>
         components.Where(t => t is T).Select(t => (T)t).FirstOrDefault();
 
+    public static Vector2 WithX(this Vector2 vector, float newX) =>
+        new(newX, vector.Y);
+    
+    public static Vector2 WithY(this Vector2 vector, float newY) =>
+        new(vector.X, newY);
+
     /// <summary>
     /// Moves the <see cref="Rectangle"/> by a given offset given in <see cref="Vector2"/>.
     /// </summary>

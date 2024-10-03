@@ -1,4 +1,4 @@
-﻿namespace Poker.UI;
+﻿namespace Poker.UI.ScreenElements;
 
 /// <summary>
 /// Menu screen with static buttons that always show.

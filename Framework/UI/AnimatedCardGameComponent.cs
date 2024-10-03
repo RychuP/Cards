@@ -9,7 +9,7 @@ namespace Framework.UI;
 /// <summary>
 /// An <see cref="AnimatedGameComponent"/> implemented for a card.
 /// </summary>
-public class AnimatedCardsGameComponent : AnimatedGameComponent
+public class AnimatedCardGameComponent : AnimatedGameComponent
 {
     public TraditionalCard Card { get; private set; }
 
@@ -18,7 +18,7 @@ public class AnimatedCardsGameComponent : AnimatedGameComponent
     /// </summary>
     /// <param name="card">The card associated with the animation component.</param>
     /// <param name="cardGame">The associated game.</param>
-    public AnimatedCardsGameComponent(TraditionalCard card, CardGame cardGame) : base(cardGame, null)
+    public AnimatedCardGameComponent(TraditionalCard card, CardGame cardGame) : base(cardGame, null)
     {
         Card = card;
     }
@@ -46,7 +46,7 @@ public class AnimatedCardsGameComponent : AnimatedGameComponent
     {
         base.Draw(gameTime);
 
-        var sb = Game.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
+        var sb = Game.Services.GetService<SpriteBatch>();
         sb.Begin();
 
         // Draw the current frame at the designated destination, or at the initial 

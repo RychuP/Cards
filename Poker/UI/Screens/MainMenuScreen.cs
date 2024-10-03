@@ -1,9 +1,7 @@
-using Framework.Assets;
-using Framework.UI;
-using Poker.UI;
 using System;
+using Poker.UI.ScreenElements;
 
-namespace Poker.UIElements.Screens;
+namespace Poker.UI.Screens;
 
 /// <summary>
 /// Main menu screen shown before the game starts.
@@ -16,13 +14,13 @@ class MainMenuScreen : StaticScreen
     public override void Initialize()
     {
         // calculate left most button position
-        int x = (Constants.GameWidth - Buttons.Capacity * Constants.ButtonWidthWithMargin
-            + Constants.SpaceBetweenButtons) / 2;
+        int x = (Constants.GameWidth - Buttons.Capacity * Constants.ButtonWidthWithPadding
+            + Constants.ButtonPadding) / 2;
 
         // create buttons
         Button startButton = new(Constants.ButtonPlayText, x, Game);
-        Button themeButton = new(Constants.ButtonThemeText, x + Constants.ButtonWidthWithMargin, Game);
-        Button exitButton = new(Constants.ButtonExitText, x + Constants.ButtonWidthWithMargin * 2, Game);
+        Button themeButton = new(Constants.ButtonThemeText, x + Constants.ButtonWidthWithPadding, Game);
+        Button exitButton = new(Constants.ButtonExitText, x + Constants.ButtonWidthWithPadding * 2, Game);
 
         // click handlers
         startButton.Click += StartButton_OnClick;

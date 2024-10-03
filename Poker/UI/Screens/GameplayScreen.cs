@@ -1,7 +1,7 @@
-using Poker.UI;
 using System;
+using Poker.UI.ScreenElements;
 
-namespace Poker.UIElements.Screens;
+namespace Poker.UI.Screens;
 
 class GameplayScreen : MenuScreen
 {

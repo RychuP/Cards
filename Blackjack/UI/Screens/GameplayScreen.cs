@@ -122,18 +122,12 @@ class GameplayScreen : GameScreen
     /// <returns>The position for the player's hand on the game table.</returns>
     private Vector2 GetPlayerCardPosition(int player)
     {
-        switch (player)
+        return player switch
         {
-            case 0:
-            case 1:
-            case 2:
-                return new Vector2(ScreenManager.SafeArea.Left,
-                    ScreenManager.SafeArea.Top + 200 * (BlackjackGame.HeightScale - 1)) +
-                    _playerCardOffset[player];
-            default:
-                throw new ArgumentException(
-                    "Player index should be between 0 and 2", "player");
-        }
+            0 or 1 or 2 => new Vector2(ScreenManager.SafeArea.Left,ScreenManager.SafeArea.Top + 
+                200 * (BlackjackGame.HeightScale - 1)) + _playerCardOffset[player],
+            _ => throw new ArgumentException("Player index should be between 0 and 2", "player"),
+        };
     }
 
     /// <summary>

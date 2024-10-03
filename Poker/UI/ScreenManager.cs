@@ -1,6 +1,8 @@
 using System;
-using Poker.UIElements.Screens;
 using System.Collections.Generic;
+using Poker.Gameplay;
+using Poker.UI.ScreenElements;
+using Poker.UI.Screens;
 
 namespace Poker.UI;
 
@@ -22,7 +24,7 @@ class ScreenManager : GameComponent
             if (_activeScreen == value) return;
             var prevActScreen = _activeScreen;
             _activeScreen = value;
-            OnActiveScreenChanged(prevActScreen, value);
+            OnScreenChanged(prevActScreen, value);
         }
     }
 
@@ -33,6 +35,13 @@ class ScreenManager : GameComponent
         AddScreen(new ThemeScreen(this));
         AddScreen(new GameplayScreen(this));
         AddScreen(new PauseScreen(this));
+    }
+
+    public override void Update(GameTime gameTime)
+    {
+        base.Update(gameTime);
+
+        ((PokerGame)Game).GameManager.Update();
     }
 
     void AddScreen(GameScreen screen)
@@ -56,7 +65,7 @@ class ScreenManager : GameComponent
         ShowScreen<MainMenuScreen>();
     }
 
-    public void OnActiveScreenChanged(GameScreen prevScreen, GameScreen newScreen)
+    public void OnScreenChanged(GameScreen prevScreen, GameScreen newScreen)
     {
         prevScreen?.Hide();
         newScreen.Show();

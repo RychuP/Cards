@@ -87,7 +87,7 @@ public class AnimatedGameComponent : DrawableGameComponent
     {
         base.Draw(gameTime);
 
-        var sb = Game.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
+        var sb = Game.Services.GetService<SpriteBatch>();
         sb.Begin();
 
         // Draw at the destination if one is set
@@ -110,7 +110,7 @@ public class AnimatedGameComponent : DrawableGameComponent
 
     void DrawText(string text, SpriteFont font, Rectangle destination, Vector2 position)
     {
-        var sb = Game.Services.GetService(typeof (SpriteBatch)) as SpriteBatch;
+        var sb = Game.Services.GetService<SpriteBatch>();
         Vector2 size = font.MeasureString(Text);
         float x = position.X + (destination.Width - size.X) / 2;
         float y = position.Y + (destination.Height - size.Y) / 2;

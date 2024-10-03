@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Framework.UI;
 
@@ -8,10 +7,7 @@ namespace Framework.UI;
 /// </summary>
 public class GameTable : DrawableGameComponent
 {
-    #region Fields and Properties and Indexer
-    public string Theme { get; protected set; }
     public Vector2 DealerPosition { get; private set; }
-    public SpriteBatch SpriteBatch { get; private set; }
     public Func<int, Vector2> PlaceOrder { get; private set; }
     public Rectangle TableBounds { get; private set; }
     public int Places { get; private set; }
@@ -25,9 +21,7 @@ public class GameTable : DrawableGameComponent
     /// if the table only occupies part of it.</remarks>
     public Vector2 this[int index] =>
         new Vector2(TableBounds.Left, TableBounds.Top) + PlaceOrder(index);
-    #endregion
 
-    #region Initializations
     /// <summary>
     /// Initializes a new instance of the class.
     /// </summary>
@@ -36,19 +30,15 @@ public class GameTable : DrawableGameComponent
     /// <param name="places">Amount of places on the table</param>
     /// <param name="placeOrder">A method to convert player indices to their
     /// respective location on the table.</param>
-    /// <param name="theme">The theme used to display UI elements.</param>
     /// <param name="game">The associated game object.</param>
     public GameTable(Rectangle tableBounds, Vector2 dealerPosition, int places,
-        Func<int, Vector2> placeOrder, string theme, Game game) : base(game)
+        Func<int, Vector2> placeOrder, Game game) : base(game)
     {
         TableBounds = tableBounds;
         DealerPosition = dealerPosition + new Vector2(tableBounds.Left, tableBounds.Top);
         Places = places;
         PlaceOrder = placeOrder;
-        Theme = theme;
-        SpriteBatch = new SpriteBatch(game.GraphicsDevice);
     }
-    #endregion
 
     public virtual void Show()
     {

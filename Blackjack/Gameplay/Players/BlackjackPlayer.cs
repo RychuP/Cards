@@ -135,9 +135,9 @@ public class BlackjackPlayer : Player
     /// </summary>
     public void CalculateValues()
     {
-        CalulateValue(Hand, Game, out _firstValue, out _firstValueConsiderAce);
+        CalulateValue(Hand, CardGame, out _firstValue, out _firstValueConsiderAce);
         if (SecondHand != null)
-            CalulateValue(SecondHand, Game, out _secondValue, out _secondValueConsiderAce);
+            CalulateValue(SecondHand, CardGame, out _secondValue, out _secondValueConsiderAce);
     }
 
     /// <summary>

@@ -117,7 +117,7 @@ public class BetGameComponent : DrawableGameComponent
                 else
                 {
                     // Reveal the input buttons for a human player and handle input
-                    // remember that buttons handle their own imput, so we only check
+                    // remember that buttons handle their own input, so we only check
                     // for input on the chip buttons
                     ShowAndEnableButtons(true);
 

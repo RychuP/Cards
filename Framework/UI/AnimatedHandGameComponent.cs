@@ -7,7 +7,7 @@ namespace Framework.UI;
 public class AnimatedHandGameComponent : AnimatedGameComponent
 {
     public readonly Hand Hand;
-    readonly List<AnimatedCardsGameComponent> _animatedCardsHeld = new();
+    readonly List<AnimatedCardGameComponent> _animatedCardsHeld = new();
 
     public override bool IsAnimating
     {
@@ -23,7 +23,7 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// <summary>
     /// Returns the animated cards contained in the hand.
     /// </summary>
-    public IEnumerable<AnimatedCardsGameComponent> AnimatedCards =>
+    public IEnumerable<AnimatedCardGameComponent> AnimatedCards =>
         _animatedCardsHeld.AsReadOnly();
 
     /// <summary>
@@ -49,7 +49,7 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
         // Create and initialize animated cards according to the cards in the associated hand
         for (int cardIndex = 0; cardIndex < hand.Count; cardIndex++)
         {
-            AnimatedCardsGameComponent animatedCardGameComponent = new(hand[cardIndex], cardGame)
+            AnimatedCardGameComponent animatedCardGameComponent = new(hand[cardIndex], cardGame)
             {
                 Position = Position + new Vector2(30 * cardIndex, 0)
             };
@@ -106,7 +106,7 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// component.</param>
     /// <returns>The card's animation component, or null if such a card cannot
     /// be found in the hand.</returns>
-    public AnimatedCardsGameComponent GetCardGameComponent(TraditionalCard card)
+    public AnimatedCardGameComponent GetCardGameComponent(TraditionalCard card)
     {
         int location = GetCardLocationInHand(card);
         if (location == -1)
@@ -121,7 +121,7 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// <param name="location">The location where the desired card is 
     /// in the hand.</param>
     /// <returns>The card's animation component.</return>s 
-    public AnimatedCardsGameComponent GetCardGameComponent(int location)
+    public AnimatedCardGameComponent GetCardGameComponent(int location)
     {
         if (location == -1 || location >= _animatedCardsHeld.Count)
             return null;
@@ -174,7 +174,7 @@ public class AnimatedHandGameComponent : AnimatedGameComponent
     /// instance containing the event data.</param>
     void Hand_OnCardReceived(object sender, CardEventArgs e)
     {
-        AnimatedCardsGameComponent animatedCardGameComponent = new(e.Card, CardGame) { Visible = false };
+        AnimatedCardGameComponent animatedCardGameComponent = new(e.Card, CardGame) { Visible = false };
         _animatedCardsHeld.Add(animatedCardGameComponent);
         Game.Components.Add(animatedCardGameComponent);
     }

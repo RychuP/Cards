@@ -35,7 +35,7 @@ public class BustRule : GameRule
             {
                 if (!_players[playerIndex].FirstValueConsiderAce && _players[playerIndex].FirstValue > 21)
                 {
-                    FireRuleMatch(new BlackjackGameEventArgs()
+                    OnRuleMatch(new BlackjackGameEventArgs()
                     {
                         Player = _players[playerIndex],
                         Hand = HandTypes.First
@@ -48,7 +48,7 @@ public class BustRule : GameRule
                     !_players[playerIndex].SecondValueConsiderAce &&
                      _players[playerIndex].SecondValue > 21)
                 {
-                    FireRuleMatch(new BlackjackGameEventArgs()
+                    OnRuleMatch(new BlackjackGameEventArgs()
                     {
                         Player = _players[playerIndex],
                         Hand = HandTypes.Second
