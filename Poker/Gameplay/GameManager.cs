@@ -1,9 +1,12 @@
+using Framework.Assets;
 using Framework.Engine;
 using Framework.Misc;
 using Framework.UI;
 using Poker.Gameplay.Players;
 using Poker.UI;
+using Poker.UI.Screens;
 using System;
+using System.Collections.Generic;
 
 namespace Poker.Gameplay;
 
@@ -11,11 +14,11 @@ class GameManager : CardGame
 {
     readonly CardPile _cardPile;
     readonly CommunityCards _communityCards;
-    readonly Hand _usedCards = new();
+    readonly BetComponent _betComponent;
 
     public PokerGameState State { get; set; }
 
-    public GameManager(Game game) : base(1, 0, CardSuits.AllSuits, CardValues.NonJokers,
+    public GameManager(Game game) : base(1, 0, CardSuits.AllSuits, CardValues.NonJokers, Fonts.Moire.Regular,
         Constants.MinPlayers, Constants.MaxPlayers, new PokerTable(game), Constants.DefaultTheme, game)
     {
         // create card pile
@@ -23,26 +26,40 @@ class GameManager : CardGame
         game.Components.Add(_cardPile);
 
         // create players
-        AddPlayer(new HumanPlayer(GetRandomName(), Gender.Male, this));
+        AddPlayer(new HumanPlayer(Gender.Male, this));
         for (int place = 1; place < MaximumPlayers; place++)
-            AddPlayer(new AIPlayer(GetRandomName(), (Gender)(place % 2), place, this));
+        {
+            (string name, Gender gender) = GetRandomPerson();
+            AddPlayer(new AIPlayer(name, gender, place, this));
+        }
 
         // create community cards cards holder
         _communityCards = new CommunityCards(this);
+
+        // create bet component
+        _betComponent = new BetComponent(this);
+        game.Components.Add(_betComponent);
     }
 
     public void Update()
     {
+        if (((PokerGame)Game).ScreenManager.ActiveScreen is not GameplayScreen) return;
+
         switch (State)
         {
             case PokerGameState.Shuffling:
+                if (!CheckForRunningAnimations<CardPile>())
+                {
+                    State = PokerGameState.Dealing;
+                    Deal();
+                }
                 break;
 
             case PokerGameState.Dealing:
                 if (!CheckForRunningAnimations<AnimatedCardGameComponent>())
                 {
                     State = PokerGameState.FirstBet;
-                    _cardPile.Hide();
+                    _cardPile.SlideUp();
                 }
                 break;
 
@@ -51,7 +68,6 @@ class GameManager : CardGame
                 {
                     
                 }
-                    
                 break;
         }
     }
@@ -66,18 +82,14 @@ class GameManager : CardGame
 
     public override void Deal()
     {
-        State = PokerGameState.Dealing;
-        
         DateTime startTime = DateTime.Now;
 
         // deal player cards
         for (int dealIndex = 0; dealIndex < 2; dealIndex++)
         {
-            //TimeSpan dealAnimationOffset = TimeSpan.FromSeconds(
-            //    Constants.DealAnimationDuration.TotalSeconds * (dealIndex * Players.Count));
             for (int playerIndex = 0; playerIndex < Players.Count; playerIndex++)
             {
-                var player = Players[playerIndex] as PokerCardsHolder;
+                var player = this[playerIndex];
                 TraditionalCard card = Dealer.DealCardToHand(player.Hand);
                 bool flip = player is HumanPlayer;
 
@@ -111,32 +123,11 @@ class GameManager : CardGame
     }
 
     /// <summary>
-    /// Selects a random, unique name of an alternating gender.
+    /// Indexer that returns <see cref="PokerBettingPlayer"/>.
     /// </summary>
-    /// <returns></returns>
-    string GetRandomName()
-    {
-        string name;
-
-        // alternate gender
-        Gender gender = (Gender)(Players.Count % 2);
-
-        // get the count of 50% of the names (first half is male, second female)
-        int nameCount = Constants.Names.Length / 2;
-        do
-        {
-            // get random index taking into consideration the appropriate half of collection
-            int offset = gender == Gender.Male ? 0 : nameCount;
-            int index = ((PokerGame)Game).Random.Next(0, nameCount);
-
-            // retrieve the name and cap index (just in case)
-            name = Constants.Names[Math.Min(index + offset, Constants.Names.Length - 1)];
-
-            // repeat until a unique name is selected
-        } while (Players.Find(p => p.Name == name) is PokerCardsHolder);
-
-        return name;
-    }
+    /// <returns><see cref="PokerBettingPlayer"/> with the given index.</returns>
+    public PokerBettingPlayer this[int index] =>
+        Players[index] as PokerBettingPlayer;
 
     /// <summary>
     /// Changes card theme for the game.
@@ -151,6 +142,32 @@ class GameManager : CardGame
             Theme = theme;
             OnThemeChanged(theme);
         }
+    }
+
+    /// <summary>
+    /// Selects a random, unique name of an alternating gender.
+    /// </summary>
+    /// <returns></returns>
+    (string, Gender) GetRandomPerson()
+    {
+        string name = string.Empty;
+        Gender gender = (Gender)((PokerGame)Game).Random.Next(2);
+
+        // get the count of 50% of the names (first half is male, second female)
+        int nameCount = Constants.Names.Length / 2;
+        do
+        {
+            // get random index taking into consideration the appropriate half of collection
+            int offset = gender == Gender.Male ? 0 : nameCount;
+            int index = ((PokerGame)Game).Random.Next(0, nameCount);
+
+            // retrieve the name and cap index (just in case)
+            name = Constants.Names[Math.Min(index + offset, Constants.Names.Length - 1)];
+
+            // repeat until a unique name is selected
+        } while (Players.Find(p => p.Name == name) is PokerCardsHolder);
+        
+        return (name, gender);
     }
 
     /// <summary>

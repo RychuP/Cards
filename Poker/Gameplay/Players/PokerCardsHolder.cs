@@ -9,7 +9,7 @@ abstract class PokerCardsHolder : Player
 {
     public AnimatedHandGameComponent AnimatedHand { get; init; }
 
-    public PokerCardsHolder(string name, int place, CardGame cardGame) : base(name, cardGame)
+    public PokerCardsHolder(string name, GameManager gm) : base(name, gm)
     {
         
     }

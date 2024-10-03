@@ -23,6 +23,7 @@ public abstract class CardGame
     public int MinimumPlayers { get; protected set; }
     public int MaximumPlayers { get; protected set; }
     public string Theme { get; protected set; }
+    public SpriteFont Font { get; init; }
     public GameTable GameTable { get; protected set; }
     public Game Game { get; set; }
 
@@ -42,7 +43,7 @@ public abstract class CardGame
     /// <param name="theme">The name of the theme to use for the 
     /// game's assets.</param>
     /// <param name="game">The associated game object.</param>
-    public CardGame(int decks, int jokersInDeck, CardSuits suits, CardValues cardValues,
+    public CardGame(int decks, int jokersInDeck, CardSuits suits, CardValues cardValues, SpriteFont font,
         int minimumPlayers, int maximumPlayers, GameTable gameTable, string theme, Game game)
     {
         Dealer = new CardPacket(decks, jokersInDeck, suits, cardValues);
@@ -50,6 +51,7 @@ public abstract class CardGame
         Game = game;
         MinimumPlayers = minimumPlayers;
         MaximumPlayers = maximumPlayers;
+        Font = font;
 
         Theme = theme;
         GameTable = gameTable;

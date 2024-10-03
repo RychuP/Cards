@@ -34,7 +34,7 @@ public class BetGameComponent : DrawableGameComponent
     /// <param name="input">An instance of 
     /// <see cref="InputState"/> which can be used to 
     /// check user input.</param>
-    /// <param name="theme">The name of the selcted card theme.</param>
+    /// <param name="theme">The name of the selected card theme.</param>
     /// <param name="cardGame">An instance of <see cref="CardGame"/> which
     /// is the current game.</param>
     public BetGameComponent(List<Player> players, CardGame cardGame) : base(cardGame.Game) =>
@@ -227,7 +227,7 @@ public class BetGameComponent : DrawableGameComponent
     /// this method.</param>
     public override void Draw(GameTime gameTime)
     {
-        var sb = Game.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
+        var sb = Game.Services.GetService<SpriteBatch>();
         sb.Begin();
 
         // Draws the chips

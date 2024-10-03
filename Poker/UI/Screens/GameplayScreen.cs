@@ -1,4 +1,6 @@
 using System;
+using Framework.Assets;
+using Microsoft.Xna.Framework.Graphics;
 using Poker.UI.ScreenElements;
 
 namespace Poker.UI.Screens;
@@ -33,6 +35,24 @@ class GameplayScreen : MenuScreen
     {
         Texture = Art.TableCardOutlines;
         base.LoadContent();
+    }
+
+    public override void Draw(GameTime gameTime)
+    {
+        base.Draw(gameTime);
+
+        var gm = ((PokerGame)Game).GameManager;
+        var sb = Game.Services.GetService<SpriteBatch>();
+        sb.Begin();
+
+        // draw player names
+        for (int i = 0; i < Constants.MaxPlayers; i++)
+        {
+            var player = gm[i];
+            sb.DrawString(gm.Font, player.Name, player.NamePosition, Color.CornflowerBlue);
+        }
+
+        sb.End();
     }
 
     public override void Show()

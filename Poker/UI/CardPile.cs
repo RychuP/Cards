@@ -11,14 +11,10 @@ namespace Poker.UI;
 /// </summary>
 class CardPile : AnimatedGameComponent
 {
-    const float TransitionDuration = 0.2f;
-    readonly Vector2 _hiddenPosition = new((Constants.GameWidth - Constants.CardPileFrameSource.Width) / 2, -Constants.ShuffleFrameSize.Y);
-    readonly Vector2 _visiblePosition = new((Constants.GameWidth - Constants.CardPileFrameSource.Width) / 2, 0);
-
     public CardPile(GameManager gm) : base(gm, GetThemeTexture(Constants.DefaultTheme))
     {
         CurrentSegment = new Rectangle(0, 0, Constants.ShuffleFrameSize.X, Constants.ShuffleFrameSize.Y);
-        Position = _hiddenPosition;
+        Position = Constants.CardPileHiddenPosition;
         gm.ThemeChanged += GameManager_OnThemeChanged;
     }
 
@@ -29,72 +25,40 @@ class CardPile : AnimatedGameComponent
     /// <param name="arg"></param>
     public void ShowAndShuffle()
     {
-        Show(Shuffle);
-    }
-
-    // part of ShowAndShuffle (stage 2)
-    void Shuffle(object o)
-    {
-        FramesetGameComponentAnimation anim = new(Texture, 32, 11, Constants.ShuffleFrameSize.ToVector2())
+        FramesetGameComponentAnimation shuffle = new(Texture, 32, 11, Constants.ShuffleFrameSize.ToVector2())
         {
             PerformBeforeStart = (o) => CardSounds.Shuffle.Play(),
-            Duration = TimeSpan.FromSeconds(1.5f),
-            PerformWhenDone = CallDeal
+            Duration = Constants.ShuffleDuration,
+            PerformWhenDone = (o) => CardSounds.Shuffle.Play()
         };
-        AddAnimation(anim);
-    }
-
-    // part of ShowAndShuffle (stage 3)
-    void CallDeal(object o)
-    {
-        ((GameManager)CardGame).Deal();
+        var slideAnim = SlideDown();
+        slideAnim.PerformWhenDone = (o) => AddAnimation(shuffle);
     }
 
     /// <summary>
     /// Moves the card pile to a visible, onscreen position.
     /// </summary>
-    /// <param name="action"></param>
-    /// <param name="arg"></param>
-    public void Show(Action<object> action, object arg = null)
+    public TransitionGameComponentAnimation SlideDown()
     {
-        AddAnimation(GetTransitionAnimation(Position, _visiblePosition, action, arg));
+        var slideDown = GetTransitionAnimation(Position, Constants.CardPileVisiblePosition);
+        AddAnimation(slideDown);
+        return slideDown;
     }
 
     /// <summary>
     /// Moves the card pile to a hidden, offscreen position.
     /// </summary>
-    /// <param name="action"></param>
-    /// <param name="arg"></param>
-    public void Hide(Action<object> action, object arg = null)
+    public void SlideUp()
     {
-        AddAnimation(GetTransitionAnimation(Position, _hiddenPosition, action, arg));
+        AddAnimation(GetTransitionAnimation(Position, Constants.CardPileHiddenPosition));
     }
 
-    /// <summary>
-    /// Moves the card pile to a visible, onscreen position.
-    /// </summary>
-    public void Show()
-    {
-        Show((o) => { });
-    }
-
-    /// <summary>
-    /// Moves the card pile to a hidden, offscreen position.
-    /// </summary>
-    public void Hide()
-    {
-        Hide((o) => { });
-    }
-
-    static TransitionGameComponentAnimation GetTransitionAnimation(Vector2 start, Vector2 finish, 
-        Action<object> action, object arg)
+    static TransitionGameComponentAnimation GetTransitionAnimation(Vector2 start, Vector2 finish)
     {
         return new TransitionGameComponentAnimation(start, finish)
         {
-            Duration = TimeSpan.FromSeconds(TransitionDuration),
-            PerformBeforeStart = (o) => CardSounds.Flip.Play(),
-            PerformWhenDone = action,
-            PerformWhenDoneArgs = arg
+            Duration = Constants.CardPileTransitionDuration,
+            PerformBeforeStart = (o) => CardSounds.Flip.Play()
         };
     }
 

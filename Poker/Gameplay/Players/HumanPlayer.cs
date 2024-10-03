@@ -1,10 +1,8 @@
-﻿using Framework.Engine;
-
-namespace Poker.Gameplay.Players;
+﻿namespace Poker.Gameplay.Players;
 
 class HumanPlayer : PokerBettingPlayer
 {
-    public HumanPlayer(string name, Gender gender, CardGame game) : base(name, gender, 0, game)
+    public HumanPlayer(Gender gender, GameManager gm) : base("You", gender, 0, gm)
     {
 
     }

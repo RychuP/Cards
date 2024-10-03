@@ -61,7 +61,7 @@ class BlackjackCardGame : CardGame
     /// <param name="theme">The game's deck theme name.</param>
     public BlackjackCardGame(Rectangle tableBounds, Vector2 dealerPosition,
         Func<int, Vector2> placeOrder, ScreenManager screenManager, string theme)
-        : base(6, 0, CardSuits.AllSuits, CardValues.NonJokers, MinPlayers, MaxPlayers,
+        : base(6, 0, CardSuits.AllSuits, CardValues.NonJokers, Fonts.Moire.Regular, MinPlayers, MaxPlayers,
         new BlackJackTable(RingOffset, tableBounds, dealerPosition, MaxPlayers,
             placeOrder, screenManager.Game),
         theme, screenManager.Game)

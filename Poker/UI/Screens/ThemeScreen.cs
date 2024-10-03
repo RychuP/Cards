@@ -45,9 +45,9 @@ class ThemeScreen : StaticScreen
         if (cardPile is not null)
         {
             if (e.NewScreen == this)
-                cardPile.Show();
+                cardPile.SlideDown();
             else if (e.PrevScreen == this)
-                cardPile.Hide();
+                cardPile.SlideUp();
         }
     }
 

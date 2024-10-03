@@ -4,8 +4,8 @@ namespace Poker.Gameplay.Players;
 
 class CommunityCards : PokerCardsHolder
 {
-    public CommunityCards(GameManager cardGame) : base(Constants.CommunityCardsName, -1, cardGame)
+    public CommunityCards(GameManager gm) : base(Constants.CommunityCardsName, gm)
     {
-        AnimatedHand = new AnimatedDealerHand(-1, Hand, cardGame);
+        AnimatedHand = new AnimatedDealerHand(-1, Hand, gm);
     }
 }

@@ -46,6 +46,22 @@ static class Constants
     public static readonly int ButtonSpriteWidth = 291;
     public static readonly Point CardSize = new(80, 106);
     public static readonly Rectangle GameArea = new(0, 0, GameWidth, GameHeight);
+    /// <summary>
+    /// Distance between player cards.
+    /// </summary>
+    public static readonly int PlayerCardPadding = 11;
+    /// <summary>
+    /// Distance between community cards.
+    /// </summary>
+    public static readonly int CommunityCardPadding = 32;
+    /// <summary>
+    /// Distance between the card and an edge of the screen.
+    /// </summary>
+    public static readonly int PlayerCardMargin = 31;
+    /// <summary>
+    /// Offset for a name (based on player position).
+    /// </summary>
+    public static readonly int PlayerNameOffset = 10;
 
     // quantities
     public static readonly int MaxPlayers = 4;
@@ -62,24 +78,18 @@ static class Constants
     public static readonly Rectangle ButtonSpritePressedSource = ButtonSpriteRegularSource.Move(0, ButtonSpriteHeight * 2);
 
     // coordinates
-    public static readonly Vector2 CommunityCardsPosition = new(376, 301);
+    public static readonly Vector2 CardPileHiddenPosition = 
+        new((GameWidth - CardPileFrameSource.Width) / 2, -ShuffleFrameSize.Y);
+    public static readonly Vector2 CardPileVisiblePosition = 
+        new((GameWidth - CardPileFrameSource.Width) / 2, 0);
+    public static readonly Vector2 CommunityCardsPosition = new(375, 301);
     public static readonly Vector2 DealerPosition = new(585, 68);
     public static readonly int ButtonPositionY = 632;
-    /// <summary>
-    /// Distance between player cards.
-    /// </summary>
-    public static readonly int PlayerCardPadding = 11;
-    /// <summary>
-    /// Distance between community cards.
-    /// </summary>
-    public static readonly int CommunityCardPadding = 32;
-    /// <summary>
-    /// Distance between the card and an edge of the screen.
-    /// </summary>
-    public static readonly int PlayerCardMargin = 31;
     
 
     // times
+    public static TimeSpan CardPileTransitionDuration = TimeSpan.FromSeconds(0.2f);
+    public static TimeSpan ShuffleDuration = TimeSpan.FromSeconds(1.5f);
     public static readonly TimeSpan DealAnimationDuration = TimeSpan.FromMilliseconds(500);
     public static readonly TimeSpan FlipAnimationDuration = TimeSpan.FromMilliseconds(500);
 }
