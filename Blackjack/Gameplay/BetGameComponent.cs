@@ -18,14 +18,14 @@ public class BetGameComponent : DrawableGameComponent
 {
     readonly List<Player> _players;
     readonly CardGame _cardGame;
-    Vector2[] _positions = new Vector2[ChipAssets.ValueChips.Count];
+    readonly Vector2[] _positions = new Vector2[ChipAssets.ValueChips.Count];
+    readonly List<AnimatedGameComponent> _currentChipComponents = new();
+    Button _betButton;
+    Button _clearButton;
+    int _currentBet = 0;
     bool isKeyDown = false;
-    Button _bet;
-    Button _clear;
     static readonly float _insuranceYPosition = 120 * BlackjackGame.HeightScale;
     static Vector2 _secondHandOffset = new(25 * BlackjackGame.WidthScale, 30 * BlackjackGame.HeightScale);
-    readonly List<AnimatedGameComponent> _currentChipComponent = new();
-    int _currentBet = 0;
 
     /// <summary>
     /// Creates a new instance of the <see cref="BetGameComponent"/> class.
@@ -64,22 +64,22 @@ public class BetGameComponent : DrawableGameComponent
         }
 
         // Initialize bet button
-        _bet = new Button(_cardGame)
+        _betButton = new Button(_cardGame)
         {
             Bounds = new Rectangle(bounds.Left + 10, bounds.Bottom - 60, 100, 50),
             Text = "Deal",
         };
-        _bet.Click += BetButton_OnClick;
-        Game.Components.Add(_bet);
+        _betButton.Click += BetButton_OnClick;
+        Game.Components.Add(_betButton);
 
         // Initialize clear button
-        _clear = new Button(_cardGame)
+        _clearButton = new Button(_cardGame)
         {
             Bounds = new Rectangle(bounds.Left + 120, bounds.Bottom - 60, 100, 50),
             Text = "Clear",
         };
-        _clear.Click += ClearButton_OnClick;
-        Game.Components.Add(_clear);
+        _clearButton.Click += ClearButton_OnClick;
+        Game.Components.Add(_clearButton);
         ShowAndEnableButtons(false);
     }
 
@@ -246,9 +246,9 @@ public class BetGameComponent : DrawableGameComponent
             Vector2 position = table[playerIndex] + table.RingOffset +
                 new Vector2(Art.Ring.Bounds.Width, 0);
             player = (BlackjackPlayer)_players[playerIndex];
-            sb.DrawString(Fonts.Moire.Regular, "$" + player.BetAmount.ToString(),
+            sb.DrawString(_cardGame.Font, "$" + player.BetAmount.ToString(),
                 position, Color.White);
-            sb.DrawString(Fonts.Moire.Regular, "$" + player.Balance.ToString(),
+            sb.DrawString(_cardGame.Font, "$" + player.Balance.ToString(),
                 position + new Vector2(0, 30), Color.White);
         }
 
@@ -284,7 +284,7 @@ public class BetGameComponent : DrawableGameComponent
 
             // Calculate the position for the new chip
             Vector2 position = _cardGame.GameTable[playerIndex] + offset +
-                new Vector2(-_currentChipComponent.Count * 2, _currentChipComponent.Count * 1);
+                new Vector2(-_currentChipComponents.Count * 2, _currentChipComponents.Count * 1);
 
             // Find the index of the chip
             int currentChipIndex = 0;
@@ -314,7 +314,7 @@ public class BetGameComponent : DrawableGameComponent
                 AnimationCycles = 3,
             });
 
-            _currentChipComponent.Add(chipComponent);
+            _currentChipComponents.Add(chipComponent);
         }
     }
 
@@ -363,7 +363,7 @@ public class BetGameComponent : DrawableGameComponent
     public void Reset()
     {
         ShowAndEnableButtons(true);
-        _currentChipComponent.Clear();
+        _currentChipComponents.Clear();
     }
 
     /// <summary>
@@ -501,8 +501,6 @@ public class BetGameComponent : DrawableGameComponent
     /// <summary>
     /// Gets the offset at which newly added chips should be placed.
     /// </summary>
-    /// <param name="playerIndex">Index of the player to whom the chip 
-    /// is added.</param>
     /// <param name="secondHand">True if the chip is added to the player's second
     /// hand, false otherwise.</param>
     /// <returns>The offset from the player's position where chips should be
@@ -529,10 +527,10 @@ public class BetGameComponent : DrawableGameComponent
     /// to hide and disable them.</param>
     private void ShowAndEnableButtons(bool visibleEnabled)
     {
-        _bet.Visible = visibleEnabled;
-        _bet.Enabled = visibleEnabled;
-        _clear.Visible = visibleEnabled;
-        _clear.Enabled = visibleEnabled;
+        _betButton.Visible = visibleEnabled;
+        _betButton.Enabled = visibleEnabled;
+        _clearButton.Visible = visibleEnabled;
+        _clearButton.Enabled = visibleEnabled;
     }
 
     /// <summary>
@@ -644,11 +642,11 @@ public class BetGameComponent : DrawableGameComponent
         // Clear current player chips from screen and resets his bet
         _currentBet = 0;
         ((BlackjackPlayer)_players[GetCurrentPlayer()]).ClearBet();
-        for (int chipComponentIndex = 0; chipComponentIndex < _currentChipComponent.Count; chipComponentIndex++)
+        for (int chipComponentIndex = 0; chipComponentIndex < _currentChipComponents.Count; chipComponentIndex++)
         {
-            Game.Components.Remove(_currentChipComponent[chipComponentIndex]);
+            Game.Components.Remove(_currentChipComponents[chipComponentIndex]);
         }
-        _currentChipComponent.Clear();
+        _currentChipComponents.Clear();
     }
 
     /// <summary>
@@ -667,7 +665,7 @@ public class BetGameComponent : DrawableGameComponent
             ((BlackjackCardGame)_cardGame).ShowPlayerPass(playerIndex);
         }
         ((BlackjackPlayer)_players[playerIndex]).IsDoneBetting = true;
-        _currentChipComponent.Clear();
+        _currentChipComponents.Clear();
         _currentBet = 0;
     }
 }

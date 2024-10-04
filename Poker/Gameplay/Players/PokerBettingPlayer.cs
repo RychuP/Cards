@@ -4,27 +4,74 @@ namespace Poker.Gameplay.Players;
 
 class PokerBettingPlayer : PokerCardsHolder
 {
-    public float Balance { get; private set; }
-    public float BetAmount { get; private set; }
+    readonly Vector2 _textPosition;
+    public int Balance { get; set; }
+    public int BetAmount { get; private set; }
     public Gender Gender { get; }
     public Vector2 NamePosition { get; }
+
+    /// <summary>
+    /// Index of the player's location on the table.
+    /// </summary>
+    public int Place {  get; }
 
     public PokerBettingPlayer(string name, Gender gender, int place, GameManager gm)
         : base(name, gm)
     {
         AnimatedHand = new AnimatedPlayerHand(place, Hand, gm);
         Gender = gender;
+        Place = place;
 
-        // measure string
-        var stringSize = gm.Font.MeasureString(name);
+        // calculate name position in the player area
+        var stringSize = gm.Font.MeasureString(Name);
+        int verticalOffset = IsAtTheBottom ?
+            -Constants.PlayerTextVerticalPadding - (int)stringSize.Y :
+            Constants.CardSize.Y + Constants.PlayerTextVerticalPadding;
+        _textPosition = gm.GameTable[Place] + new Vector2(0, verticalOffset);
+        NamePosition = GetCenteredTextPosition(Name, 0);
+    }
 
-        int verticalOffset = (place == 0 || place == Constants.MaxPlayers - 1) ?
-            -Constants.PlayerNameOffset - (int)stringSize.Y :
-            Constants.CardSize.Y + 5;
+    /// <summary>
+    /// Returns centered text position at the given line number (0 based index).
+    /// </summary>
+    /// <param name="text">Text to return the position for.</param>
+    /// <param name="lineNumber">Zero based line number.</param>
+    /// <returns></returns>
+    public Vector2 GetCenteredTextPosition(string text, int lineNumber)
+    {
+        var stringSize = CardGame.Font.MeasureString(text);
+        int horizontalOffset = (Constants.PlayerAreaWidth - (int)stringSize.X) / 2;
+        int verticalOffset = IsAtTheBottom ?
+            -Constants.PlayerTextVerticalPadding - (int)stringSize.Y :
+            Constants.PlayerTextVerticalPadding + (int)stringSize.Y;
+        var textPos = _textPosition + new Vector2(horizontalOffset, verticalOffset * lineNumber);
+        bool test = textPos.X == NamePosition.X;
+        return textPos;
+    }
 
-        int playerAreaWidth = Constants.CardSize.Y * 2;
-        int horizontalOffset = (playerAreaWidth - (int)stringSize.X - 38) / 2;
+    /// <summary>
+    /// Player's position is on the left of the screen.
+    /// </summary>
+    public bool IsOnTheLeft => Place == 0 || Place == 1;
 
-        NamePosition = gm.GameTable[place] + new Vector2(horizontalOffset, verticalOffset);
+    /// <summary>
+    /// Player's position is on the right of the screen.
+    /// </summary>
+    public bool IsOnTheRight => Place == 2 || Place == 3;
+
+    /// <summary>
+    /// Player's position is at the top of the screen.
+    /// </summary>
+    public bool IsAtTheTop => Place == 1 || Place == 2;
+
+    /// <summary>
+    /// Player's position is at the bottom of the screen.
+    /// </summary>
+    public bool IsAtTheBottom => Place == 0 || Place == 3;
+
+    public void Reset()
+    {
+        Balance = 500;
+        BetAmount = 0;
     }
 }

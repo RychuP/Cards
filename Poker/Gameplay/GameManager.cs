@@ -6,7 +6,6 @@ using Poker.Gameplay.Players;
 using Poker.UI;
 using Poker.UI.Screens;
 using System;
-using System.Collections.Generic;
 
 namespace Poker.Gameplay;
 
@@ -76,8 +75,15 @@ class GameManager : CardGame
     {
         State = PokerGameState.Shuffling;
 
+        Reset();
         Dealer.Shuffle();
         _cardPile.ShowAndShuffle();
+    }
+
+    void Reset()
+    {
+        foreach (var player in Players)
+            ((PokerBettingPlayer)player).Reset();
     }
 
     public override void Deal()
@@ -145,7 +151,7 @@ class GameManager : CardGame
     }
 
     /// <summary>
-    /// Selects a random, unique name of an alternating gender.
+    /// Selects a random name from a predefined list and an associated gender.
     /// </summary>
     /// <returns></returns>
     (string, Gender) GetRandomPerson()
@@ -161,7 +167,7 @@ class GameManager : CardGame
             int offset = gender == Gender.Male ? 0 : nameCount;
             int index = ((PokerGame)Game).Random.Next(0, nameCount);
 
-            // retrieve the name and cap index (just in case)
+            // retrieve the name and cap the index (just in case)
             name = Constants.Names[Math.Min(index + offset, Constants.Names.Length - 1)];
 
             // repeat until a unique name is selected

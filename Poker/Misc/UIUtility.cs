@@ -19,7 +19,7 @@ static class UIUtility
                 Constants.PlayerCardMargin),
             3 => new Vector2(Constants.GameWidth - Constants.CardSize.X * 2 - Constants.PlayerCardMargin - Constants.PlayerCardPadding,
                 Constants.GameHeight - Constants.CardSize.Y - Constants.PlayerCardMargin),
-            _ => throw new ArgumentException("Player index should be between 0 and 2", nameof(playerIndex)),
+            _ => throw new ArgumentException("Player index should be between 0 and 3", nameof(playerIndex)),
         };
     }
 }

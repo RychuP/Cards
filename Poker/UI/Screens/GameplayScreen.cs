@@ -49,7 +49,7 @@ class GameplayScreen : MenuScreen
         for (int i = 0; i < Constants.MaxPlayers; i++)
         {
             var player = gm[i];
-            sb.DrawString(gm.Font, player.Name, player.NamePosition, Color.CornflowerBlue);
+            sb.DrawString(gm.Font, player.Name, player.NamePosition, Color.WhiteSmoke);
         }
 
         sb.End();

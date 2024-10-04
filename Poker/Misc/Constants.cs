@@ -10,6 +10,8 @@ static class Constants
     public static readonly string ButtonSpriteSheetName = "buttons";
     public static readonly string ThemeScreenTextureName = "theme";
     public static readonly string PokerTitleTextureName = "title";
+    public static readonly string SmallBlindTextureName = "smallblind";
+    public static readonly string BigBlindTextureName = "bigblind";
 
     // button texts
     public static readonly string ButtonRaiseText = "Raise";
@@ -44,6 +46,10 @@ static class Constants
     public static readonly int ButtonWidthWithPadding = ButtonWidth + ButtonPadding;
     public static readonly int ButtonSpriteHeight = 64;
     public static readonly int ButtonSpriteWidth = 291;
+    /// <summary>
+    /// Distance between chips used for making bets on the table.
+    /// </summary>
+    public static readonly int ChipPadding = 25;
     public static readonly Point CardSize = new(80, 106);
     public static readonly Rectangle GameArea = new(0, 0, GameWidth, GameHeight);
     /// <summary>
@@ -59,9 +65,10 @@ static class Constants
     /// </summary>
     public static readonly int PlayerCardMargin = 31;
     /// <summary>
-    /// Offset for a name (based on player position).
+    /// Vertical space between the lines of text in the player area.
     /// </summary>
-    public static readonly int PlayerNameOffset = 10;
+    public static readonly int PlayerTextVerticalPadding = 10;
+    public static readonly int PlayerAreaWidth = CardSize.X * 2 + PlayerCardPadding;
 
     // quantities
     public static readonly int MaxPlayers = 4;
