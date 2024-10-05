@@ -1,9 +1,9 @@
 ﻿using Framework.Engine;
 using Framework.UI;
 
-namespace Poker.UI.AnimatedHands;
+namespace Poker.UI.AnimatedGameComponents;
 
-class AnimatedDealerHand : AnimatedHandGameComponent
+class AnimatedPlayerHand : AnimatedHandGameComponent
 {
     /// <summary>
     /// Creates a new instance of the 
@@ -13,7 +13,7 @@ class AnimatedDealerHand : AnimatedHandGameComponent
     /// game table.</param>
     /// <param name="hand">The player's hand.</param>
     /// <param name="cardGame">The associated game.</param>
-    public AnimatedDealerHand(int place, Hand hand, CardGame cardGame)
+    public AnimatedPlayerHand(int place, Hand hand, CardGame cardGame)
         : base(place, hand, cardGame)
     { }
 
@@ -27,7 +27,7 @@ class AnimatedDealerHand : AnimatedHandGameComponent
     /// rendered.</returns>
     public override Vector2 GetCardRelativePosition(int cardLocationInHand)
     {
-        int offsetX = (Constants.CardSize.X + Constants.CommunityCardPadding) * cardLocationInHand;
+        int offsetX = (Constants.CardSize.X + Constants.PlayerCardPadding) * cardLocationInHand;
         return new Vector2(offsetX, 0);
     }
 }

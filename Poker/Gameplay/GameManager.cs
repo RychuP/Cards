@@ -14,8 +14,7 @@ class GameManager : CardGame
     readonly CardPile _cardPile;
     readonly CommunityCards _communityCards;
     readonly BetComponent _betComponent;
-
-    public PokerGameState State { get; set; }
+    GameState _gameState = GameState.None;
 
     public GameManager(Game game) : base(1, 0, CardSuits.AllSuits, CardValues.NonJokers, Fonts.Moire.Regular,
         Constants.MinPlayers, Constants.MaxPlayers, new PokerTable(game), Constants.DefaultTheme, game)
@@ -39,30 +38,42 @@ class GameManager : CardGame
         _betComponent = new BetComponent(this);
         game.Components.Add(_betComponent);
     }
+    
+    public GameState State
+    {
+        get => _gameState;
+        set
+        {
+            if (value == _gameState) return;
+            var prevGameState = _gameState;
+            _gameState = value;
+            OnGameStateChanged(prevGameState, value);
+        }
+    }
 
     public void Update()
     {
-        if (((PokerGame)Game).ScreenManager.ActiveScreen is not GameplayScreen) return;
+        if (Game.Services.GetService<ScreenManager>().ActiveScreen is not GameplayScreen) return;
 
         switch (State)
         {
-            case PokerGameState.Shuffling:
+            case GameState.Shuffling:
                 if (!CheckForRunningAnimations<CardPile>())
                 {
-                    State = PokerGameState.Dealing;
+                    State = GameState.Dealing;
                     Deal();
                 }
                 break;
 
-            case PokerGameState.Dealing:
+            case GameState.Dealing:
                 if (!CheckForRunningAnimations<AnimatedCardGameComponent>())
                 {
-                    State = PokerGameState.FirstBet;
+                    State = GameState.FirstBet;
                     _cardPile.SlideUp();
                 }
                 break;
 
-            case PokerGameState.FirstBet:
+            case GameState.FirstBet:
                 if (!CheckForRunningAnimations<CardPile>())
                 {
                     
@@ -73,7 +84,7 @@ class GameManager : CardGame
 
     public override void StartPlaying()
     {
-        State = PokerGameState.Shuffling;
+        State = GameState.Shuffling;
 
         Reset();
         Dealer.Shuffle();
@@ -157,7 +168,7 @@ class GameManager : CardGame
     (string, Gender) GetRandomPerson()
     {
         string name = string.Empty;
-        Gender gender = (Gender)((PokerGame)Game).Random.Next(2);
+        Gender gender = (Gender)Game.Services.GetService<Random>().Next(2);
 
         // get the count of 50% of the names (first half is male, second female)
         int nameCount = Constants.Names.Length / 2;
@@ -165,7 +176,7 @@ class GameManager : CardGame
         {
             // get random index taking into consideration the appropriate half of collection
             int offset = gender == Gender.Male ? 0 : nameCount;
-            int index = ((PokerGame)Game).Random.Next(0, nameCount);
+            int index = Game.Services.GetService<Random>().Next(0, nameCount);
 
             // retrieve the name and cap the index (just in case)
             name = Constants.Names[Math.Min(index + offset, Constants.Names.Length - 1)];
@@ -201,5 +212,11 @@ class GameManager : CardGame
         ThemeChanged?.Invoke(this, new ThemeChangedEventArgs(theme));
     }
 
+    void OnGameStateChanged(GameState prevGameState, GameState newGameState)
+    {
+        GameStateChanged?.Invoke(this, new GameStateEventArgs(prevGameState, newGameState));
+    }
+
     public event EventHandler<ThemeChangedEventArgs> ThemeChanged;
+    public event EventHandler<GameStateEventArgs> GameStateChanged;
 }

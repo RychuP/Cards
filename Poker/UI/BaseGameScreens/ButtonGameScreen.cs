@@ -1,18 +1,18 @@
 using System.Collections.Generic;
 
-namespace Poker.UI.ScreenElements;
+namespace Poker.UI.BaseGameScreens;
 
 /// <summary>
 /// Base class for menu screens with buttons.
 /// </summary>
-abstract class MenuScreen : GameScreen
+abstract class ButtonGameScreen : GameScreen
 {
     /// <summary>
     /// List of buttons in this menu screen.
     /// </summary>
     protected List<Button> Buttons { get; init; }
 
-    public MenuScreen(ScreenManager screenManager, int buttonCount) : base(screenManager)
+    public ButtonGameScreen(ScreenManager screenManager, int buttonCount) : base(screenManager)
     {
         Buttons = new(buttonCount);
     }

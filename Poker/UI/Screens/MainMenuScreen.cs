@@ -1,12 +1,13 @@
 using System;
-using Poker.UI.ScreenElements;
+using Poker.Gameplay;
+using Poker.UI.BaseGameScreens;
 
 namespace Poker.UI.Screens;
 
 /// <summary>
 /// Main menu screen shown before the game starts.
 /// </summary>
-class MainMenuScreen : StaticScreen
+class MainMenuScreen : StaticGameScreen
 {
     public MainMenuScreen(ScreenManager screenManager) : base(screenManager, 3)
     { }
@@ -42,7 +43,7 @@ class MainMenuScreen : StaticScreen
     void StartButton_OnClick(object o, EventArgs e)
     {
         ScreenManager.ShowScreen<GameplayScreen>();
-        ((PokerGame)Game).GameManager.StartPlaying();
+        Game.Services.GetService<GameManager>().StartPlaying();
     }
 
     void ThemeButton_OnClick(object o, EventArgs e) =>

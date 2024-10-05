@@ -59,7 +59,7 @@ class BetComponent : DrawableGameComponent
         }
 
         // check if gameplay screen is showing
-        if (((PokerGame)Game).ScreenManager.ActiveScreen is GameplayScreen)
+        if (Game.Services.GetService<ScreenManager>().ActiveScreen is GameplayScreen)
         {
             // draw balances and bet amounts
             for (int i = 0; i < Constants.MaxPlayers; i++)

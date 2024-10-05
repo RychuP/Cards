@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Poker.Gameplay;
-using Poker.UI.ScreenElements;
+using Poker.UI.BaseGameScreens;
 using Poker.UI.Screens;
 
 namespace Poker.UI;
@@ -35,13 +35,6 @@ class ScreenManager : GameComponent
         AddScreen(new ThemeScreen(this));
         AddScreen(new GameplayScreen(this));
         AddScreen(new PauseScreen(this));
-    }
-
-    public override void Update(GameTime gameTime)
-    {
-        base.Update(gameTime);
-
-        ((PokerGame)Game).GameManager.Update();
     }
 
     void AddScreen(GameScreen screen)

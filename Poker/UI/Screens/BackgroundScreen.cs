@@ -1,4 +1,4 @@
-using Poker.UI.ScreenElements;
+using Poker.UI.BaseGameScreens;
 
 namespace Poker.UI.Screens;
 

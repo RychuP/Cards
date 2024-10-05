@@ -1,4 +1,4 @@
-﻿using Poker.UI.AnimatedHands;
+﻿using Poker.UI.AnimatedGameComponents;
 
 namespace Poker.Gameplay.Players;
 

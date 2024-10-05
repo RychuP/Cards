@@ -21,8 +21,9 @@ public enum Gender {
 /// <summary>
 /// The various possible game states.
 /// </summary>
-public enum PokerGameState
+public enum GameState
 {
+    None,
     Shuffling,
     Dealing,
     FirstBet,
@@ -32,4 +33,10 @@ public enum PokerGameState
     ThirdBet,
     RoundEnd,
     GameOver
+}
+
+public enum BlindType
+{
+    Small,
+    Big
 }

@@ -1,11 +1,12 @@
 using System;
 using Framework.Assets;
 using Microsoft.Xna.Framework.Graphics;
-using Poker.UI.ScreenElements;
+using Poker.Gameplay;
+using Poker.UI.BaseGameScreens;
 
 namespace Poker.UI.Screens;
 
-class GameplayScreen : MenuScreen
+class GameplayScreen : ButtonGameScreen
 {
     public GameplayScreen(ScreenManager screenManager) : base(screenManager, 4)
     { }
@@ -41,7 +42,7 @@ class GameplayScreen : MenuScreen
     {
         base.Draw(gameTime);
 
-        var gm = ((PokerGame)Game).GameManager;
+        var gm = Game.Services.GetService<GameManager>();
         var sb = Game.Services.GetService<SpriteBatch>();
         sb.Begin();
 
@@ -57,13 +58,13 @@ class GameplayScreen : MenuScreen
 
     public override void Show()
     {
-        ((PokerGame)Game).GameManager.GameTable.Show();
+        Game.Services.GetService<GameManager>().GameTable.Show();
         base.Show();
     }
 
     public override void Hide()
     {
-        ((PokerGame)Game).GameManager.GameTable.Hide();
+        Game.Services.GetService<GameManager>().GameTable.Hide();
         base.Hide();
     }
 

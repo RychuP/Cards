@@ -10,17 +10,11 @@ namespace Poker;
 class PokerGame : Game
 {
     readonly GraphicsDeviceManager _graphicsDeviceManager;
-    public GameManager GameManager { get; private set; }
-    public ScreenManager ScreenManager { get; private set; }
-    public Random Random { get; private set; }
 
     public PokerGame()
     {
         _graphicsDeviceManager = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
-        ScreenManager = new ScreenManager(this);
-        Components.Add(new InputHelper(this));
-        Components.Add(ScreenManager);
         IsMouseVisible = true;
     }
 
@@ -33,15 +27,25 @@ class PokerGame : Game
         Art.Initialize(this);
         CardGame.Initialize(this);
 
-        Random = new Random();
-        GameManager = new GameManager(this);
+        Services.AddService(new Random());
+        // screen manager needs to be created first to get the lowest draw order
+        Services.AddService(new ScreenManager(this));
+
+        Components.Add(new InputHelper(this));
+        Services.AddService(new GameManager(this));
 
         base.Initialize();
     }
 
+    protected override void Update(GameTime gameTime)
+    {
+        Services.GetService<GameManager>().Update();
+        base.Update(gameTime);
+    }
+
     protected override void BeginRun()
     {
-        ScreenManager.BeginRun();
+        Services.GetService<ScreenManager>().BeginRun();
         base.BeginRun();
     }
 

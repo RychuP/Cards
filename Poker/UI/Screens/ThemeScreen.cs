@@ -1,9 +1,10 @@
-﻿using Poker.UI.ScreenElements;
+﻿using Poker.Gameplay;
+using Poker.UI.BaseGameScreens;
 using System;
 
 namespace Poker.UI.Screens;
 
-class ThemeScreen : StaticScreen
+class ThemeScreen : StaticGameScreen
 {
     public ThemeScreen(ScreenManager screenManager) : base(screenManager, 3)
     { }
@@ -52,10 +53,10 @@ class ThemeScreen : StaticScreen
     }
 
     void RedThemeButton_OnClick(object o, EventArgs e) =>
-        ((PokerGame)Game).GameManager.SetTheme(Constants.RedThemeText);
+        Game.Services.GetService<GameManager>().SetTheme(Constants.RedThemeText);
 
     void BlueThemeButton_OnClick(object o, EventArgs e) =>
-        ((PokerGame)Game).GameManager.SetTheme(Constants.BlueThemeText);
+        Game.Services.GetService<GameManager>().SetTheme(Constants.BlueThemeText);
 
     void ReturnButton_OnClick(object o, EventArgs e) =>
         ScreenManager.ShowScreen<MainMenuScreen>();

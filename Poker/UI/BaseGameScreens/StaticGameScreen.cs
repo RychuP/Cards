@@ -1,11 +1,11 @@
-﻿namespace Poker.UI.ScreenElements;
+﻿namespace Poker.UI.BaseGameScreens;
 
 /// <summary>
 /// Menu screen with static buttons that always show.
 /// </summary>
-abstract class StaticScreen : MenuScreen
+abstract class StaticGameScreen : ButtonGameScreen
 {
-    public StaticScreen(ScreenManager screenManager, int buttonCount) : base(screenManager, buttonCount)
+    public StaticGameScreen(ScreenManager screenManager, int buttonCount) : base(screenManager, buttonCount)
     { }
 
     public override void Show()
