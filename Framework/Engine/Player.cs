@@ -9,10 +9,10 @@ public class Player
     public CardGame CardGame { get; set; }
     public Hand Hand { get; set; }
 
-    public Player(string name, CardGame game)
+    public Player(string name, CardGame cardGame)
     {
         Name = name;
-        CardGame = game;
+        CardGame = cardGame;
         Hand = new Hand();
     }
 }

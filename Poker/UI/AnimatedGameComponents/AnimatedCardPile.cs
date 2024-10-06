@@ -2,20 +2,27 @@
 using Framework.UI;
 using Microsoft.Xna.Framework.Graphics;
 using Poker.Gameplay;
-using System;
 
-namespace Poker.UI;
+namespace Poker.UI.AnimatedGameComponents;
 
 /// <summary>
 /// Pile of cards on the table. Manages shuffling and card dealing animations.
 /// </summary>
-class CardPile : AnimatedGameComponent
+class AnimatedCardPile : AnimatedGameComponent
 {
-    public CardPile(GameManager gm) : base(gm, GetThemeTexture(Constants.DefaultTheme))
+    public AnimatedCardPile(GameManager gm) : base(gm, GetThemeTexture(Constants.DefaultTheme))
     {
-        CurrentSegment = new Rectangle(0, 0, Constants.ShuffleFrameSize.X, Constants.ShuffleFrameSize.Y);
-        Position = Constants.CardPileHiddenPosition;
+        Reset();
         gm.ThemeChanged += GameManager_OnThemeChanged;
+    }
+
+    public void Reset()
+    {
+        Enabled = true;
+        Visible = true;
+        Position = Constants.CardPileHiddenPosition;
+        CurrentSegment = new Rectangle(0, 0, Constants.ShuffleFrameSize.X, Constants.ShuffleFrameSize.Y);
+        RemoveAnimations();
     }
 
     /// <summary>

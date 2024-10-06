@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework.Input;
 using Framework.Assets;
 using Framework.Engine;
 using Framework.Misc;
@@ -6,22 +7,38 @@ using Poker.Gameplay.Players;
 using Poker.UI;
 using Poker.UI.Screens;
 using System;
+using System.Collections.Generic;
+using Poker.UI.BaseScreens;
+using Poker.UI.AnimatedGameComponents;
 
 namespace Poker.Gameplay;
 
-class GameManager : CardGame
+class GameManager : CardGame, IGlobalManager
 {
-    readonly CardPile _cardPile;
+    readonly AnimatedCardPile _animatedCardPile;
     readonly CommunityCards _communityCards;
     readonly BetComponent _betComponent;
+    readonly ScreenManager _screenManager;
+    readonly Dealer _dealer;
+
+    // used for pausing and resuming gameplay components
+    readonly List<DrawableGameComponent> _pauseEnabledComponents = new();
+    readonly List<DrawableGameComponent> _pauseVisibleComponents = new();
+
     GameState _gameState = GameState.None;
 
-    public GameManager(Game game) : base(1, 0, CardSuits.AllSuits, CardValues.NonJokers, Fonts.Moire.Regular,
+    public GameManager(Game game, ScreenManager screenManager) 
+        : base(1, 0, CardSuits.AllSuits, CardValues.NonJokers, Fonts.Moire.Regular,
         Constants.MinPlayers, Constants.MaxPlayers, new PokerTable(game), Constants.DefaultTheme, game)
     {
-        // create card pile
-        _cardPile = new CardPile(this);
-        game.Components.Add(_cardPile);
+        _screenManager = screenManager;
+
+        // create animated card pile
+        _animatedCardPile = new AnimatedCardPile(this);
+        game.Components.Add(_animatedCardPile);
+
+        // create dealer hand
+        _dealer = new(Dealer);
 
         // create players
         AddPlayer(new HumanPlayer(Gender.Male, this));
@@ -53,12 +70,18 @@ class GameManager : CardGame
 
     public void Update()
     {
-        if (Game.Services.GetService<ScreenManager>().ActiveScreen is not GameplayScreen) return;
+        HandleInput();
 
+        if (_screenManager.ActiveScreen is GameplayScreen)
+            HandleGameplay();
+    }
+
+    void HandleGameplay()
+    {
         switch (State)
         {
             case GameState.Shuffling:
-                if (!CheckForRunningAnimations<CardPile>())
+                if (!CheckForRunningAnimations<AnimatedCardPile>())
                 {
                     State = GameState.Dealing;
                     Deal();
@@ -69,32 +92,133 @@ class GameManager : CardGame
                 if (!CheckForRunningAnimations<AnimatedCardGameComponent>())
                 {
                     State = GameState.FirstBet;
-                    _cardPile.SlideUp();
+                    _animatedCardPile.SlideUp();
                 }
                 break;
 
             case GameState.FirstBet:
-                if (!CheckForRunningAnimations<CardPile>())
+                if (!CheckForRunningAnimations<AnimatedCardPile>())
                 {
-                    
+
                 }
                 break;
         }
     }
 
+    void HandleInput()
+    {
+        if (InputManager.IsNewKeyPress(Keys.Escape))
+        {
+            if (_screenManager.ActiveScreen is GameplayScreen)
+                PauseGame();
+            else if (_screenManager.ActiveScreen is PauseScreen)
+                StopPlaying();
+            else if (_screenManager.ActiveScreen is StartScreen)
+                Game.Exit();
+        }
+    }
+
+    /// <summary>
+    /// Called when pressed escape or clicked on exit button in the <see cref="PauseScreen"/>.
+    /// </summary>
+    public void StopPlaying()
+    {
+        _screenManager.ShowScreen<StartScreen>();
+        _betComponent.Visible = false;
+    }
+
+    /// <summary>
+    /// Called when pressed escape in the <see cref="GameplayScreen"/>.
+    /// </summary>
+    void PauseGame()
+    {
+        PauseGameplayComponents();
+        _screenManager.ShowScreen<PauseScreen>();
+    }
+
+    /// <summary>
+    /// Called when clicked continue button in the <see cref="PauseScreen"/>.
+    /// </summary>
+    public void ResumeGame()
+    {
+        ResumePausedGameplayComponents();
+        _screenManager.ShowScreen<GameplayScreen>();
+    }
+
+    /// <summary>
+    /// Pause the game.
+    /// </summary>
+    void PauseGameplayComponents()
+    {
+        _pauseEnabledComponents.Clear();
+        _pauseVisibleComponents.Clear();
+
+        // Hide and disable all components which are related to the gameplay screen
+        foreach (IGameComponent component in Game.Components)
+        {
+            if (component is BetComponent ||
+                component is AnimatedGameComponent ||
+                component is GameTable)
+            {
+                DrawableGameComponent pauseComponent = (DrawableGameComponent)component;
+                if (pauseComponent.Enabled)
+                {
+                    _pauseEnabledComponents.Add(pauseComponent);
+                    pauseComponent.Enabled = false;
+                }
+                if (pauseComponent.Visible)
+                {
+                    _pauseVisibleComponents.Add(pauseComponent);
+                    pauseComponent.Visible = false;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Returns from pause.
+    /// </summary>
+    void ResumePausedGameplayComponents()
+    {
+        // Reveal and enable all previously hidden components
+        foreach (DrawableGameComponent component in _pauseEnabledComponents)
+            component.Enabled = true;
+
+        foreach (DrawableGameComponent component in _pauseVisibleComponents)
+            component.Visible = true;
+    }
+
     public override void StartPlaying()
     {
-        State = GameState.Shuffling;
-
         Reset();
-        Dealer.Shuffle();
-        _cardPile.ShowAndShuffle();
+
+        State = GameState.Shuffling;
+        _animatedCardPile.ShowAndShuffle();
     }
 
     void Reset()
     {
+        // remove all gameplay
+        //foreach (IGameComponent component in Game.Components)
+        //{
+        //    if (component is GameScreen || component is GameTable ||
+        //        component is Button || component is BetComponent)
+        //        continue;
+        //    else
+        //        Game.Components.Remove(component);
+        //}
+
+        // return all cards to dealer and show relevant components
         foreach (var player in Players)
-            ((PokerBettingPlayer)player).Reset();
+            ((PokerBettingPlayer)player).Reset(_dealer);
+        _communityCards.Reset(_dealer);
+
+        // reset components
+        _betComponent.Reset();
+        _animatedCardPile.Reset();
+
+        // shuffle cards
+        _dealer.Shuffle();
     }
 
     public override void Deal()
@@ -107,7 +231,7 @@ class GameManager : CardGame
             for (int playerIndex = 0; playerIndex < Players.Count; playerIndex++)
             {
                 var player = this[playerIndex];
-                TraditionalCard card = Dealer.DealCardToHand(player.Hand);
+                TraditionalCard card = _dealer.DealCardToHand(player.Hand);
                 bool flip = player is HumanPlayer;
 
                 // calculate start time and add deal animation
@@ -119,7 +243,7 @@ class GameManager : CardGame
         // deal community cards
         for (int i = 0; i < 3; i++)
         {
-            TraditionalCard card = Dealer.DealCardToHand(_communityCards.Hand);
+            TraditionalCard card = _dealer.DealCardToHand(_communityCards.Hand);
             _communityCards.AddDealAnimation(card, true, startTime);
             startTime += Constants.DealAnimationDuration;
         }

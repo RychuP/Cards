@@ -1,8 +1,11 @@
 ﻿using Framework.Assets;
 using Framework.UI;
 using Microsoft.Xna.Framework.Graphics;
+using Poker.Gameplay.Chips;
+using Poker.Gameplay.Players;
 using Poker.UI;
 using Poker.UI.Screens;
+using System;
 using System.Collections.Generic;
 
 namespace Poker.Gameplay;
@@ -12,10 +15,17 @@ class BetComponent : DrawableGameComponent
     readonly GameManager _gameManager;
     readonly Vector2[] _chipPositions = new Vector2[ChipAssets.ValueChips.Count];
     readonly List<AnimatedGameComponent> _currentChipComponents = new();
+    
+    /// <summary>
+    /// Player who receives the small blind chip this round.
+    /// </summary>
+    PokerBettingPlayer _smallBlindPlayer;
 
     public BetComponent(GameManager gm) : base(gm.Game)
     {
         _gameManager = gm;
+        Enabled = false;
+        Visible = false;
     }
 
     public override void Initialize()
@@ -58,23 +68,34 @@ class BetComponent : DrawableGameComponent
             sb.Draw(chipTexture, _chipPositions[i], Color.White);
         }
 
-        // check if gameplay screen is showing
-        if (Game.Services.GetService<ScreenManager>().ActiveScreen is GameplayScreen)
+        // draw balances and bet amounts
+        for (int i = 0; i < Constants.MaxPlayers; i++)
         {
-            // draw balances and bet amounts
-            for (int i = 0; i < Constants.MaxPlayers; i++)
-            {
-                var player = _gameManager[i];
-                string balanceText = $"${player.Balance}";
-                var balancePos = player.GetCenteredTextPosition(balanceText, 1);
-                sb.DrawString(_gameManager.Font, balanceText, balancePos, Color.CornflowerBlue);
+            var player = _gameManager[i];
+            string balanceText = $"${player.Balance}";
+            var balancePos = player.GetCenteredTextPosition(balanceText, 1);
+            sb.DrawString(_gameManager.Font, balanceText, balancePos, Color.CornflowerBlue);
 
-                string betText = $"${player.BetAmount}";
-                var betPos = player.GetCenteredTextPosition(betText, 2);
-                sb.DrawString(_gameManager.Font, betText, betPos, Color.OrangeRed);
-            }
+            string betText = $"${player.BetAmount}";
+            var betPos = player.GetCenteredTextPosition(betText, 2);
+            sb.DrawString(_gameManager.Font, betText, betPos, Color.OrangeRed);
         }
 
         sb.End();
+    }
+
+    public void Reset()
+    {
+        Enabled = true;
+        Visible = true;
+
+        var rand = Game.Services.GetService<Random>();
+
+        // allocate a random player for the small blind token
+        _smallBlindPlayer = _gameManager[rand.Next(0, Constants.MaxPlayers)];
+
+        // put the blind chips back on the table
+
+        // remove all chips from players
     }
 }

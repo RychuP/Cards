@@ -84,7 +84,6 @@ public class InputState
         }
     }
 
-
     /// <summary>
     /// Helper for checking if a button was newly pressed during this update.
     /// The controllingPlayer parameter specifies which player to read input for.
@@ -114,7 +113,6 @@ public class InputState
         }
     }
 
-
     /// <summary>
     /// Checks for a "menu select" input action.
     /// The controllingPlayer parameter specifies which player to read input for.
@@ -130,7 +128,6 @@ public class InputState
                IsNewButtonPress(Buttons.Start, controllingPlayer, out playerIndex);
     }
 
-
     /// <summary>
     /// Checks for a "menu cancel" input action.
     /// The controllingPlayer parameter specifies which player to read input for.
@@ -144,7 +141,6 @@ public class InputState
                IsNewButtonPress(Buttons.B, controllingPlayer, out playerIndex) ||
                IsNewButtonPress(Buttons.Back, controllingPlayer, out playerIndex);
     }
-
 
     /// <summary>
     /// Checks for a "menu up" input action.
@@ -161,7 +157,6 @@ public class InputState
                IsNewButtonPress(Buttons.LeftThumbstickLeft, controllingPlayer, out playerIndex);
     }
 
-
     /// <summary>
     /// Checks for a "menu down" input action.
     /// The controllingPlayer parameter specifies which player to read
@@ -176,7 +171,6 @@ public class InputState
                IsNewButtonPress(Buttons.DPadRight, controllingPlayer, out playerIndex) ||
                IsNewButtonPress(Buttons.LeftThumbstickRight, controllingPlayer, out playerIndex);
     }
-
 
     /// <summary>
     /// Checks for a "pause the game" input action.

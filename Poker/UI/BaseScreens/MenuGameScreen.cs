@@ -1,18 +1,20 @@
 using System.Collections.Generic;
+using Poker.UI.AnimatedGameComponents;
 
-namespace Poker.UI.BaseGameScreens;
+namespace Poker.UI.BaseScreens;
 
 /// <summary>
 /// Base class for menu screens with buttons.
 /// </summary>
-abstract class ButtonGameScreen : GameScreen
+/// <remarks>Buttons occupy one line below the table and share the same Y.</remarks>
+abstract class MenuGameScreen : GameScreen
 {
     /// <summary>
     /// List of buttons in this menu screen.
     /// </summary>
     protected List<Button> Buttons { get; init; }
 
-    public ButtonGameScreen(ScreenManager screenManager, int buttonCount) : base(screenManager)
+    public MenuGameScreen(ScreenManager screenManager, int buttonCount) : base(screenManager)
     {
         Buttons = new(buttonCount);
     }

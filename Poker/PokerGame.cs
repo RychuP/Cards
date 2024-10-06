@@ -1,15 +1,18 @@
 ﻿global using Microsoft.Xna.Framework;
 global using Poker.Misc;
+
 using Framework.Engine;
 using Poker.Gameplay;
 using Poker.UI;
 using System;
+using System.Collections.Generic;
 
 namespace Poker;
 
 class PokerGame : Game
 {
     readonly GraphicsDeviceManager _graphicsDeviceManager;
+    readonly List<IGlobalManager> _globalManagers = new();
 
     public PokerGame()
     {
@@ -28,19 +31,26 @@ class PokerGame : Game
         CardGame.Initialize(this);
 
         Services.AddService(new Random());
-        // screen manager needs to be created first to get the lowest draw order
-        Services.AddService(new ScreenManager(this));
 
-        Components.Add(new InputHelper(this));
-        Services.AddService(new GameManager(this));
+        // screen manager needs to be created first to get the lowest draw order
+        var screenManager = new ScreenManager(this);
+        var inputManager = new InputManager(this);
+        var gameManager = new GameManager(this, screenManager);
+
+        Services.AddService(screenManager);
+        Services.AddService(inputManager);
+        Services.AddService(gameManager);
+
+        _globalManagers.Add(gameManager);
+        _globalManagers.Add(inputManager);
 
         base.Initialize();
     }
 
     protected override void Update(GameTime gameTime)
     {
-        Services.GetService<GameManager>().Update();
         base.Update(gameTime);
+        _globalManagers.ForEach(manager => manager.Update());
     }
 
     protected override void BeginRun()
@@ -54,4 +64,10 @@ class PokerGame : Game
         using var game = new PokerGame();
         game.Run();
     }
+}
+
+interface IGlobalManager
+{
+    Game Game { get; }
+    void Update();
 }

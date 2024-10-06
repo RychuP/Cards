@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using InputButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 
-namespace Poker.UI;
+namespace Poker.UI.AnimatedGameComponents;
 
 internal class Button : AnimatedGameComponent
 {
@@ -107,7 +107,7 @@ internal class Button : AnimatedGameComponent
 
             // check for clicks
             if (mouseState.LeftButton == InputButtonState.Released &&
-                InputHelper.PrevMouseState.LeftButton == InputButtonState.Pressed)
+                InputManager.PrevMouseState.LeftButton == InputButtonState.Pressed)
             {
                 OnClick();
             }

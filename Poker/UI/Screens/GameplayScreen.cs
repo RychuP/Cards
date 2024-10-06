@@ -1,12 +1,16 @@
 using System;
+using System.Collections.Generic;
 using Framework.Assets;
+using Framework.UI;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Poker.Gameplay;
-using Poker.UI.BaseGameScreens;
+using Poker.UI.AnimatedGameComponents;
+using Poker.UI.BaseScreens;
 
 namespace Poker.UI.Screens;
 
-class GameplayScreen : ButtonGameScreen
+class GameplayScreen : MenuGameScreen
 {
     public GameplayScreen(ScreenManager screenManager) : base(screenManager, 4)
     { }
@@ -58,6 +62,7 @@ class GameplayScreen : ButtonGameScreen
 
     public override void Show()
     {
+
         Game.Services.GetService<GameManager>().GameTable.Show();
         base.Show();
     }

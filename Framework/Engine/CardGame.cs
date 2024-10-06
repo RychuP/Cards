@@ -65,7 +65,7 @@ public abstract class CardGame
     /// <param name="game"></param>
     public static void Initialize(Game game)
     {
-        game.Services.AddService(typeof(SpriteBatch), new SpriteBatch(game.GraphicsDevice));
+        game.Services.AddService(new SpriteBatch(game.GraphicsDevice));
         CardAssets.Initialize(game);
         ChipAssets.Initialize(game);
         CardSounds.Initialize(game);

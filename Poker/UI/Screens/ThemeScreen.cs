@@ -1,5 +1,6 @@
 ﻿using Poker.Gameplay;
-using Poker.UI.BaseGameScreens;
+using Poker.UI.AnimatedGameComponents;
+using Poker.UI.BaseScreens;
 using System;
 
 namespace Poker.UI.Screens;
@@ -42,11 +43,14 @@ class ThemeScreen : StaticGameScreen
 
     void ScreenManager_ScreenChanged(object o, ScreenChangedEventArgs e)
     {
-        var cardPile = Game.Components.Find<CardPile>();
+        var cardPile = Game.Components.Find<AnimatedCardPile>();
         if (cardPile is not null)
         {
             if (e.NewScreen == this)
+            {
+                cardPile.Reset();
                 cardPile.SlideDown();
+            }
             else if (e.PrevScreen == this)
                 cardPile.SlideUp();
         }
@@ -59,5 +63,5 @@ class ThemeScreen : StaticGameScreen
         Game.Services.GetService<GameManager>().SetTheme(Constants.BlueThemeText);
 
     void ReturnButton_OnClick(object o, EventArgs e) =>
-        ScreenManager.ShowScreen<MainMenuScreen>();
+        ScreenManager.ShowScreen<StartScreen>();
 }

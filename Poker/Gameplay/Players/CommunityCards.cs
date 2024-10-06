@@ -8,4 +8,9 @@ class CommunityCards : PokerCardsHolder
     {
         AnimatedHand = new AnimatedDealerHand(-1, Hand, gm);
     }
+
+    public void Reset(Dealer dealer)
+    {
+        Hand.DealCardsToHand(dealer, Hand.Count);
+    }
 }

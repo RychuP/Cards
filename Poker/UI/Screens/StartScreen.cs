@@ -1,15 +1,16 @@
 using System;
 using Poker.Gameplay;
-using Poker.UI.BaseGameScreens;
+using Poker.UI.AnimatedGameComponents;
+using Poker.UI.BaseScreens;
 
 namespace Poker.UI.Screens;
 
 /// <summary>
-/// Main menu screen shown before the game starts.
+/// Start screen shown when the game first loads.
 /// </summary>
-class MainMenuScreen : StaticGameScreen
+class StartScreen : StaticGameScreen
 {
-    public MainMenuScreen(ScreenManager screenManager) : base(screenManager, 3)
+    public StartScreen(ScreenManager screenManager) : base(screenManager, 3)
     { }
 
     public override void Initialize()

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Poker.Gameplay;
-using Poker.UI.BaseGameScreens;
+using Poker.UI.BaseScreens;
 using Poker.UI.Screens;
 
 namespace Poker.UI;
@@ -11,15 +11,16 @@ namespace Poker.UI;
 /// It maintains a stack of screens, calls their Update and Draw methods at the appropriate times, 
 /// and automatically routes input to the topmost active screen.
 /// </summary>
-class ScreenManager : GameComponent
+class ScreenManager
 {
-    GameScreen _activeScreen;
     readonly List<GameScreen> _screens = new();
+    GameScreen _activeScreen;
+    public Game Game { get; }
 
     public GameScreen ActiveScreen
     {
         get => _activeScreen;
-        set
+        private set
         {
             if (_activeScreen == value) return;
             var prevActScreen = _activeScreen;
@@ -28,10 +29,11 @@ class ScreenManager : GameComponent
         }
     }
 
-    public ScreenManager(Game game) : base(game)
+    public ScreenManager(Game game)
     {
+        Game = game;
         AddScreen(new BackgroundScreen(this));
-        AddScreen(new MainMenuScreen(this));
+        AddScreen(new StartScreen(this));
         AddScreen(new ThemeScreen(this));
         AddScreen(new GameplayScreen(this));
         AddScreen(new PauseScreen(this));
@@ -55,7 +57,7 @@ class ScreenManager : GameComponent
     /// </summary>
     public void BeginRun()
     {
-        ShowScreen<MainMenuScreen>();
+        ShowScreen<StartScreen>();
     }
 
     public void OnScreenChanged(GameScreen prevScreen, GameScreen newScreen)

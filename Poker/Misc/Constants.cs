@@ -9,6 +9,7 @@ static class Constants
     public static readonly string BackgroundScreenTextureName = "background";
     public static readonly string ButtonSpriteSheetName = "buttons";
     public static readonly string ThemeScreenTextureName = "theme";
+    public static readonly string PauseScreenTextureName = "pause";
     public static readonly string PokerTitleTextureName = "title";
     public static readonly string SmallBlindTextureName = "smallblind";
     public static readonly string BigBlindTextureName = "bigblind";
@@ -43,6 +44,9 @@ static class Constants
     /// </summary>
     public static readonly int ButtonPadding = 80;
     public static readonly int ButtonWidth = 175;
+    /// <summary>
+    /// Basically the x coordinate for the next button.
+    /// </summary>
     public static readonly int ButtonWidthWithPadding = ButtonWidth + ButtonPadding;
     public static readonly int ButtonSpriteHeight = 64;
     public static readonly int ButtonSpriteWidth = 291;
@@ -94,7 +98,7 @@ static class Constants
     public static readonly int ButtonPositionY = 632;
     
 
-    // times
+    // timers
     public static TimeSpan CardPileTransitionDuration = TimeSpan.FromSeconds(0.2f);
     public static TimeSpan ShuffleDuration = TimeSpan.FromSeconds(1.5f);
     public static readonly TimeSpan DealAnimationDuration = TimeSpan.FromMilliseconds(500);

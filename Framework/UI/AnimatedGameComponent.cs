@@ -118,6 +118,9 @@ public class AnimatedGameComponent : DrawableGameComponent
         sb.DrawString(font, text, textPosition, TextColor);
     }
 
+    public void RemoveAnimations() =>
+        _runningAnimations.Clear();
+
     /// <summary>
     /// Adds an animation to the animated component.
     /// </summary>

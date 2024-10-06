@@ -1,4 +1,4 @@
-using Poker.UI.BaseGameScreens;
+using Poker.UI.BaseScreens;
 using System;
 
 namespace Poker.Misc;

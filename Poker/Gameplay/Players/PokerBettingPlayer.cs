@@ -1,4 +1,5 @@
-﻿using Poker.UI.AnimatedGameComponents;
+﻿using Framework.Engine;
+using Poker.UI.AnimatedGameComponents;
 
 namespace Poker.Gameplay.Players;
 
@@ -69,9 +70,13 @@ class PokerBettingPlayer : PokerCardsHolder
     /// </summary>
     public bool IsAtTheBottom => Place == 0 || Place == 3;
 
-    public void Reset()
+    public void Reset(Dealer dealer)
     {
+        // reset stats
         Balance = 500;
         BetAmount = 0;
+
+        // return cards to the dealer
+        Hand.DealCardsToHand(dealer, Hand.Count);
     }
 }
