@@ -116,8 +116,5 @@ public class AnimatedGameComponentAnimation
     /// Runs the animation.
     /// </summary>
     /// <param name="gameTime">Game time information.</param>
-    public virtual void Run(GameTime gameTime)
-    {
-        bool isStarted = IsStarted();
-    }
+    public virtual void Run(GameTime gameTime) { }
 }

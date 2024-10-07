@@ -25,7 +25,18 @@ class GameManager : CardGame, IGlobalManager
     readonly List<DrawableGameComponent> _pauseEnabledComponents = new();
     readonly List<DrawableGameComponent> _pauseVisibleComponents = new();
 
-    GameState _gameState = GameState.None;
+    GameState _state = GameState.None;
+    public GameState State
+    {
+        get => _state;
+        set
+        {
+            if (value == _state) return;
+            var prevGameState = _state;
+            _state = value;
+            OnGameStateChanged(prevGameState, value);
+        }
+    }
 
     public GameManager(Game game, ScreenManager screenManager) 
         : base(1, 0, CardSuits.AllSuits, CardValues.NonJokers, Fonts.Moire.Regular,
@@ -55,18 +66,6 @@ class GameManager : CardGame, IGlobalManager
         _betComponent = new BetComponent(this);
         game.Components.Add(_betComponent);
     }
-    
-    public GameState State
-    {
-        get => _gameState;
-        set
-        {
-            if (value == _gameState) return;
-            var prevGameState = _gameState;
-            _gameState = value;
-            OnGameStateChanged(prevGameState, value);
-        }
-    }
 
     public void Update()
     {
@@ -81,25 +80,32 @@ class GameManager : CardGame, IGlobalManager
         switch (State)
         {
             case GameState.Shuffling:
+                _dealer.Shuffle();
+                // wait for shuffling animations to finish
                 if (!CheckForRunningAnimations<AnimatedCardPile>())
                 {
-                    State = GameState.Dealing;
+                    // deal cards and change state
                     Deal();
+                    State = GameState.Dealing;
                 }
                 break;
 
             case GameState.Dealing:
+                // wait for dealing animations to finish
                 if (!CheckForRunningAnimations<AnimatedCardGameComponent>())
                 {
-                    State = GameState.FirstBet;
+                    // hide the card pile and change state
                     _animatedCardPile.SlideUp();
+                    State = GameState.FirstBet;
                 }
                 break;
 
             case GameState.FirstBet:
+                // wait for the card pile to finish its hide animation
                 if (!CheckForRunningAnimations<AnimatedCardPile>())
                 {
-
+                    // deal blind tokens
+                    var test = Game.Components;
                 }
                 break;
         }
@@ -194,20 +200,11 @@ class GameManager : CardGame, IGlobalManager
 
         State = GameState.Shuffling;
         _animatedCardPile.ShowAndShuffle();
+        _betComponent.ShowCommunityChips();
     }
 
     void Reset()
     {
-        // remove all gameplay
-        //foreach (IGameComponent component in Game.Components)
-        //{
-        //    if (component is GameScreen || component is GameTable ||
-        //        component is Button || component is BetComponent)
-        //        continue;
-        //    else
-        //        Game.Components.Remove(component);
-        //}
-
         // return all cards to dealer and show relevant components
         foreach (var player in Players)
             ((PokerBettingPlayer)player).Reset(_dealer);
@@ -216,9 +213,6 @@ class GameManager : CardGame, IGlobalManager
         // reset components
         _betComponent.Reset();
         _animatedCardPile.Reset();
-
-        // shuffle cards
-        _dealer.Shuffle();
     }
 
     public override void Deal()

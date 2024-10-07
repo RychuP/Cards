@@ -13,60 +13,46 @@ namespace Poker.Gameplay;
 class BetComponent : DrawableGameComponent
 {
     readonly GameManager _gameManager;
-    readonly Vector2[] _chipPositions = new Vector2[ChipAssets.ValueChips.Count];
-    readonly List<AnimatedGameComponent> _currentChipComponents = new();
-    
+
     /// <summary>
     /// Player who receives the small blind chip this round.
     /// </summary>
     PokerBettingPlayer _smallBlindPlayer;
+
+    /// <summary>
+    /// Community chips that are placed below community cards.
+    /// </summary>
+    readonly List<ValueChip> CommunityChips = new(ValueChip.Count);
+
+    /// <summary>
+    /// Blind chips that are distrubued among the players.
+    /// </summary>
+    readonly List<BlindChip> BlindChips = new(BlindChip.Count);
 
     public BetComponent(GameManager gm) : base(gm.Game)
     {
         _gameManager = gm;
         Enabled = false;
         Visible = false;
-    }
 
-    public override void Initialize()
-    {
-        base.Initialize();
-
-        // calculate positions for the chip that allow placing bets
-        Rectangle chipSize = ChipAssets.ValueChips[ChipAssets.Values[0]].Bounds;
-        int chipsCount = ChipAssets.Values.Length;
-        int chipsWidthCombined = chipSize.Width * chipsCount;
-        int chipsPaddingCombined = (chipsCount - 1) * Constants.ChipPadding; 
-        int initialX = (Constants.GameWidth - chipsWidthCombined - chipsPaddingCombined) / 2;
-        Vector2 chipPosition = new(initialX, 480);
-
-        for (int i = 0; i < chipsCount; i++)
+        // create community chips
+        for (int i = 0; i < ValueChip.Count; i++)
         {
-            _chipPositions[i] = chipPosition;
-            int offsetY = i switch
-            {
-                0 => 12,
-                2 => -12,
-                _ => 0
-            };
-            chipPosition += new Vector2(Constants.ChipPadding + chipSize.Width, offsetY);
+            var chip = new ValueChip(Game, Chip.HiddenPosition, ValueChip.Values[i]);
+            CommunityChips.Add(chip);
         }
-    }
 
+        // create blind chips
+        BlindChips.Add(new SmallBlindChip(Game, Chip.HiddenPosition));
+        BlindChips.Add(new BigBlindChip(Game, Chip.HiddenPosition));
+    }
+    
     public override void Draw(GameTime gameTime)
     {
         base.Draw(gameTime);
 
         var sb = Game.Services.GetService<SpriteBatch>();
         sb.Begin();
-
-        // draws betting chips
-        for (int i = 0; i < _chipPositions.Length; i++)
-        {
-            int chipValue = ChipAssets.Values[i];
-            Texture2D chipTexture = ChipAssets.ValueChips[chipValue];
-            sb.Draw(chipTexture, _chipPositions[i], Color.White);
-        }
 
         // draw balances and bet amounts
         for (int i = 0; i < Constants.MaxPlayers; i++)
@@ -94,8 +80,21 @@ class BetComponent : DrawableGameComponent
         // allocate a random player for the small blind token
         _smallBlindPlayer = _gameManager[rand.Next(0, Constants.MaxPlayers)];
 
-        // put the blind chips back on the table
+        // put the community chips back in the hidden position
+        foreach (var chip in CommunityChips)
+            chip.Position = Chip.HiddenPosition;
+        foreach (var chip in BlindChips)
+            chip.Position = Chip.HiddenPosition;
 
         // remove all chips from players
+    }
+    
+    public void ShowCommunityChips()
+    {
+        foreach (var chip in CommunityChips)
+            chip.Position = chip.GetTablePosition();
+
+        foreach (var chip in BlindChips)
+            chip.Position = chip.GetTablePosition();
     }
 }
