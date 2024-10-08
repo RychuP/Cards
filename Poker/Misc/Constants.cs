@@ -24,6 +24,12 @@ static class Constants
     public static readonly string ButtonThemeText = "Theme";
     public static readonly string ButtonExitText = "Exit";
     public static readonly string ButtonReturnText = "Return";
+    public static readonly string ButtonClearText = "Clear";
+    public static readonly string ButtonMatchBetText = "Match Bet";
+    public static readonly string ButtonEndTurnText = "End Turn";
+
+    // errors
+    public static readonly string ButtonClickExceptionText = "Button clicks should occur on human player's turn only.";
 
     // npc names
     public static readonly string[] Names = new[] {

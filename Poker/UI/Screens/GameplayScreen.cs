@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Framework.Assets;
+using Framework.Engine;
 using Framework.UI;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -12,27 +13,26 @@ namespace Poker.UI.Screens;
 
 class GameplayScreen : MenuGameScreen
 {
-    public GameplayScreen(ScreenManager screenManager) : base(screenManager, 4)
+    public Button CheckButton { get; private set; }
+    public Button RaiseButton { get; private set; }
+    public Button CallButton { get; private set; }
+    public Button FoldButton { get; private set; }
+    public Button ClearButton { get; private set; }
+    public Button AllInButton { get; private set; }
+
+    public GameplayScreen(ScreenManager screenManager) : base(screenManager, 6)
     { }
 
     public override void Initialize()
     {
         // create buttons
-        var raise = new Button(Constants.ButtonRaiseText, Game);
-        var check = new Button(Constants.ButtonCheckText, Game);
-        var fold = new Button(Constants.ButtonFoldText, Game);
-        var call = new Button(Constants.ButtonCallText, Game);
-        var allin = new Button(Constants.ButtonAllInText, Game);
-
-        // event handlers
-        raise.Click += RaiseButton_OnClick;
-        check.Click += CheckButton_OnClick;
-        fold.Click += FoldButton_OnClick;
-        call.Click += CallButton_OnClick;
-
-        // add buttons
-        Buttons.AddRange(new Button[] { raise, check, fold, call, allin });
-
+        CheckButton = new Button(Constants.ButtonCheckText, Game);
+        RaiseButton = new Button(Constants.ButtonRaiseText, Game);
+        CallButton = new Button(Constants.ButtonCallText, Game);
+        FoldButton = new Button(Constants.ButtonFoldText, Game);
+        ClearButton = new Button(Constants.ButtonClearText, Game);
+        AllInButton = new Button(Constants.ButtonAllInText, Game);
+        Buttons.AddRange(new[] { AllInButton, CheckButton, RaiseButton, CallButton, FoldButton, ClearButton });
         base.Initialize();
     }
 
@@ -51,7 +51,7 @@ class GameplayScreen : MenuGameScreen
         sb.Begin();
 
         // draw player names
-        for (int i = 0; i < Constants.MaxPlayers; i++)
+        for (int i = 0; i < gm.PlayerCount; i++)
         {
             var player = gm[i];
             sb.DrawString(gm.Font, player.Name, player.NamePosition, Color.WhiteSmoke);
@@ -62,7 +62,6 @@ class GameplayScreen : MenuGameScreen
 
     public override void Show()
     {
-
         Game.Services.GetService<GameManager>().GameTable.Show();
         base.Show();
     }
@@ -71,6 +70,69 @@ class GameplayScreen : MenuGameScreen
     {
         Game.Services.GetService<GameManager>().GameTable.Hide();
         base.Hide();
+    }
+
+    /// <summary>
+    /// Shows available buttons for the player depending on the bet values.
+    /// </summary>
+    /// <param name="currentTableBet">Current highest bet on the table.</param>
+    /// <param name="currentPlayerBet">Current player bet.</param>
+    /// <param name="startingPlayerBet">Bet that the player started with during their turn.</param>
+    /// <param name="playerBalance">Player's balance.</param>
+    public void ShowButtons(int currentTableBet, int currentPlayerBet, int startingPlayerBet, int playerBalance)
+    {
+        List<Button> buttonsToShow = new(Buttons.Count);
+        buttonsToShow.Add(AllInButton);
+
+        if (startingPlayerBet != currentPlayerBet)
+            buttonsToShow.Add(ClearButton);
+
+        if (currentPlayerBet < currentTableBet)
+        {
+            buttonsToShow.Add(CallButton);
+        }
+        else if (currentPlayerBet == currentTableBet)
+        {
+            
+        }
+        else if (currentPlayerBet > currentTableBet)
+        {
+            buttonsToShow.Add(RaiseButton);
+        }
+
+        ShowButtons(buttonsToShow);        
+    }
+
+    /// <summary>
+    /// Shows provided buttons and hides the others.
+    /// </summary>
+    void ShowButtons(List<Button> buttons)
+    {
+        // show buttons
+        foreach (var button in Buttons)
+        {
+            if (buttons.Contains(button))
+                button.Show();
+            else
+                button.Hide();
+        }
+
+        // calculate left most button position
+        int _leftMostButtonX = (Constants.GameWidth - buttons.Count * Constants.ButtonWidthWithPadding
+            + Constants.ButtonPadding) / 2;
+
+        // arrange buttons
+        for (int i = 0; i < buttons.Count; i++)
+            buttons[i].ChangePosition(_leftMostButtonX + Constants.ButtonWidthWithPadding * i);
+    }
+
+    /// <summary>
+    /// Hides all the buttons.
+    /// </summary>
+    public void HideButtons()
+    {
+        foreach (var button in Buttons)
+            button.Hide();
     }
 
     void RaiseButton_OnClick(object o, EventArgs e)

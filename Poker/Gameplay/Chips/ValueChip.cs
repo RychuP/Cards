@@ -3,6 +3,12 @@ using System;
 
 namespace Poker.Gameplay.Chips;
 
+/// <summary>
+/// Value chips equivalent to bet amounts.
+/// </summary>
+/// <remarks>This implementation of the game introduces the term "community chips".<br></br>
+/// These are the chips that are placed on table below the community cards<br></br>
+/// and serve as buttons for the human player to click on and make their bets.</remarks>
 class ValueChip : Chip
 {
     /// <summary>
@@ -16,14 +22,19 @@ class ValueChip : Chip
     public static readonly int Count = Values.Length;
 
     /// <summary>
-    /// Y coordinate of the first value chip placed below the community cards.
+    /// Y coordinate of the first community chip.
     /// </summary>
     public static readonly int DefaultPositionY = 480;
 
     /// <summary>
-    /// Vertical offset between chips placed below the community cards.
+    /// Vertical offset between community chips.
     /// </summary>
     public static readonly int VerticalOffset = 12;
+
+    /// <summary>
+    /// Horizontal offset between value chips in the player area.
+    /// </summary>
+    public static readonly int HorizontalOffset = 10;
 
     /// <summary>
     /// Value of the chip.
@@ -34,6 +45,9 @@ class ValueChip : Chip
     /// Index of the chip in the <see cref="Values"/> array.
     /// </summary>
     public int Index { get; }
+
+    public ValueChip(Game game, int value) : this(game, Chip.HiddenPosition, value)
+    { }
 
     public ValueChip(Game game, Vector2 position, int value)
         : base(game, position, value switch

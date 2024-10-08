@@ -3,12 +3,15 @@ using Framework.Assets;
 using Framework.UI;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Poker.Gameplay;
 using InputButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 
 namespace Poker.UI.AnimatedGameComponents;
 
-internal class Button : AnimatedGameComponent
+class Button : AnimatedGameComponent
 {
+    public event EventHandler Click;
+
     // text positions
     Vector2 _textPosition;
     Vector2 _regularFontTextPos;
@@ -26,25 +29,30 @@ internal class Button : AnimatedGameComponent
     public Button(string text, int x, Game game) : base(game)
     {
         Text = text;
-        Destination = new(x, Constants.ButtonPositionY, Constants.ButtonWidth, Constants.ButtonSpriteHeight);
+        ChangePosition(x);
+        DrawOrder = int.MaxValue;
     }
 
-    public override void Initialize()
+    void SetTextPosition()
     {
-        // calculate button positions
         var dest = Destination ?? Rectangle.Empty;
-        _regularFontTextPos = CalculateButtonPosition(Fonts.Moire.Regular.MeasureString(Text));
-        _boldFontTextPos = CalculateButtonPosition(Fonts.Moire.Bold.MeasureString(Text));
+        _regularFontTextPos = GetTextPosition(dest, Fonts.Moire.Regular.MeasureString(Text));
+        _boldFontTextPos = GetTextPosition(dest, Fonts.Moire.Bold.MeasureString(Text));
         _boldFontWithOffsetTextPos = _boldFontTextPos + new Vector2(0, 2);
+    }
 
-        base.Initialize();
+    static Vector2 GetTextPosition(Rectangle dest, Vector2 textSize)
+    {
+        float x = dest.X + (Constants.ButtonWidth - textSize.X) / 2;
+        float y = dest.Y + (Constants.ButtonSpriteHeight - textSize.Y) / 2;
+        return new Vector2(x, y);
+    }
 
-        Vector2 CalculateButtonPosition(Vector2 textSize)
-        {
-            float x = dest.X + (Constants.ButtonWidth - textSize.X) / 2;
-            float y = dest.Y + (Constants.ButtonSpriteHeight - textSize.Y) / 2;
-            return new Vector2(x, y);
-        }
+    public void ChangePosition(int x)
+    {
+        Position = new Vector2(x, Constants.ButtonPositionY);
+        Destination = new(x, Constants.ButtonPositionY, Constants.ButtonWidth, Constants.ButtonSpriteHeight);
+        SetTextPosition();
     }
 
     protected override void LoadContent()
@@ -84,7 +92,7 @@ internal class Button : AnimatedGameComponent
     {
         if (Destination is not Rectangle dest) return;
 
-        var sb = Game.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
+        var sb = Game.Services.GetService<SpriteBatch>();
         sb.Begin();
         sb.Draw(Texture, dest, CurrentSegment, Color.White);
         sb.DrawString(_currentFont, Text, _textPosition, Color.White);
@@ -138,6 +146,4 @@ internal class Button : AnimatedGameComponent
     {
         Click?.Invoke(this, EventArgs.Empty);
     }
-
-    public event EventHandler Click;
 }

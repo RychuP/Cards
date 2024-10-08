@@ -1,6 +1,7 @@
 ﻿using Framework.Assets;
 using Framework.UI;
 using Microsoft.Xna.Framework.Graphics;
+using Poker.UI.AnimatedGameComponents;
 using System;
 
 namespace Poker.Gameplay.Chips;
@@ -31,7 +32,7 @@ abstract class Chip
     /// <summary>
     /// Graphical representation of the chip.
     /// </summary>
-    readonly AnimatedGameComponent _animatedChipComponent;
+    AnimatedChipComponent _animatedChipComponent;
 
     protected readonly Game Game;
 
@@ -63,9 +64,30 @@ abstract class Chip
         Game = game;
     }
 
+    public virtual Vector2 GetTablePosition() => Vector2.Zero;
+
+    /// <summary>
+    /// Removes <see cref="AnimatedChipComponent"/> from <see cref="Game.Components"/>.
+    /// </summary>
+    /// <remarks>Local field is also marked internally as null.</remarks>
+    public void RemoveAnimatedComponent()
+    {
+        if (Game.Components.Contains(_animatedChipComponent))
+            Game.Components.Remove(_animatedChipComponent);
+        _animatedChipComponent = null;
+    }
+
+    /// <summary>
+    /// Adds transition animations that follow the position change of the chip.
+    /// </summary>
     void OnPositionChanged(Vector2 prevPosition, Vector2 newPosition)
     {
-        if (newPosition == HiddenPosition)
+        // two special cases for not creating animations:
+        // 1. when the chip is created by bet component and starts in hidden position
+        // 2. when the chip is created by a player and starts at the zero vector
+        //    and is then subsequently moved to the community chip position
+        //    from where it's going to start its actual animation
+        if (newPosition == HiddenPosition || prevPosition == Vector2.Zero)
         {
             _animatedChipComponent.Position = newPosition;
             _animatedChipComponent.Enabled = true;
@@ -89,7 +111,4 @@ abstract class Chip
             AnimationCycles = 3,
         });
     }
-
-    public virtual Vector2 GetTablePosition() =>
-        Vector2.Zero;
 }

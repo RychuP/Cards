@@ -34,11 +34,12 @@ class PokerGame : Game
 
         // screen manager needs to be created first to get the lowest draw order
         var screenManager = new ScreenManager(this);
-        var inputManager = new InputManager(this);
-        var gameManager = new GameManager(this, screenManager);
-
         Services.AddService(screenManager);
+
+        var inputManager = new InputManager(this);
         Services.AddService(inputManager);
+
+        var gameManager = new GameManager(this, screenManager);
         Services.AddService(gameManager);
 
         _globalManagers.Add(gameManager);

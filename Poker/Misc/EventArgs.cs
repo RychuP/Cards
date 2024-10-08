@@ -1,3 +1,4 @@
+using Poker.Gameplay.Players;
 using Poker.UI.BaseScreens;
 using System;
 
@@ -32,4 +33,11 @@ class GameStateEventArgs : EventArgs
     public GameState NewState { get; }
     public GameStateEventArgs(GameState prevState, GameState newState) =>
         (PrevState, NewState) = (prevState, newState);
+}
+
+class GameEndEventArgs : EventArgs
+{
+    public PokerBettingPlayer Winner { get; }
+    public GameEndEventArgs(PokerBettingPlayer winner) =>
+        Winner = winner;
 }

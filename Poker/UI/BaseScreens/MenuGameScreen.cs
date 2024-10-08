@@ -34,4 +34,6 @@ abstract class MenuGameScreen : GameScreen
         foreach (var button in Buttons)
             button.Hide();
     }
+
+    public Button FindButton(string text) => Buttons.Find(b => b.Text == text);
 }

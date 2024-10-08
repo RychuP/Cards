@@ -2,8 +2,6 @@
 
 class SmallBlindChip : BlindChip
 {
-    public SmallBlindChip(Game game, Vector2 position) : base(game, position, Art.SmallBlindChip)
-    {
-
-    }
+    public SmallBlindChip(Game game) : base(game, HiddenPosition, Art.SmallBlindChip)
+    { }
 }

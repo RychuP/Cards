@@ -3,19 +3,33 @@ using Framework.UI;
 using Poker.Gameplay.Chips;
 using Poker.UI.AnimatedGameComponents;
 using System;
+using System.Collections.Generic;
 
 namespace Poker.Gameplay.Players;
 
 class PokerBettingPlayer : PokerCardsHolder
 {
+    public static readonly int StartBalance = 2000;
+
+    /// <summary>
+    /// Max amount of value chips that can be added to the player area.
+    /// </summary>
+    public static readonly int ChipMaxAmount = 20;
+
     /// <summary>
     /// Position of the first line of text in the player area.
     /// </summary>
     /// <remarks>Normally, it's where the player name is displayed.</remarks>
     readonly Vector2 _textPosition;
 
+    /// <summary>
+    /// How much money the player owns.
+    /// </summary>
     public int Balance { get; set; }
-    public int BetAmount { get; private set; }
+
+    /// <summary>
+    /// Gender of the player.
+    /// </summary>
     public Gender Gender { get; }
 
     /// <summary>
@@ -38,6 +52,17 @@ class PokerBettingPlayer : PokerCardsHolder
     /// </summary>
     public int Place {  get; }
 
+    /// <summary>
+    /// Current state of the player in the game.
+    /// </summary>
+    public PlayerState State { get; set; }
+
+    /// <summary>
+    /// Chips equivalent to the value of <see cref="BetAmount"/>.
+    /// </summary>
+    readonly List<ValueChip> Chips = new();
+
+    // backing field
     BlindChip _blindChip;
     /// <summary>
     /// Blind chip that signifies whether this player should make a blind bet
@@ -53,6 +78,23 @@ class PokerBettingPlayer : PokerCardsHolder
             var prevBlindChip = BlindChip;
             _blindChip = value;
             OnBlindChipChanged(prevBlindChip, value);
+        }
+    }
+
+    // backing field
+    int _betAmount;
+    /// <summary>
+    /// Sum being bet in the current round.
+    /// </summary>
+    public int BetAmount
+    {
+        get => _betAmount;
+        set
+        {
+            if (_betAmount == value) return;
+            int prevBetAmount = _betAmount;
+            _betAmount = value;
+            OnBetAmountChanged(prevBetAmount, value);
         }
     }
 
@@ -74,13 +116,14 @@ class PokerBettingPlayer : PokerCardsHolder
         NamePosition = GetCenteredTextPosition(Name, 0);
 
         // calculate chip position
-        int y = (int)gm.GameTable[Place].Y + (Constants.CardSize.Y - Chip.Size.Y) / 2;
-        int x = (int)gm.GameTable[Place].X + Constants.CardSize.X * 2
-            + Constants.PlayerCardPadding + Chip.PlayerAreaPadding;
-        ChipPosition = new Vector2(y, x);
+        int offsetY = (Constants.CardSize.Y - Chip.Size.Y) / 2;
+        int offsetX = IsOnTheLeft ?
+            Constants.CardSize.X * 2 + Constants.PlayerCardPadding + Chip.PlayerAreaPadding :
+            -Chip.Size.X - Chip.PlayerAreaPadding;
+        ChipPosition = gm.GameTable[Place] + new Vector2(offsetX, offsetY);
 
         // calculate blind chip position
-        var offsetY = IsAtTheBottom ? -BlindChip.OffsetY : BlindChip.OffsetY;
+        offsetY = IsAtTheBottom ? -BlindChip.OffsetY - Chip.Size.Y : BlindChip.OffsetY + Chip.Size.Y;
         BlindChipPosition = ChipPosition + new Vector2(0, offsetY);
     }
 
@@ -122,18 +165,121 @@ class PokerBettingPlayer : PokerCardsHolder
     /// </summary>
     public bool IsAtTheBottom => Place == 0 || Place == 3;
 
-    public void Reset(Dealer dealer)
+    public void Reset()
     {
-        // reset stats
-        Balance = 500;
-        BetAmount = 0;
+        State = PlayerState.Waiting;
+        ResetBalance();
+        ReturnCardsToDealer();
 
-        // return cards to the dealer
-        Hand.DealCardsToHand(dealer, Hand.Count);
+        if (Chips.Count > 0)
+            ResetChips();
+    }
+
+    public void StartNewRound()
+    {
+        State = PlayerState.Waiting;
+        BetAmount = 0;
+        ReturnCardsToDealer();
+    }
+
+    public void ResetBalance()
+    {
+        Balance = StartBalance;
+        BetAmount = 0;
+    }
+
+    /// <summary>
+    /// Removes all animated chip components and clears Chips.
+    /// </summary>
+    void ResetChips()
+    {
+        foreach (var chip in Chips)
+            chip.RemoveAnimatedComponent();
+        Chips.Clear();
+    }
+
+    void AddChips(int value)
+    {
+        // check if the bet amount doesn't exceed the max amount of chips that can be displayed
+        int biggestChipValue = ValueChip.Values[ValueChip.Count - 1];
+        int maxValue = biggestChipValue * ChipMaxAmount;
+        if (BetAmount > maxValue)
+            value = maxValue;
+        
+        // get the list of values that chips will created from
+        var chipValues = GetChipValues(value);
+        if (Chips.Count + chipValues.Count > ChipMaxAmount)
+        {
+            ResetChips();
+            AddChips(BetAmount);
+        }
+        else
+        {
+            foreach (var chipValue in chipValues)
+            {
+                // create the chip and place it in the player area
+                var valueChip = new ValueChip(Game, Vector2.Zero, chipValue);
+                valueChip.Position = valueChip.GetTablePosition();
+                int offsetX = ValueChip.HorizontalOffset * Chips.Count;
+                Vector2 offset = new(IsOnTheLeft ? offsetX : -offsetX, 0);
+                valueChip.Position = ChipPosition + offset;
+                Chips.Add(valueChip);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Devides the value by the chip values to assist the creation of chips.
+    /// </summary>
+    /// <param name="value">Value to break down.</param>
+    /// <returns>The list of individual values that correspond to value chips.</returns>
+    /// <exception cref="ArgumentException">Exception thrown in case the value 
+    /// cannot be devided by the smallest chip value.</exception>
+    static List<int> GetChipValues(int value)
+    {
+        if (value % 5 != 0)
+            throw new ArgumentException("Unable to create value chips equal to the give value.", nameof(value));
+
+        List<int> chipValues = new();
+        for (int i = ValueChip.Values.Length - 1; i >= 0; i--)
+        {
+            int chipValue = ValueChip.Values[i];
+            while (value - chipValue >= 0)
+            {
+                chipValues.Add(chipValue);
+                value -= chipValue;
+            }
+        }
+        return chipValues;
     }
 
     void OnBlindChipChanged(BlindChip prevBlindChip, BlindChip newBlindChip)
     {
+        if (newBlindChip is not null)
+        {
+            newBlindChip.Position = BlindChipPosition;
+            BetAmount = newBlindChip is SmallBlindChip ? BetComponent.SmallBlind : BetComponent.BigBlind;
+        }
+    }
 
+    void OnBetAmountChanged(int prevBetAmount, int newBetAmount)
+    {
+        if (newBetAmount < 0 || newBetAmount > Balance)
+            throw new ArgumentOutOfRangeException(nameof(newBetAmount), "Invalid bet amount.");
+
+        if (newBetAmount != 0 && newBetAmount < prevBetAmount)
+            throw new ArgumentException("New bet cannot be lower than previous bet unless it is zero.");
+
+        // remove all chips if new balance is zero
+        if (newBetAmount == 0)
+        {
+            ResetChips();
+            return;
+        }
+
+        if (newBetAmount == Balance)
+            State = PlayerState.AllIn;
+
+        AddChips(newBetAmount - prevBetAmount);
     }
 }

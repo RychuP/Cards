@@ -26,17 +26,25 @@ public enum GameState
     None,
     Shuffling,
     Dealing,
-    FirstBet,
+    Preflop,
+    Flop,
+    FlopBet,
     Turn,
-    SecondBet,
+    TurnBet,
     River,
-    ThirdBet,
+    RiverBet,
+    Showdown,
     RoundEnd,
     GameOver
 }
 
-public enum BlindType
+public enum PlayerState
 {
-    Small,
-    Big
+    Waiting,
+    Checked,
+    Called,
+    Raised,
+    AllIn,
+    Folded,
+    Bankrupt
 }

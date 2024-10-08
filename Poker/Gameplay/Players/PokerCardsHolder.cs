@@ -9,10 +9,10 @@ abstract class PokerCardsHolder : Player
 {
     public AnimatedHandGameComponent AnimatedHand { get; init; }
 
+    protected Game Game => CardGame.Game;
+
     public PokerCardsHolder(string name, GameManager gm) : base(name, gm)
-    {
-        
-    }
+    { }
 
     /// <summary>
     /// Display an animation when a card is dealt.
@@ -67,5 +67,12 @@ abstract class PokerCardsHolder : Player
                 Constants.GameHeight - Constants.CardSize.Y - Constants.PlayerCardMargin),
             _ => throw new ArgumentException("Player index should be between 0 and 3", nameof(playerIndex)),
         };
+    }
+
+    public void ReturnCardsToDealer()
+    {
+        GameManager gm = CardGame as GameManager;
+        Dealer dealer = gm.GetPokerDealer();
+        Hand.DealCardsToHand(dealer, Hand.Count);
     }
 }

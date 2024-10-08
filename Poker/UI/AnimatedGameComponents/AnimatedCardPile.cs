@@ -26,7 +26,7 @@ class AnimatedCardPile : AnimatedGameComponent
     }
 
     /// <summary>
-    /// Shows the card pile, plays shuffle animation and calls <see cref="GameManager.Deal"/> when finished.
+    /// Shows the card pile, plays shuffle animation and calls <see cref="GameManager.DealCardsToPlayers"/> when finished.
     /// </summary>
     /// <param name="action"></param>
     /// <param name="arg"></param>

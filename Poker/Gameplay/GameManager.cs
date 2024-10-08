@@ -10,16 +10,23 @@ using System;
 using System.Collections.Generic;
 using Poker.UI.BaseScreens;
 using Poker.UI.AnimatedGameComponents;
+using Poker.Gameplay.Chips;
+using System.Linq;
+using Poker.Gameplay.Rules;
 
 namespace Poker.Gameplay;
 
 class GameManager : CardGame, IGlobalManager
 {
+    public event EventHandler<ThemeChangedEventArgs> ThemeChanged;
+    public event EventHandler<GameStateEventArgs> GameStateChanged;
+
     readonly AnimatedCardPile _animatedCardPile;
     readonly CommunityCards _communityCards;
     readonly BetComponent _betComponent;
     readonly ScreenManager _screenManager;
     readonly Dealer _dealer;
+    PokerBettingPlayer _currentPlayer;
 
     // used for pausing and resuming gameplay components
     readonly List<DrawableGameComponent> _pauseEnabledComponents = new();
@@ -37,6 +44,10 @@ class GameManager : CardGame, IGlobalManager
             OnGameStateChanged(prevGameState, value);
         }
     }
+
+    public Dealer GetPokerDealer() => _dealer;
+
+    public int PlayerCount => Players.Count;
 
     public GameManager(Game game, ScreenManager screenManager) 
         : base(1, 0, CardSuits.AllSuits, CardValues.NonJokers, Fonts.Moire.Regular,
@@ -65,6 +76,10 @@ class GameManager : CardGame, IGlobalManager
         // create bet component
         _betComponent = new BetComponent(this);
         game.Components.Add(_betComponent);
+
+        // create rules
+        var gameEndRule = new GameEndRule(this);
+        Rules.Add(gameEndRule);
     }
 
     public void Update()
@@ -81,31 +96,66 @@ class GameManager : CardGame, IGlobalManager
         {
             case GameState.Shuffling:
                 _dealer.Shuffle();
-                // wait for shuffling animations to finish
+                // wait for the shuffling animations to finish
                 if (!CheckForRunningAnimations<AnimatedCardPile>())
                 {
                     // deal cards and change state
-                    Deal();
+                    DealCardsToPlayers();
                     State = GameState.Dealing;
                 }
                 break;
 
             case GameState.Dealing:
-                // wait for dealing animations to finish
+                // wait for the player cards animations to finish
                 if (!CheckForRunningAnimations<AnimatedCardGameComponent>())
                 {
                     // hide the card pile and change state
                     _animatedCardPile.SlideUp();
-                    State = GameState.FirstBet;
+                    State = GameState.Preflop;
+
+                    // deal blind tokens
+                    _betComponent.IssueBlindChips();
                 }
                 break;
 
-            case GameState.FirstBet:
-                // wait for the card pile to finish its hide animation
-                if (!CheckForRunningAnimations<AnimatedCardPile>())
+            case GameState.Preflop:
+                // wait for the player chips animations to finish
+                if (!CheckForRunningAnimations<AnimatedChipComponent>())
                 {
-                    // deal blind tokens
-                    var test = Game.Components;
+                    // establish who the current player is if not done already
+                    if (_currentPlayer is null)
+                    {
+                        for (int i = 0; i < PlayerCount; i++)
+                        {
+                            if (this[i].BlindChip is BigBlindChip)
+                                _currentPlayer = GetNextPlayer(this[i]);
+                        }
+                    }
+                    
+                    // bet or skip
+                    if (_currentPlayer.State == PlayerState.Folded || _currentPlayer.State == PlayerState.Bankrupt)
+                        ChangeCurrentPlayer();
+                    else
+                        _betComponent.HandleBetting(_currentPlayer);
+
+                    CheckRules();
+                }
+                break;
+
+            case GameState.Flop:
+                // wait for the player chip animations to finish
+                if (!CheckForRunningAnimations<AnimatedChipComponent>())
+                {
+                    DealCommunityCards(3);
+                    State = GameState.FlopBet;
+                }
+                break;
+
+            case GameState.FlopBet:
+                // wait for the community cards animations to finish
+                if (!CheckForRunningAnimations<AnimatedCardGameComponent>())
+                {
+
                 }
                 break;
         }
@@ -122,6 +172,19 @@ class GameManager : CardGame, IGlobalManager
             else if (_screenManager.ActiveScreen is StartScreen)
                 Game.Exit();
         }
+    }
+
+    public void MoveToNextStage()
+    {
+        State = GameState.Flop;
+    }
+
+    /// <summary>
+    /// Changes the current player to the next one to take turn.
+    /// </summary>
+    public void ChangeCurrentPlayer()
+    {
+        _currentPlayer = GetNextPlayer(_currentPlayer);
     }
 
     /// <summary>
@@ -203,19 +266,34 @@ class GameManager : CardGame, IGlobalManager
         _betComponent.ShowCommunityChips();
     }
 
+    void StartNewRound()
+    {
+        // prepare players
+        foreach (var player in Players)
+            ((PokerBettingPlayer)player).StartNewRound();
+
+        // return community cards
+        _communityCards.ReturnCardsToDealer();
+    }
+
     void Reset()
     {
-        // return all cards to dealer and show relevant components
+        // reset players
         foreach (var player in Players)
-            ((PokerBettingPlayer)player).Reset(_dealer);
-        _communityCards.Reset(_dealer);
+            ((PokerBettingPlayer)player).Reset();
+
+        // return community cards
+        _communityCards.ReturnCardsToDealer();
 
         // reset components
         _betComponent.Reset();
         _animatedCardPile.Reset();
+
+        // reset fields
+        _currentPlayer = null;
     }
 
-    public override void Deal()
+    public override void DealCardsToPlayers()
     {
         DateTime startTime = DateTime.Now;
 
@@ -233,9 +311,14 @@ class GameManager : CardGame, IGlobalManager
                 startTime += Constants.DealAnimationDuration;
             }
         }
+    }
+
+    public void DealCommunityCards(int amount)
+    {
+        DateTime startTime = DateTime.Now;
 
         // deal community cards
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < amount; i++)
         {
             TraditionalCard card = _dealer.DealCardToHand(_communityCards.Hand);
             _communityCards.AddDealAnimation(card, true, startTime);
@@ -315,14 +398,21 @@ class GameManager : CardGame, IGlobalManager
             Players.Add(player);
     }
 
-    public override void CheckRules()
-    {
-        base.CheckRules();
-    }
+    public override Player GetCurrentPlayer() => _currentPlayer;
 
-    public override Player GetCurrentPlayer()
+    /// <summary>
+    /// Gets the <see cref="PokerBettingPlayer"/> that follows given player in the parameter.
+    /// </summary>
+    /// <param name="player"><see cref="PokerBettingPlayer"/> to find the next player from.</param>
+    /// <returns><see cref="PokerBettingPlayer"/> in the next place after the given player.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public PokerBettingPlayer GetNextPlayer(PokerBettingPlayer player)
     {
-        throw new NotImplementedException();
+        if (!Players.Contains(player))
+            throw new ArgumentException("No such player in the current game.", nameof(player));
+
+        int nextPlace = player.Place == PlayerCount - 1 ? 0 : player.Place + 1;
+        return this[nextPlace];
     }
 
     void OnThemeChanged(string theme)
@@ -335,6 +425,8 @@ class GameManager : CardGame, IGlobalManager
         GameStateChanged?.Invoke(this, new GameStateEventArgs(prevGameState, newGameState));
     }
 
-    public event EventHandler<ThemeChangedEventArgs> ThemeChanged;
-    public event EventHandler<GameStateEventArgs> GameStateChanged;
+    void GameEndRule_OnRuleMatch(object o, GameEndEventArgs e)
+    {
+        _betComponent.TransferPotToWinner(e.Winner);
+    }
 }

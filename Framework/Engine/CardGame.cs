@@ -127,7 +127,7 @@ public abstract class CardGame
     /// <summary>
     /// Deals cards to the participating players.
     /// </summary>
-    public abstract void Deal();
+    public abstract void DealCardsToPlayers();
 
     /// <summary>
     /// Initializes the game and lets the players start playing.

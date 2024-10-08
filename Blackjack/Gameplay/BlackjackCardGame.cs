@@ -146,7 +146,7 @@ class BlackjackCardGame : CardGame
             case BlackjackGameState.Dealing:
                 // Deal 2 cards and start playing
                 State = BlackjackGameState.Playing;
-                Deal();
+                DealCardsToPlayers();
                 StartPlaying();
                 break;
 
@@ -477,7 +477,7 @@ class BlackjackCardGame : CardGame
     /// Deals 2 cards to each player including the dealer and adds the appropriate 
     /// animations.
     /// </summary>
-    public override void Deal()
+    public override void DealCardsToPlayers()
     {
         if (State == BlackjackGameState.Playing)
         {
