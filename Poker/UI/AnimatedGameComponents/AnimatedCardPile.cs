@@ -65,7 +65,7 @@ class AnimatedCardPile : AnimatedGameComponent
         return new TransitionGameComponentAnimation(start, finish)
         {
             Duration = Constants.CardPileTransitionDuration,
-            PerformBeforeStart = (o) => CardSounds.Flip.Play()
+            //PerformBeforeStart = (o) => CardSounds.Flip.Play()
         };
     }
 

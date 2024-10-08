@@ -146,8 +146,17 @@ class GameManager : CardGame, IGlobalManager
                 // wait for the player chip animations to finish
                 if (!CheckForRunningAnimations<AnimatedChipComponent>())
                 {
-                    DealCommunityCards(3);
-                    State = GameState.FlopBet;
+                    // show card pile
+                    if (_animatedCardPile.Position != Constants.CardPileVisiblePosition &&
+                        !_animatedCardPile.IsAnimating)
+                            _animatedCardPile.SlideDown();
+
+                    // wait for the card pile animation to finish
+                    if (!CheckForRunningAnimations<AnimatedCardPile>())
+                    {
+                        DealCommunityCards(3);
+                        State = GameState.FlopBet;
+                    }
                 }
                 break;
 
@@ -155,7 +164,10 @@ class GameManager : CardGame, IGlobalManager
                 // wait for the community cards animations to finish
                 if (!CheckForRunningAnimations<AnimatedCardGameComponent>())
                 {
-
+                    // hide card pile
+                    if (_animatedCardPile.Position != Constants.CardPileHiddenPosition &&
+                        !_animatedCardPile.IsAnimating)
+                            _animatedCardPile.SlideUp();
                 }
                 break;
         }
