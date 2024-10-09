@@ -61,6 +61,18 @@
 /processorParam:TextureFormat=Color
 /build:Images/card_outlines.png
 
+#begin Images/chip_outline.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/chip_outline.png
+
 #begin Images/pause.png
 /importer:TextureImporter
 /processor:TextureProcessor

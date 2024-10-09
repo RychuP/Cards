@@ -91,7 +91,7 @@ class PokerBettingPlayer : PokerCardsHolder
         get => _betAmount;
         set
         {
-            if (_betAmount == value) return;
+            if (_betAmount == value || value > Balance) return;
             int prevBetAmount = _betAmount;
             _betAmount = value;
             OnBetAmountChanged(prevBetAmount, value);
@@ -172,7 +172,7 @@ class PokerBettingPlayer : PokerCardsHolder
         ReturnCardsToDealer();
 
         if (Chips.Count > 0)
-            ResetChips();
+            RemoveAllChips();
     }
 
     public void StartNewRound()
@@ -191,13 +191,54 @@ class PokerBettingPlayer : PokerCardsHolder
     /// <summary>
     /// Removes all animated chip components and clears Chips.
     /// </summary>
-    void ResetChips()
+    void RemoveAllChips()
     {
         foreach (var chip in Chips)
             chip.RemoveAnimatedComponent();
         Chips.Clear();
     }
 
+    /// <summary>
+    /// Removes chips from the top of the stack equivalent to the value.
+    /// </summary>
+    /// <param name="value"></param>
+    void RemoveChips(int value)
+    {
+        int start = Chips.Count - 1;
+        for (int i = start; i >= 0; i--)
+        {
+            var chip = Chips[i];
+            RemoveChip(chip);
+
+            // reduce the value by the removed chip's value
+            if (chip.Value <= value)
+            {
+                value -= chip.Value;
+                if (value == 0)
+                    return;
+            }
+            // add change to replace reduced value of the chip
+            else
+            {
+                AddChips(chip.Value - value);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Removes a single chip from the top of the stack.
+    /// </summary>
+    /// <param name="chip"></param>
+    void RemoveChip(ValueChip chip)
+    {
+        Chips.Remove(chip);
+        chip.RemoveAnimatedComponent();
+    }
+
+    /// <summary>
+    /// Adds or replaces (if too many) value chips in the player area.
+    /// </summary>
+    /// <param name="value"></param>
     void AddChips(int value)
     {
         // check if the bet amount doesn't exceed the max amount of chips that can be displayed
@@ -210,7 +251,7 @@ class PokerBettingPlayer : PokerCardsHolder
         var chipValues = GetChipValues(value);
         if (Chips.Count + chipValues.Count > ChipMaxAmount)
         {
-            ResetChips();
+            RemoveAllChips();
             AddChips(BetAmount);
         }
         else
@@ -264,21 +305,28 @@ class PokerBettingPlayer : PokerCardsHolder
 
     void OnBetAmountChanged(int prevBetAmount, int newBetAmount)
     {
+        // this shouldn't happen
         if (newBetAmount < 0 || newBetAmount > Balance)
             throw new ArgumentOutOfRangeException(nameof(newBetAmount), "Invalid bet amount.");
-
-        if (newBetAmount != 0 && newBetAmount < prevBetAmount)
-            throw new ArgumentException("New bet cannot be lower than previous bet unless it is zero.");
 
         // remove all chips if new balance is zero
         if (newBetAmount == 0)
         {
-            ResetChips();
+            RemoveAllChips();
             return;
         }
 
-        if (newBetAmount == Balance)
-            State = PlayerState.AllIn;
+        // this can happen only on human player turn (clear button click)
+        if (newBetAmount < prevBetAmount)
+        {
+            if (this is AIPlayer)
+                throw new ArgumentException("New bet cannot be lower than previous bet unless it is zero.");
+            else if (this is HumanPlayer)
+            {
+                RemoveChips(prevBetAmount - newBetAmount);
+                return;
+            }
+        }
 
         AddChips(newBetAmount - prevBetAmount);
     }

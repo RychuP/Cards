@@ -30,16 +30,19 @@ class BetComponent : DrawableGameComponent
     PokerBettingPlayer _smallBlindPlayer;
 
     /// <summary>
-    /// Player who made the last raise.
+    /// Last player to call or check.
     /// </summary>
-    /// <remarks>This is also the betting round end marker.
-    /// If the current player is the same as this, it means everybody called.</remarks>
-    PokerBettingPlayer _playerWithLastRaise;
+    PokerBettingPlayer _savedPlayer;
+
+    /// <summary>
+    /// Current stage of the betting round.
+    /// </summary>
+    BetStage Stage;
 
     /// <summary>
     /// Community chips that are placed below community cards.
     /// </summary>
-    readonly List<ValueChip> CommunityChips = new(ValueChip.Count);
+    readonly List<CommunityChip> CommunityChips = new(ValueChip.Count);
 
     /// <summary>
     /// Blind chips that are distrubued among the players.
@@ -61,7 +64,7 @@ class BetComponent : DrawableGameComponent
         // create community chips
         for (int i = 0; i < ValueChip.Count; i++)
         {
-            var chip = new ValueChip(Game, ValueChip.Values[i]);
+            var chip = new CommunityChip(Game, ValueChip.Values[i]);
             CommunityChips.Add(chip);
         }
 
@@ -70,12 +73,23 @@ class BetComponent : DrawableGameComponent
         BlindChips.Add(new BigBlindChip(Game));
     }
 
+    public override void Update(GameTime gameTime)
+    {
+        foreach (var chip in CommunityChips)
+            chip.Update();
+
+        base.Update(gameTime);
+    }
+
     public override void Initialize()
     {
         base.Initialize();
         var gameplayScreen = Game.Components.Find<GameplayScreen>();
         gameplayScreen.CallButton.Click += CallButton_OnClick;
         gameplayScreen.AllInButton.Click += AllInButton_OnClick;
+        gameplayScreen.ClearButton.Click += ClearButton_OnClick;
+        gameplayScreen.RaiseButton.Click += RaiseButton_OnClick;
+        gameplayScreen.CheckButton.Click += CheckButton_OnClick;
     }
 
     public override void Draw(GameTime gameTime)
@@ -98,6 +112,13 @@ class BetComponent : DrawableGameComponent
             sb.DrawString(_gameManager.Font, betText, betPos, Color.OrangeRed);
         }
 
+        // draw outlines for community chips in hover mode
+        foreach (var chip in CommunityChips)
+        {
+            if (chip.IsHover)
+                sb.Draw(Art.ChipOutline, chip.OutlineDestination, Color.White);
+        }
+        
         sb.End();
     }
 
@@ -113,6 +134,8 @@ class BetComponent : DrawableGameComponent
     {
         Enabled = true;
         Visible = true;
+        _savedPlayer = null;
+        Stage = BetStage.Raise;
 
         var rand = Game.Services.GetService<Random>();
 
@@ -159,7 +182,7 @@ class BetComponent : DrawableGameComponent
         bigBlindPlayer.BlindChip = BigBlindChip;
 
         // save the last raise player
-        _playerWithLastRaise = bigBlindPlayer;
+        _savedPlayer = bigBlindPlayer;
     }
 
     /// <summary>
@@ -168,42 +191,85 @@ class BetComponent : DrawableGameComponent
     /// <param name="currentPlayer"><see cref="PokerBettingPlayer"/> currently taking their turn.</param>
     public void HandleBetting(PokerBettingPlayer currentPlayer)
     {
-        // everybody called -> finish the round
-        if (currentPlayer == _playerWithLastRaise)
+        // everybody called or checked -> finish the round
+        if (currentPlayer == _savedPlayer)
         {
-            // check if all players called big blind
-            if (currentPlayer.BetAmount == BigBlind && currentPlayer.BlindChip is BigBlindChip)
+            if (Stage == BetStage.Raise)
             {
-                // if so, give the big blind chip player a chance to raise
-                _playerWithLastRaise = _gameManager.GetNextPlayer(currentPlayer);
-                return;
+                // check if all players called the big blind
+                if (_gameManager.State == GameState.Preflop
+                    && currentPlayer.BetAmount == BigBlind && currentPlayer.BlindChip is BigBlindChip)
+                {
+                    // if so, give the big blind player a chance to raise (live blind rule)
+                    _savedPlayer = _gameManager.GetNextPlayer(currentPlayer);
+                    return;
+                }
             }
 
-            _gameManager.MoveToNextStage();
+            FinishBettingRound();
         }
         else 
         {
+            // skip all-in players
             if (currentPlayer.State == PlayerState.AllIn)
             {
                 _gameManager.ChangeCurrentPlayer();
             }
+            // get ai players to take turn
             else if (currentPlayer is AIPlayer aiPlayer)
             {
-                var state = aiPlayer.TakeTurn(_playerWithLastRaise.BetAmount);
-                if (state == PlayerState.Raised)
-                    _playerWithLastRaise = aiPlayer;
+                if (Stage == BetStage.Check)
+                {
+                    aiPlayer.TakeTurn();
+                    
+                    if (aiPlayer.State == PlayerState.Raised)
+                    {
+                        Stage = BetStage.Raise;
+                        _savedPlayer = aiPlayer;
+                    }
+                    else if (aiPlayer.State == PlayerState.Checked)
+                    {
+                        _savedPlayer ??= aiPlayer;
+                    }
+                    else
+                        throw new Exception("AI Player did not take appropriate action.");
+                }
+                else
+                {
+                    if (_savedPlayer is null)
+                        throw new Exception("No saved player in the Raise stage.");
+
+                    aiPlayer.TakeTurn(_savedPlayer.BetAmount);
+                    if (aiPlayer.State == PlayerState.Raised)
+                        _savedPlayer = aiPlayer;
+                }
                 _gameManager.ChangeCurrentPlayer();
             }
+            // handle human player turn
             else if (currentPlayer is HumanPlayer humanPlayer)
             {
-                // mark the player's turn as started if not already
+                // mark the player's turn as started
                 if (!humanPlayer.StartedTurn)
                     humanPlayer.StartedTurn = true;
 
+                // handle community chip clicks
+                foreach (var chip in CommunityChips)
+                {
+                    if (chip.IsClick)
+                    {
+                        int value = chip.Value;
+                        int diff = humanPlayer.Balance - value - humanPlayer.BetAmount;
+                        if (diff >= 0)
+                            humanPlayer.BetAmount += value;
+                    }
+                }
+
+                // turn on buttons
                 var gameplayScreen = Game.Components.Find<GameplayScreen>();
-                int currentBet = _playerWithLastRaise.BetAmount;
+                int currentBet = _savedPlayer is not null ?
+                    _savedPlayer.BetAmount : humanPlayer.PrevBetAmount;
                 gameplayScreen.ShowButtons(currentBet, humanPlayer.BetAmount,
-                    humanPlayer.StartingBet, humanPlayer.Balance);
+                    humanPlayer.PrevBetAmount, humanPlayer.Balance, Stage == BetStage.Check);
             }
         }
     }
@@ -222,6 +288,17 @@ class BetComponent : DrawableGameComponent
         }
     }
 
+    void FinishBettingRound()
+    {
+        var humanPlayer = _gameManager[0] as HumanPlayer;
+        humanPlayer.StartedTurn = false;
+
+        Stage = BetStage.Check;
+        _savedPlayer = null;
+
+        _gameManager.MoveToNextStage();
+    }
+
     void FinishPlayerTurn(HumanPlayer humanPlayer)
     {
         humanPlayer.StartedTurn = false;
@@ -236,32 +313,62 @@ class BetComponent : DrawableGameComponent
 
     void CallButton_OnClick(object o, EventArgs e)
     {
-        var player = _gameManager.GetCurrentPlayer();
-        if (player is HumanPlayer humanPlayer &&
-            _playerWithLastRaise.BetAmount <= humanPlayer.Balance)
-        {
-            // match the current bet amount and finish turn
-            humanPlayer.BetAmount = _playerWithLastRaise.BetAmount;
-            humanPlayer.State = PlayerState.Called;
-            FinishPlayerTurn(humanPlayer);
-        }
-        else
+        var player = _gameManager.CurrentPlayer;
+        if (player is not HumanPlayer humanPlayer)
             throw new Exception(Constants.ButtonClickExceptionText);
+
+        // match the current bet amount and finish turn
+        humanPlayer.BetAmount = _savedPlayer.BetAmount;
+        humanPlayer.State = PlayerState.Called;
+        FinishPlayerTurn(humanPlayer);
     }
 
-    void AllInButton_OnClick(Object o, EventArgs e)
+    void AllInButton_OnClick(object o, EventArgs e)
     {
-        var player = _gameManager.GetCurrentPlayer();
+        var player = _gameManager.CurrentPlayer;
         if (player is not HumanPlayer humanPlayer)
             throw new Exception(Constants.ButtonClickExceptionText);
 
         humanPlayer.BetAmount = humanPlayer.Balance;
         humanPlayer.State = PlayerState.AllIn;
+        Stage = BetStage.Raise;
 
         // check if this is the highest bet
-        if (_playerWithLastRaise.BetAmount < humanPlayer.BetAmount)
-            _playerWithLastRaise = humanPlayer;
+        if (_savedPlayer.BetAmount < humanPlayer.BetAmount)
+            _savedPlayer = humanPlayer;
 
+        FinishPlayerTurn(humanPlayer);
+    }
+
+    void ClearButton_OnClick(object o, EventArgs e)
+    {
+        var player = _gameManager.CurrentPlayer;
+        if (player is not HumanPlayer humanPlayer)
+            throw new Exception(Constants.ButtonClickExceptionText);
+
+        humanPlayer.BetAmount = humanPlayer.PrevBetAmount;
+    }
+
+    void RaiseButton_OnClick(object o, EventArgs e)
+    {
+        var player = _gameManager.CurrentPlayer;
+        if (player is not HumanPlayer humanPlayer)
+            throw new Exception(Constants.ButtonClickExceptionText);
+
+        _savedPlayer = humanPlayer;
+        Stage = BetStage.Raise;
+        humanPlayer.State = PlayerState.Raised;
+        FinishPlayerTurn(humanPlayer);
+    }
+
+    void CheckButton_OnClick(object o, EventArgs e)
+    {
+        var player = _gameManager.CurrentPlayer;
+        if (player is not HumanPlayer humanPlayer)
+            throw new Exception(Constants.ButtonClickExceptionText);
+
+        if (_savedPlayer is null)
+            _savedPlayer = humanPlayer;
         FinishPlayerTurn(humanPlayer);
     }
 }

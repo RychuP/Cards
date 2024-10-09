@@ -1,6 +1,5 @@
 using System;
 using Poker.Gameplay;
-using Poker.UI.AnimatedGameComponents;
 using Poker.UI.BaseScreens;
 
 namespace Poker.UI.Screens;
@@ -10,27 +9,15 @@ namespace Poker.UI.Screens;
 /// </summary>
 class StartScreen : StaticGameScreen
 {
-    public StartScreen(ScreenManager screenManager) : base(screenManager, 3)
+    public StartScreen(ScreenManager screenManager) : base(screenManager, 4)
     { }
 
     public override void Initialize()
     {
-        // calculate left most button position
-        int x = (Constants.GameWidth - Buttons.Capacity * Constants.ButtonWidthWithPadding
-            + Constants.ButtonPadding) / 2;
-
-        // create buttons
-        Button startButton = new(Constants.ButtonPlayText, x, Game);
-        Button themeButton = new(Constants.ButtonThemeText, x + Constants.ButtonWidthWithPadding, Game);
-        Button exitButton = new(Constants.ButtonExitText, x + Constants.ButtonWidthWithPadding * 2, Game);
-
-        // click handlers
-        startButton.Click += StartButton_OnClick;
-        themeButton.Click += ThemeButton_OnClick;
-        exitButton.Click += ExitButton_OnClick;
-
-        // save button references
-        Buttons.AddRange(new Button[] { startButton, themeButton, exitButton });
+        AddButton("Play", StartButton_OnClick);
+        AddButton("Theme", ThemeButton_OnClick);
+        AddButton("Test", TestButton_OnClick);
+        AddButton("Exit", ExitButton_OnClick);
 
         base.Initialize();
     }
@@ -52,4 +39,7 @@ class StartScreen : StaticGameScreen
 
     void ExitButton_OnClick(object o, EventArgs e) =>
         Game.Exit();
+
+    void TestButton_OnClick(object o, EventArgs e) =>
+        ScreenManager.ShowScreen<TestScreen>();
 }

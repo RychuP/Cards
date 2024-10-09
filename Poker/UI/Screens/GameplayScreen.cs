@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Framework.Assets;
-using Framework.Engine;
-using Framework.UI;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Poker.Gameplay;
 using Poker.UI.AnimatedGameComponents;
 using Poker.UI.BaseScreens;
@@ -79,23 +75,26 @@ class GameplayScreen : MenuGameScreen
     /// <param name="currentPlayerBet">Current player bet.</param>
     /// <param name="startingPlayerBet">Bet that the player started with during their turn.</param>
     /// <param name="playerBalance">Player's balance.</param>
-    public void ShowButtons(int currentTableBet, int currentPlayerBet, int startingPlayerBet, int playerBalance)
+    public void ShowButtons(int currentTableBet, int currentPlayerBet, int startingPlayerBet, 
+        int playerBalance, bool checkAvailable)
     {
-        List<Button> buttonsToShow = new(Buttons.Count);
-        buttonsToShow.Add(AllInButton);
+        List<Button> buttonsToShow = new(Buttons.Count)
+        {
+            AllInButton
+        };
 
         if (startingPlayerBet != currentPlayerBet)
             buttonsToShow.Add(ClearButton);
 
-        if (currentPlayerBet < currentTableBet)
+        if (currentPlayerBet == currentTableBet && checkAvailable)
+        {
+            buttonsToShow.Add(CheckButton);
+        }
+        else if (currentPlayerBet <= currentTableBet && !checkAvailable)
         {
             buttonsToShow.Add(CallButton);
         }
-        else if (currentPlayerBet == currentTableBet)
-        {
-            
-        }
-        else if (currentPlayerBet > currentTableBet)
+        else if (currentPlayerBet > currentTableBet && currentPlayerBet != playerBalance)
         {
             buttonsToShow.Add(RaiseButton);
         }

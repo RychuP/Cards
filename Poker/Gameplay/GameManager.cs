@@ -20,19 +20,33 @@ class GameManager : CardGame, IGlobalManager
 {
     public event EventHandler<ThemeChangedEventArgs> ThemeChanged;
     public event EventHandler<GameStateEventArgs> GameStateChanged;
+    public event EventHandler<PlayerChangedEventArgs> PlayerChanged;
 
     readonly AnimatedCardPile _animatedCardPile;
     readonly CommunityCards _communityCards;
     readonly BetComponent _betComponent;
     readonly ScreenManager _screenManager;
     readonly Dealer _dealer;
-    PokerBettingPlayer _currentPlayer;
+
+    /// <summary>
+    /// Used to make sure that animations finish playing before the next player takes turn.
+    /// </summary>
+    bool _ignorePlayerAnimations;
+
+    /// <summary>
+    /// Used during showdown to iterate over the animated card components only once.
+    /// </summary>
+    bool _allCardsAreFaceUp;
 
     // used for pausing and resuming gameplay components
     readonly List<DrawableGameComponent> _pauseEnabledComponents = new();
     readonly List<DrawableGameComponent> _pauseVisibleComponents = new();
 
+    // backing field
     GameState _state = GameState.None;
+    /// <summary>
+    /// Current state of the game.
+    /// </summary>
     public GameState State
     {
         get => _state;
@@ -45,7 +59,22 @@ class GameManager : CardGame, IGlobalManager
         }
     }
 
-    public Dealer GetPokerDealer() => _dealer;
+    // backing field
+    PokerBettingPlayer _currentPlayer;
+    /// <summary>
+    /// Player currently taking their turn.
+    /// </summary>
+    public PokerBettingPlayer CurrentPlayer
+    {
+        get => _currentPlayer;
+        set
+        {
+            if (value == _currentPlayer) return;
+            var prevPlayer = _currentPlayer;
+            _currentPlayer = value;
+            OnPlayerChanged(prevPlayer, value);
+        }
+    }
 
     public int PlayerCount => Players.Count;
 
@@ -82,6 +111,10 @@ class GameManager : CardGame, IGlobalManager
         Rules.Add(gameEndRule);
     }
 
+    public Dealer GetPokerDealer() => _dealer;
+
+    public override Player GetCurrentPlayer() => CurrentPlayer;
+
     public void Update()
     {
         HandleInput();
@@ -110,66 +143,144 @@ class GameManager : CardGame, IGlobalManager
                 if (!CheckForRunningAnimations<AnimatedCardGameComponent>())
                 {
                     // hide the card pile and change state
-                    _animatedCardPile.SlideUp();
+                    _animatedCardPile.Hide();
                     State = GameState.Preflop;
 
                     // deal blind tokens
                     _betComponent.IssueBlindChips();
+
+                    _ignorePlayerAnimations = false;
                 }
                 break;
 
             case GameState.Preflop:
-                // wait for the player chips animations to finish
-                if (!CheckForRunningAnimations<AnimatedChipComponent>())
-                {
-                    // establish who the current player is if not done already
-                    if (_currentPlayer is null)
-                    {
-                        for (int i = 0; i < PlayerCount; i++)
-                        {
-                            if (this[i].BlindChip is BigBlindChip)
-                                _currentPlayer = GetNextPlayer(this[i]);
-                        }
-                    }
-                    
-                    // bet or skip
-                    if (_currentPlayer.State == PlayerState.Folded || _currentPlayer.State == PlayerState.Bankrupt)
-                        ChangeCurrentPlayer();
-                    else
-                        _betComponent.HandleBetting(_currentPlayer);
-
-                    CheckRules();
-                }
+                HandlePreflop();
                 break;
 
             case GameState.Flop:
-                // wait for the player chip animations to finish
-                if (!CheckForRunningAnimations<AnimatedChipComponent>())
-                {
-                    // show card pile
-                    if (_animatedCardPile.Position != Constants.CardPileVisiblePosition &&
-                        !_animatedCardPile.IsAnimating)
-                            _animatedCardPile.SlideDown();
-
-                    // wait for the card pile animation to finish
-                    if (!CheckForRunningAnimations<AnimatedCardPile>())
-                    {
-                        DealCommunityCards(3);
-                        State = GameState.FlopBet;
-                    }
-                }
+                HandleCardDealingStage(3);
                 break;
 
             case GameState.FlopBet:
-                // wait for the community cards animations to finish
-                if (!CheckForRunningAnimations<AnimatedCardGameComponent>())
-                {
-                    // hide card pile
-                    if (_animatedCardPile.Position != Constants.CardPileHiddenPosition &&
-                        !_animatedCardPile.IsAnimating)
-                            _animatedCardPile.SlideUp();
-                }
+                HandleBettingStage();
                 break;
+
+            case GameState.Turn:
+                HandleCardDealingStage(1);
+                break;
+
+            case GameState.TurnBet:
+                HandleBettingStage();
+                break;
+
+            case GameState.River:
+                HandleCardDealingStage(1);
+                break;
+
+            case GameState.RiverBet:
+                HandleBettingStage();
+                break;
+
+            case GameState.Showdown:
+                HandleShowdown();
+                break;
+        }
+    }
+
+    void HandleShowdown()
+    {
+        if (!CheckForRunningAnimations<AnimatedGameComponent>())
+        {
+            if (_allCardsAreFaceUp)
+            {
+                
+                
+            }
+            // make sure all the cards are flipped face up
+            else
+            {
+                foreach (var component in Game.Components)
+                {
+                    if (component is AnimatedCardGameComponent cardComponent
+                        && cardComponent.IsFaceDown)
+                    {
+                        cardComponent.AddAnimation(new FlipGameComponentAnimation());
+                    }
+                }
+                _allCardsAreFaceUp = true;
+            }
+            
+
+            // cards
+            foreach (var player in Players)
+            {
+                if (player is AIPlayer aiPlayer
+                    && aiPlayer.State != PlayerState.Folded
+                    && aiPlayer.State != PlayerState.Bankrupt)
+                {
+                    for (var i = 0; i < 2; i++)
+                    {
+                        
+                    }
+                }
+            }
+        }
+    }
+
+    void HandlePreflop()
+    {
+        // wait for the player chips animations to finish
+        if (!CheckForRunningAnimations<AnimatedChipComponent>() ||
+            _ignorePlayerAnimations)
+        {
+            _ignorePlayerAnimations = true;
+
+            // establish who the current player is if not done already
+            if (CurrentPlayer is null)
+            {
+                for (int i = 0; i < PlayerCount; i++)
+                {
+                    if (this[i].BlindChip is BigBlindChip)
+                        CurrentPlayer = GetNextPlayer(this[i]);
+                }
+            }
+
+            BetOrSkip();
+        }
+    }
+
+    void HandleCardDealingStage(int cardCount)
+    {
+        if (!CheckForRunningAnimations<AnimatedChipComponent>())
+        {
+            // show card pile
+            if (_animatedCardPile.Position != Constants.CardPileVisiblePosition &&
+                !_animatedCardPile.IsAnimating)
+                _animatedCardPile.SlideDown();
+
+            // wait for the card pile animation to finish
+            if (!CheckForRunningAnimations<AnimatedCardPile>())
+            {
+                DealCommunityCards(cardCount);
+                MoveToNextStage();
+            }
+        }
+    }
+
+    void HandleBettingStage()
+    {
+        // wait for the community cards animations to finish
+        if (!CheckForRunningAnimations<AnimatedGameComponent>()
+            || _ignorePlayerAnimations)
+        {
+            // hide card pile
+            if (_animatedCardPile.Position != Constants.CardPileHiddenPosition &&
+                !_animatedCardPile.IsAnimating)
+                _animatedCardPile.SlideUp();
+
+            _ignorePlayerAnimations = true;
+
+            BetOrSkip();
         }
     }
 
@@ -186,9 +297,28 @@ class GameManager : CardGame, IGlobalManager
         }
     }
 
+    void BetOrSkip()
+    {
+        if (CurrentPlayer.State == PlayerState.Folded || CurrentPlayer.State == PlayerState.Bankrupt)
+            ChangeCurrentPlayer();
+        else
+            _betComponent.HandleBetting(CurrentPlayer);
+
+        CheckRules();
+    }
+
     public void MoveToNextStage()
     {
-        State = GameState.Flop;
+        State++;
+
+        // betting round starts with the small blind player
+        for (int i = 0; i < PlayerCount; i++)
+        {
+            var player = this[i];
+            player.State = PlayerState.Waiting;
+            if (player.BlindChip is SmallBlindChip)
+                CurrentPlayer = player;
+        }
     }
 
     /// <summary>
@@ -196,7 +326,8 @@ class GameManager : CardGame, IGlobalManager
     /// </summary>
     public void ChangeCurrentPlayer()
     {
-        _currentPlayer = GetNextPlayer(_currentPlayer);
+        CurrentPlayer = GetNextPlayer(CurrentPlayer);
+        _ignorePlayerAnimations = false;
     }
 
     /// <summary>
@@ -302,7 +433,9 @@ class GameManager : CardGame, IGlobalManager
         _animatedCardPile.Reset();
 
         // reset fields
-        _currentPlayer = null;
+        CurrentPlayer = null;
+
+        _allCardsAreFaceUp = false;
     }
 
     public override void DealCardsToPlayers()
@@ -410,8 +543,6 @@ class GameManager : CardGame, IGlobalManager
             Players.Add(player);
     }
 
-    public override Player GetCurrentPlayer() => _currentPlayer;
-
     /// <summary>
     /// Gets the <see cref="PokerBettingPlayer"/> that follows given player in the parameter.
     /// </summary>
@@ -440,5 +571,13 @@ class GameManager : CardGame, IGlobalManager
     void GameEndRule_OnRuleMatch(object o, GameEndEventArgs e)
     {
         _betComponent.TransferPotToWinner(e.Winner);
+    }
+
+    void OnPlayerChanged(PokerBettingPlayer prevPlayer, PokerBettingPlayer newPlayer)
+    {
+        _ignorePlayerAnimations = false;
+
+        var args = new PlayerChangedEventArgs(prevPlayer, newPlayer);
+        PlayerChanged?.Invoke(this, args);
     }
 }

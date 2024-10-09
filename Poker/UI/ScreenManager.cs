@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Poker.Gameplay;
 using Poker.UI.BaseScreens;
 using Poker.UI.Screens;
 
 namespace Poker.UI;
 
 /// <summary>
-/// The screen manager is a component which manages one or more GameScreen instances. 
-/// It maintains a stack of screens, calls their Update and Draw methods at the appropriate times, 
-/// and automatically routes input to the topmost active screen.
+/// The screen manager is a component which manages one or more GameScreen instances.
 /// </summary>
 class ScreenManager
 {
@@ -37,6 +34,7 @@ class ScreenManager
         AddScreen(new ThemeScreen(this));
         AddScreen(new GameplayScreen(this));
         AddScreen(new PauseScreen(this));
+        AddScreen(new TestScreen(this));
     }
 
     void AddScreen(GameScreen screen)

@@ -8,8 +8,8 @@ namespace Poker.Gameplay.Players;
 abstract class PokerCardsHolder : Player
 {
     public AnimatedHandGameComponent AnimatedHand { get; init; }
-
     protected Game Game => CardGame.Game;
+    protected GameManager GameManager => CardGame as GameManager;
 
     public PokerCardsHolder(string name, GameManager gm) : base(name, gm)
     { }

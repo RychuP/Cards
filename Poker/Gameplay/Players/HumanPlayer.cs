@@ -5,7 +5,7 @@ class HumanPlayer : PokerBettingPlayer
     /// <summary>
     /// Bet amount that the player started their turn with.
     /// </summary>
-    public int StartingBet { get; private set; } = -1;
+    public int PrevBetAmount { get; private set; } = -1;
 
     // backing field
     bool _startedTurn;
@@ -18,10 +18,12 @@ class HumanPlayer : PokerBettingPlayer
         set
         {
             if (_startedTurn == value) return;
+            _startedTurn = value;
+
             if (value == true)
-                StartingBet = BetAmount;
+                PrevBetAmount = BetAmount;
             else
-                StartingBet = -1;
+                PrevBetAmount = -1;
         }
     }
 

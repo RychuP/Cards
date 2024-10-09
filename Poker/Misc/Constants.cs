@@ -6,6 +6,7 @@ static class Constants
 {
     // texture names
     public static readonly string TableCardOutlinesTextureName = "card_outlines";
+    public static readonly string ChipOutlineTextureName = "chip_outline";
     public static readonly string BackgroundScreenTextureName = "background";
     public static readonly string ButtonSpriteSheetName = "buttons";
     public static readonly string ThemeScreenTextureName = "theme";
@@ -98,7 +99,6 @@ static class Constants
     public static readonly Vector2 CommunityCardsPosition = new(375, 301);
     public static readonly Vector2 DealerPosition = new(585, 68);
     public static readonly int ButtonPositionY = 632;
-    
 
     // timers
     public static TimeSpan CardPileTransitionDuration = TimeSpan.FromSeconds(0.2f);

@@ -48,3 +48,9 @@ public enum PlayerState
     Folded,
     Bankrupt
 }
+
+public enum BetStage
+{
+    Check,
+    Raise
+}

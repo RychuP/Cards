@@ -16,11 +16,12 @@ class AnimatedCardPile : AnimatedGameComponent
         gm.ThemeChanged += GameManager_OnThemeChanged;
     }
 
-    public void Reset()
+    public void Reset(bool resetPosition = true)
     {
         Enabled = true;
         Visible = true;
-        Position = Constants.CardPileHiddenPosition;
+        if (resetPosition)
+            Position = Constants.CardPileHiddenPosition;
         CurrentSegment = new Rectangle(0, 0, Constants.ShuffleFrameSize.X, Constants.ShuffleFrameSize.Y);
         RemoveAnimations();
     }
@@ -40,6 +41,20 @@ class AnimatedCardPile : AnimatedGameComponent
         };
         var slideAnim = SlideDown();
         slideAnim.PerformWhenDone = (o) => AddAnimation(shuffle);
+    }
+
+    public void Show()
+    {
+        Reset(false);
+        RemoveAnimations();
+        SlideDown();
+    }
+
+    public void Hide()
+    {
+        Reset(false);
+        RemoveAnimations();
+        SlideUp();
     }
 
     /// <summary>

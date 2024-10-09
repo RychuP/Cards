@@ -7,6 +7,7 @@ static class Art
 {
     public static Texture2D Table { get; private set; }
     public static Texture2D TableCardOutlines { get; private set; }
+    public static Texture2D ChipOutline { get; private set; }
     public static Texture2D PokerTitle { get; private set; }
     public static Texture2D ThemeTitle { get; private set; }
     public static Texture2D PauseTitle { get; private set; }
@@ -18,6 +19,7 @@ static class Art
     {
         Table = LoadTexture(Constants.BackgroundScreenTextureName);
         TableCardOutlines = LoadTexture(Constants.TableCardOutlinesTextureName);
+        ChipOutline = LoadTexture(Constants.ChipOutlineTextureName);
         PokerTitle = LoadTexture(Constants.PokerTitleTextureName);
         ThemeTitle = LoadTexture(Constants.ThemeScreenTextureName);
         PauseTitle = LoadTexture(Constants.PauseScreenTextureName);

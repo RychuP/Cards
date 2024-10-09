@@ -13,8 +13,12 @@ namespace Framework.Engine;
 /// <see cref="MoveToHand"/> method only. This method accesses <c>internal</c> <see cref="Hand.Add"/> method and 
 /// <see cref="CardPacket.Remove"/> method accordingly to complete the card transfer operation.
 /// </remarks>
-public class TraditionalCard
+public class TraditionalCard : IComparable<TraditionalCard>
 {
+    /// <summary>
+    /// Whether the ace should be considered lowest or highest value.
+    /// </summary>
+    public static bool AceIsHighestValue { get; set; } = true;
     public CardSuits Type { get; set; }
     public CardValues Value { get; set; }
     public CardPacket CardPacket { get; private set; }
@@ -80,5 +84,29 @@ public class TraditionalCard
         CardPacket.Remove(this);
         CardPacket = hand;
         hand.Add(this);
+    }
+
+    public int CompareTo(TraditionalCard other)
+    {
+        if (Value == other.Value)
+        {
+            return 0;
+        }
+        else
+        {
+            int val1 = (Value == CardValues.Ace && AceIsHighestValue) ? 
+                (int)CardValues.King + 1 : (int)Value;
+            int val2 = (other.Value == CardValues.Ace && AceIsHighestValue) ? 
+                (int)CardValues.King + 1 : (int)other.Value;
+
+            if (val1 > val2)
+            {
+                return -1;
+            }
+            else
+            {
+                return 1;
+            }
+        }
     }
 }

@@ -41,3 +41,11 @@ class GameEndEventArgs : EventArgs
     public GameEndEventArgs(PokerBettingPlayer winner) =>
         Winner = winner;
 }
+
+class PlayerChangedEventArgs : EventArgs
+{
+    public PokerBettingPlayer PrevPlayer { get; }
+    public PokerBettingPlayer NewPlayer { get; }
+    public PlayerChangedEventArgs(PokerBettingPlayer prevPlayer, PokerBettingPlayer newPlayer) =>
+        (PrevPlayer, NewPlayer) = (prevPlayer, newPlayer);
+}

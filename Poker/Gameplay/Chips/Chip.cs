@@ -52,6 +52,8 @@ abstract class Chip
         }
     }
 
+    protected bool IsAnimating => _animatedChipComponent.IsAnimating;
+
     public Chip(Game game, Vector2 position, Texture2D texture)
     {
         _animatedChipComponent = new(game, texture)
