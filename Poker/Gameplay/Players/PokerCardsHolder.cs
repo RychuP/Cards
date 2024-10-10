@@ -71,8 +71,28 @@ abstract class PokerCardsHolder : Player
 
     public void ReturnCardsToDealer()
     {
-        GameManager gm = CardGame as GameManager;
-        Dealer dealer = gm.GetPokerDealer();
+        Dealer dealer = GameManager.GetPokerDealer();
         Hand.DealCardsToHand(dealer, Hand.Count);
+    }
+
+    public bool HasCard(TraditionalCard card)
+    {
+        for (int i = 0; i < Hand.Count; i++)
+            if (Hand[i] == card) return true;
+        return false;
+    }
+
+    public void RaiseCard(TraditionalCard card, DateTime startTime)
+    {
+        var animatedCard = AnimatedHand.GetCardGameComponent(card);
+        if (animatedCard is null) return;
+
+        var dest = animatedCard.Position - new Vector2(0, 30);
+        animatedCard.AddAnimation(new TransitionGameComponentAnimation(animatedCard.Position, dest)
+        {
+            StartTime = startTime,
+            PerformWhenDone = (o) => CardSounds.Deal.Play(),
+            Duration = TimeSpan.FromMilliseconds(200)
+        });
     }
 }

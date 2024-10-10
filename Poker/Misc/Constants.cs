@@ -30,7 +30,10 @@ static class Constants
     public static readonly string ButtonEndTurnText = "End Turn";
 
     // errors
-    public static readonly string ButtonClickExceptionText = "Button clicks should occur on human player's turn only.";
+    public static readonly string ButtonClickExceptionText = 
+        "Button clicks should occur on human player's turn only.";
+    public static readonly string EvaluatorCardArrayLengthException =
+        "Cards array must have the length of 5.";
 
     // npc names
     public static readonly string[] Names = new[] {

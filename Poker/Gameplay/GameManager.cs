@@ -8,10 +8,8 @@ using Poker.UI;
 using Poker.UI.Screens;
 using System;
 using System.Collections.Generic;
-using Poker.UI.BaseScreens;
 using Poker.UI.AnimatedGameComponents;
 using Poker.Gameplay.Chips;
-using System.Linq;
 using Poker.Gameplay.Rules;
 
 namespace Poker.Gameplay;
@@ -23,7 +21,6 @@ class GameManager : CardGame, IGlobalManager
     public event EventHandler<PlayerChangedEventArgs> PlayerChanged;
 
     readonly AnimatedCardPile _animatedCardPile;
-    readonly CommunityCards _communityCards;
     readonly BetComponent _betComponent;
     readonly ScreenManager _screenManager;
     readonly Dealer _dealer;
@@ -41,6 +38,11 @@ class GameManager : CardGame, IGlobalManager
     // used for pausing and resuming gameplay components
     readonly List<DrawableGameComponent> _pauseEnabledComponents = new();
     readonly List<DrawableGameComponent> _pauseVisibleComponents = new();
+
+    /// <summary>
+    /// Represents the 5 community cards placed on the table.
+    /// </summary>
+    public CommunityCards CommunityCards { get; }
 
     // backing field
     GameState _state = GameState.None;
@@ -100,7 +102,7 @@ class GameManager : CardGame, IGlobalManager
         }
 
         // create community cards cards holder
-        _communityCards = new CommunityCards(this);
+        CommunityCards = new CommunityCards(this);
 
         // create bet component
         _betComponent = new BetComponent(this);
@@ -294,6 +296,10 @@ class GameManager : CardGame, IGlobalManager
                 StopPlaying();
             else if (_screenManager.ActiveScreen is StartScreen)
                 Game.Exit();
+            else if (_screenManager.ActiveScreen is ThemeScreen)
+                _screenManager.ShowScreen<StartScreen>();
+            else if (_screenManager.ActiveScreen is TestScreen)
+                _screenManager.ShowScreen<StartScreen>();
         }
     }
 
@@ -403,8 +409,8 @@ class GameManager : CardGame, IGlobalManager
     public override void StartPlaying()
     {
         Reset();
-
         State = GameState.Shuffling;
+        _betComponent.Show();
         _animatedCardPile.ShowAndShuffle();
         _betComponent.ShowCommunityChips();
     }
@@ -416,17 +422,17 @@ class GameManager : CardGame, IGlobalManager
             ((PokerBettingPlayer)player).StartNewRound();
 
         // return community cards
-        _communityCards.ReturnCardsToDealer();
+        CommunityCards.ReturnCardsToDealer();
     }
 
-    void Reset()
+    public void Reset()
     {
         // reset players
         foreach (var player in Players)
             ((PokerBettingPlayer)player).Reset();
 
         // return community cards
-        _communityCards.ReturnCardsToDealer();
+        CommunityCards.ReturnCardsToDealer();
 
         // reset components
         _betComponent.Reset();
@@ -465,8 +471,8 @@ class GameManager : CardGame, IGlobalManager
         // deal community cards
         for (int i = 0; i < amount; i++)
         {
-            TraditionalCard card = _dealer.DealCardToHand(_communityCards.Hand);
-            _communityCards.AddDealAnimation(card, true, startTime);
+            TraditionalCard card = _dealer.DealCardToHand(CommunityCards.Hand);
+            CommunityCards.AddDealAnimation(card, true, startTime);
             startTime += Constants.DealAnimationDuration;
         }
     }

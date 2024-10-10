@@ -49,8 +49,34 @@ public enum PlayerState
     Bankrupt
 }
 
+/// <summary>
+/// Used in betting rounds to signify whether checks are possible.
+/// </summary>
 public enum BetStage
 {
     Check,
     Raise
+}
+
+/// <summary>
+/// All possible poker hands.
+/// </summary>
+public enum PokerHand
+{
+    HighCard,
+    OnePair,
+    TwoPair,
+    ThreeOfKind,
+    Straight,
+    Flush,
+    FullHouse,
+    FourOfKind,
+    StraightFlush,
+    RoyalFlush
+}
+
+public enum ShufflingType
+{
+    Ordered, // for debugging purposes
+    Random
 }

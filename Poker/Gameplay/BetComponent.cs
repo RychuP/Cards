@@ -1,9 +1,6 @@
-﻿using Framework.Assets;
-using Framework.UI;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Poker.Gameplay.Chips;
 using Poker.Gameplay.Players;
-using Poker.UI;
 using Poker.UI.Screens;
 using System;
 using System.Collections.Generic;
@@ -127,13 +124,24 @@ class BetComponent : DrawableGameComponent
 
     }
 
+    public void Show()
+    {
+        Enabled = true;
+        Visible = true;
+    }
+
+    public void Hide()
+    {
+        Enabled = false;
+        Visible = false;
+    }
+
     /// <summary>
     /// Puts the component in the default state.
     /// </summary>
     public void Reset()
     {
-        Enabled = true;
-        Visible = true;
+        Hide();
         _savedPlayer = null;
         Stage = BetStage.Raise;
 

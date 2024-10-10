@@ -170,7 +170,7 @@ public class CardPacket
     /// <summary>
     /// Shuffles the cards in the packet by randomly changing card placement.
     /// </summary>
-    public void Shuffle()
+    public virtual void Shuffle()
     {
         List<TraditionalCard> shuffledDeck = new();
 
