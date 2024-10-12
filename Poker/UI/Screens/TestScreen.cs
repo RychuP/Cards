@@ -126,7 +126,7 @@ internal class TestScreen : StaticGameScreen
     }
 
     void ExitButton_OnClick(object o, EventArgs e) =>
-        ScreenManager.ShowScreen<StartScreen>();
+        _gameManager.StopPlaying();
 
     protected override void OnVisibleChanged(object sender, EventArgs args)
     {

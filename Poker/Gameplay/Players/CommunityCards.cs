@@ -1,8 +1,4 @@
-﻿using Framework.Assets;
-using Framework.Engine;
-using Framework.UI;
-using Poker.UI.AnimatedGameComponents;
-using System;
+﻿using Poker.UI.AnimatedGameComponents;
 
 namespace Poker.Gameplay.Players;
 

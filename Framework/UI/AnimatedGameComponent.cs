@@ -95,20 +95,20 @@ public class AnimatedGameComponent : DrawableGameComponent
         {
             sb.Draw(Texture, destination, CurrentSegment, Color.White);
             if (CardGame != null && Text != null)
-                DrawText(Text, Fonts.Moire.Regular, destination, destination.Location.ToVector2());
+                DrawText(Text, CardGame.Font, destination, destination.Location.ToVector2());
         }
         // Draw at the component's position if there is no destination
         else if (Texture != null)
         {
             sb.Draw(Texture, Position, CurrentSegment, Color.White);
             if (CardGame != null && Text != null)
-                DrawText(Text, Fonts.Moire.Regular, Texture.Bounds, Position);
+                DrawText(Text, CardGame.Font, Texture.Bounds, Position);
         }
 
         sb.End();
     }
 
-    void DrawText(string text, SpriteFont font, Rectangle destination, Vector2 position)
+    protected virtual void DrawText(string text, SpriteFont font, Rectangle destination, Vector2 position)
     {
         var sb = Game.Services.GetService<SpriteBatch>();
         Vector2 size = font.MeasureString(Text);

@@ -8,6 +8,9 @@ namespace Poker.Gameplay.Chips;
 
 abstract class Chip
 {
+    public static readonly TimeSpan TransitionDuration = TimeSpan.FromMilliseconds(500);
+    public static readonly TimeSpan FlipDuration = TimeSpan.FromMilliseconds(500);
+
     /// <summary>
     /// Size of any chip used in the game.
     /// </summary>
@@ -102,14 +105,14 @@ abstract class Chip
         // Add transition animation
         _animatedChipComponent.AddAnimation(new TransitionGameComponentAnimation(prevPosition, newPosition)
         {
-            Duration = TimeSpan.FromSeconds(1f),
+            Duration = TransitionDuration,
             PerformWhenDone = (o) => CardSounds.Bet.Play()
         });
 
         // Add flip animation
         _animatedChipComponent.AddAnimation(new FlipGameComponentAnimation()
         {
-            Duration = TimeSpan.FromSeconds(1f),
+            Duration = FlipDuration,
             AnimationCycles = 3,
         });
     }

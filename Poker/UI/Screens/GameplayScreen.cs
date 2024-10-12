@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Poker.Gameplay;
+using Poker.Gameplay.Players;
 using Poker.UI.AnimatedGameComponents;
 using Poker.UI.BaseScreens;
 
@@ -29,6 +30,8 @@ class GameplayScreen : MenuGameScreen
         ClearButton = new Button(Constants.ButtonClearText, Game);
         AllInButton = new Button(Constants.ButtonAllInText, Game);
         Buttons.AddRange(new[] { AllInButton, CheckButton, RaiseButton, CallButton, FoldButton, ClearButton });
+        (Game.Services.GetService<GameManager>()[0] as HumanPlayer).AssignClickHandlers();
+
         base.Initialize();
     }
 
@@ -90,7 +93,7 @@ class GameplayScreen : MenuGameScreen
         {
             buttonsToShow.Add(CheckButton);
         }
-        else if (currentPlayerBet <= currentTableBet && !checkAvailable)
+        else if (currentPlayerBet <= currentTableBet)
         {
             buttonsToShow.Add(CallButton);
         }

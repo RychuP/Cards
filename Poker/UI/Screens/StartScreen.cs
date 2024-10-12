@@ -30,8 +30,10 @@ class StartScreen : StaticGameScreen
 
     void StartButton_OnClick(object o, EventArgs e)
     {
+        var gm = Game.Services.GetService<GameManager>();
+        gm.Reset();
+        gm.StartPlaying();
         ScreenManager.ShowScreen<GameplayScreen>();
-        Game.Services.GetService<GameManager>().StartPlaying();
     }
 
     void ThemeButton_OnClick(object o, EventArgs e) =>

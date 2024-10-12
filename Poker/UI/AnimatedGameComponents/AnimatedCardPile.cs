@@ -27,11 +27,12 @@ class AnimatedCardPile : AnimatedGameComponent
     }
 
     /// <summary>
-    /// Shows the card pile, plays shuffle animation and calls <see cref="GameManager.DealCardsToPlayers"/> when finished.
+    /// Called when the game moves from screen to the gameplay screen.<br></br>
+    /// Slides down and plays shuffle animation.
     /// </summary>
     /// <param name="action"></param>
     /// <param name="arg"></param>
-    public void ShowAndShuffle()
+    public void StartPlaying()
     {
         FramesetGameComponentAnimation shuffle = new(Texture, 32, 11, Constants.ShuffleFrameSize.ToVector2())
         {

@@ -4,16 +4,7 @@ namespace Poker.Misc;
 
 static class Constants
 {
-    // texture names
-    public static readonly string TableCardOutlinesTextureName = "card_outlines";
-    public static readonly string ChipOutlineTextureName = "chip_outline";
-    public static readonly string BackgroundScreenTextureName = "background";
-    public static readonly string ButtonSpriteSheetName = "buttons";
-    public static readonly string ThemeScreenTextureName = "theme";
-    public static readonly string PauseScreenTextureName = "pause";
-    public static readonly string PokerTitleTextureName = "title";
-    public static readonly string SmallBlindTextureName = "smallblind";
-    public static readonly string BigBlindTextureName = "bigblind";
+    
 
     // button texts
     public static readonly string ButtonRaiseText = "Raise";
@@ -30,7 +21,7 @@ static class Constants
     public static readonly string ButtonEndTurnText = "End Turn";
 
     // errors
-    public static readonly string ButtonClickExceptionText = 
+    public static readonly string OnlyHumanPlayerExceptionText = 
         "Button clicks should occur on human player's turn only.";
     public static readonly string EvaluatorCardArrayLengthException =
         "Cards array must have the length of 5.";
@@ -106,6 +97,6 @@ static class Constants
     // timers
     public static TimeSpan CardPileTransitionDuration = TimeSpan.FromSeconds(0.2f);
     public static TimeSpan ShuffleDuration = TimeSpan.FromSeconds(1.5f);
-    public static readonly TimeSpan DealAnimationDuration = TimeSpan.FromMilliseconds(500);
-    public static readonly TimeSpan FlipAnimationDuration = TimeSpan.FromMilliseconds(500);
+    public static readonly TimeSpan DealAnimationDuration = TimeSpan.FromMilliseconds(500); // 500
+    public static readonly TimeSpan FlipAnimationDuration = TimeSpan.FromMilliseconds(500); // 500
 }

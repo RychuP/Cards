@@ -49,3 +49,11 @@ class PlayerChangedEventArgs : EventArgs
     public PlayerChangedEventArgs(PokerBettingPlayer prevPlayer, PokerBettingPlayer newPlayer) =>
         (PrevPlayer, NewPlayer) = (prevPlayer, newPlayer);
 }
+
+class PlayerStateChangedEventArgs : EventArgs
+{
+    public PlayerState PrevState { get; }
+    public PlayerState NewState { get; }
+    public PlayerStateChangedEventArgs(PlayerState prevState, PlayerState newState) =>
+        (PrevState, NewState) = (prevState, newState);
+}

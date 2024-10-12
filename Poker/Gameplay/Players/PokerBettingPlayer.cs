@@ -1,5 +1,4 @@
 ﻿using Framework.Engine;
-using Framework.UI;
 using Poker.Gameplay.Chips;
 using Poker.UI.AnimatedGameComponents;
 using System;
@@ -9,6 +8,8 @@ namespace Poker.Gameplay.Players;
 
 class PokerBettingPlayer : PokerCardsHolder
 {
+    public event EventHandler<PlayerStateChangedEventArgs> StateChanged;
+
     public static readonly int StartBalance = 2000;
 
     /// <summary>
@@ -23,9 +24,14 @@ class PokerBettingPlayer : PokerCardsHolder
     readonly Vector2 _textPosition;
 
     /// <summary>
-    /// How much money the player owns.
+    /// Chips equivalent to the value of <see cref="BetAmount"/>.
     /// </summary>
-    public int Balance { get; set; }
+    readonly List<ValueChip> _chips = new();
+
+    /// <summary>
+    /// Component that displays player states.
+    /// </summary>
+    readonly Label _label;
 
     /// <summary>
     /// Gender of the player.
@@ -53,14 +59,26 @@ class PokerBettingPlayer : PokerCardsHolder
     public int Place {  get; }
 
     /// <summary>
+    /// Convenience cached position normally provided by the game table.
+    /// </summary>
+    public Vector2 Position { get; }
+
+    // backing field
+    PlayerState _state;
+    /// <summary>
     /// Current state of the player in the game.
     /// </summary>
-    public PlayerState State { get; set; }
-
-    /// <summary>
-    /// Chips equivalent to the value of <see cref="BetAmount"/>.
-    /// </summary>
-    readonly List<ValueChip> Chips = new();
+    public PlayerState State
+    {
+        get => _state;
+        private set
+        {
+            if (_state == value) return;
+            var prevState = _state;
+            _state = value;
+            OnStateChanged(prevState, value);
+        }
+    }
 
     // backing field
     BlindChip _blindChip;
@@ -98,19 +116,47 @@ class PokerBettingPlayer : PokerCardsHolder
         }
     }
 
+    // backing field
+    int _balance;
+    /// <summary>
+    /// How much money the player owns.
+    /// </summary>
+    public int Balance
+    {
+        get => _balance;
+        set
+        {
+            if (_balance == value) return;
+            if (value < 0)
+                throw new ArgumentException("Balance cannot be negative.");
+            int prevBalance = _balance;
+            _balance = value;
+            OnBalanceChanged(prevBalance, value);
+        }
+    }
+
+    /// <summary>
+    /// Whether this player can take an action in the current betting round.
+    /// </summary>
+    public bool IsActive =>
+        State != PlayerState.Bankrupt &&
+        State != PlayerState.Folded &&
+        State != PlayerState.AllIn;
+
     public PokerBettingPlayer(string name, Gender gender, int place, GameManager gm)
         : base(name, gm)
     {
         AnimatedHand = new AnimatedPlayerHand(place, Hand, gm);
         Gender = gender;
         Place = place;
+        Position = gm.GameTable[Place];
 
         // calculate the first line of text position
         var stringSize = gm.Font.MeasureString(Name);
         int verticalOffset = IsAtTheBottom ?
             -Constants.PlayerTextVerticalPadding - (int)stringSize.Y :
             Constants.CardSize.Y + Constants.PlayerTextVerticalPadding;
-        _textPosition = gm.GameTable[Place] + new Vector2(0, verticalOffset);
+        _textPosition = Position + new Vector2(0, verticalOffset);
 
         // calculate name position in the player area
         NamePosition = GetCenteredTextPosition(Name, 0);
@@ -120,72 +166,58 @@ class PokerBettingPlayer : PokerCardsHolder
         int offsetX = IsOnTheLeft ?
             Constants.CardSize.X * 2 + Constants.PlayerCardPadding + Chip.PlayerAreaPadding :
             -Chip.Size.X - Chip.PlayerAreaPadding;
-        ChipPosition = gm.GameTable[Place] + new Vector2(offsetX, offsetY);
+        ChipPosition = Position + new Vector2(offsetX, offsetY);
 
         // calculate blind chip position
         offsetY = IsAtTheBottom ? -BlindChip.OffsetY - Chip.Size.Y : BlindChip.OffsetY + Chip.Size.Y;
         BlindChipPosition = ChipPosition + new Vector2(0, offsetY);
+
+        // create a label
+        _label = new(this, GameManager);
+        Game.Components.Add(_label);
     }
 
-    /// <summary>
-    /// Returns centered text position at the given line number (0 based index).
-    /// </summary>
-    /// <param name="text">Text to return the position for.</param>
-    /// <param name="lineNumber">Zero based line number.</param>
-    /// <returns></returns>
-    public Vector2 GetCenteredTextPosition(string text, int lineNumber)
-    {
-        var stringSize = CardGame.Font.MeasureString(text);
-        int horizontalOffset = (Constants.PlayerAreaWidth - (int)stringSize.X) / 2;
-        int verticalOffset = IsAtTheBottom ?
-            -Constants.PlayerTextVerticalPadding - (int)stringSize.Y :
-            Constants.PlayerTextVerticalPadding + (int)stringSize.Y;
-        var textPos = _textPosition + new Vector2(horizontalOffset, verticalOffset * lineNumber);
-        bool test = textPos.X == NamePosition.X;
-        return textPos;
-    }
-
-    /// <summary>
-    /// Player's position is on the left of the screen.
-    /// </summary>
-    public bool IsOnTheLeft => Place == 0 || Place == 1;
-
-    /// <summary>
-    /// Player's position is on the right of the screen.
-    /// </summary>
-    public bool IsOnTheRight => Place == 2 || Place == 3;
-
-    /// <summary>
-    /// Player's position is at the top of the screen.
-    /// </summary>
-    public bool IsAtTheTop => Place == 1 || Place == 2;
-
-    /// <summary>
-    /// Player's position is at the bottom of the screen.
-    /// </summary>
-    public bool IsAtTheBottom => Place == 0 || Place == 3;
-
-    public void Reset()
-    {
-        State = PlayerState.Waiting;
-        ResetBalance();
-        ReturnCardsToDealer();
-
-        if (Chips.Count > 0)
-            RemoveAllChips();
-    }
-
-    public void StartNewRound()
-    {
-        State = PlayerState.Waiting;
-        BetAmount = 0;
-        ReturnCardsToDealer();
-    }
-
-    public void ResetBalance()
+    /// <inheritdoc/>
+    public override void Reset()
     {
         Balance = StartBalance;
+        BlindChip = null;
         BetAmount = 0;
+        State = PlayerState.Waiting;
+        _label.Hide();
+
+        if (_chips.Count > 0)
+            RemoveAllChips();
+
+        base.Reset();
+    }
+
+    public virtual void StartPlaying()
+    {
+        _label.Show();
+    }
+
+    /// <summary>
+    /// Called when the new poker game starts before the dealer reshuffles cards.
+    /// </summary>
+    public virtual void StartNewGame()
+    {
+        ReturnCardsToDealer();
+        BetAmount = 0;
+
+        if (State != PlayerState.Bankrupt)
+        {
+            State = PlayerState.Waiting;
+        }
+    }
+
+    /// <summary>
+    /// Called after each flop, turn and river stages before betting begins.
+    /// </summary>
+    public virtual void StartNewBettingRound()
+    {
+        if (State != PlayerState.Folded || State != PlayerState.AllIn || State != PlayerState.Bankrupt)
+            State = PlayerState.Waiting;
     }
 
     /// <summary>
@@ -193,9 +225,9 @@ class PokerBettingPlayer : PokerCardsHolder
     /// </summary>
     void RemoveAllChips()
     {
-        foreach (var chip in Chips)
+        foreach (var chip in _chips)
             chip.RemoveAnimatedComponent();
-        Chips.Clear();
+        _chips.Clear();
     }
 
     /// <summary>
@@ -204,10 +236,10 @@ class PokerBettingPlayer : PokerCardsHolder
     /// <param name="value"></param>
     void RemoveChips(int value)
     {
-        int start = Chips.Count - 1;
+        int start = _chips.Count - 1;
         for (int i = start; i >= 0; i--)
         {
-            var chip = Chips[i];
+            var chip = _chips[i];
             RemoveChip(chip);
 
             // reduce the value by the removed chip's value
@@ -231,7 +263,7 @@ class PokerBettingPlayer : PokerCardsHolder
     /// <param name="chip"></param>
     void RemoveChip(ValueChip chip)
     {
-        Chips.Remove(chip);
+        _chips.Remove(chip);
         chip.RemoveAnimatedComponent();
     }
 
@@ -249,7 +281,7 @@ class PokerBettingPlayer : PokerCardsHolder
         
         // get the list of values that chips will created from
         var chipValues = GetChipValues(value);
-        if (Chips.Count + chipValues.Count > ChipMaxAmount)
+        if (_chips.Count + chipValues.Count > ChipMaxAmount)
         {
             RemoveAllChips();
             AddChips(BetAmount);
@@ -261,10 +293,10 @@ class PokerBettingPlayer : PokerCardsHolder
                 // create the chip and place it in the player area
                 var valueChip = new ValueChip(Game, Vector2.Zero, chipValue);
                 valueChip.Position = valueChip.GetTablePosition();
-                int offsetX = ValueChip.HorizontalOffset * Chips.Count;
+                int offsetX = ValueChip.HorizontalOffset * _chips.Count;
                 Vector2 offset = new(IsOnTheLeft ? offsetX : -offsetX, 0);
                 valueChip.Position = ChipPosition + offset;
-                Chips.Add(valueChip);
+                _chips.Add(valueChip);
             }
         }
     }
@@ -294,16 +326,129 @@ class PokerBettingPlayer : PokerCardsHolder
         return chipValues;
     }
 
+    /// <summary>
+    /// Sets the State to Waiting.
+    /// </summary>
+    public void ResetState() =>
+        State = PlayerState.Waiting;
+
+    /// <summary>
+    /// Returns centered text position at the given line number (0 based index).
+    /// </summary>
+    /// <param name="text">Text to return the position for.</param>
+    /// <param name="lineNumber">Zero based line number.</param>
+    /// <returns></returns>
+    public Vector2 GetCenteredTextPosition(string text, int lineNumber)
+    {
+        var stringSize = CardGame.Font.MeasureString(text);
+        int horizontalOffset = (Constants.PlayerAreaWidth - (int)stringSize.X) / 2;
+        int verticalOffset = IsAtTheBottom ?
+            -Constants.PlayerTextVerticalPadding - (int)stringSize.Y :
+            Constants.PlayerTextVerticalPadding + (int)stringSize.Y;
+        var textPos = _textPosition + new Vector2(horizontalOffset, verticalOffset * lineNumber);
+        return textPos;
+    }
+
+    /// <summary>
+    /// Player's position is on the left of the screen.
+    /// </summary>
+    public bool IsOnTheLeft => Place == 0 || Place == 1;
+
+    /// <summary>
+    /// Player's position is on the right of the screen.
+    /// </summary>
+    public bool IsOnTheRight => Place == 2 || Place == 3;
+
+    /// <summary>
+    /// Player's position is at the top of the screen.
+    /// </summary>
+    public bool IsAtTheTop => Place == 1 || Place == 2;
+
+    /// <summary>
+    /// Player's position is at the bottom of the screen.
+    /// </summary>
+    public bool IsAtTheBottom => Place == 0 || Place == 3;
+
+    public virtual void Call(int newBetAmount)
+    {
+        if (newBetAmount < 0)
+            throw new ArgumentException("Bet amount cannot be negative.");
+
+        if (newBetAmount < BetAmount)
+            throw new ArgumentException("Cannot call bets lower than the current bet.");
+
+        if (newBetAmount > Balance)
+            throw new ArgumentException("Insufficient balance to call.");
+
+        BetAmount = newBetAmount;
+        State = PlayerState.Called;
+    }
+
+    public virtual void Check()
+    {
+        State = PlayerState.Checked;
+    }
+
+    public virtual void Raise(int newBetAmount)
+    {
+        if (newBetAmount < 0)
+            throw new ArgumentException("Bet amount cannot be negative.");
+
+        if (newBetAmount > Balance)
+            throw new ArgumentException("Insufficient balance to raise.");
+
+        if (newBetAmount == Balance)
+        {
+            AllIn();
+        }
+        else
+        {
+            BetAmount = newBetAmount;
+            State = PlayerState.Raised;
+        }
+    }
+
+    public virtual void AllIn()
+    {
+        BetAmount = Balance;
+        State = PlayerState.AllIn;
+    }
+
+    public virtual void Fold()
+    {
+        State = PlayerState.Folded;
+    }
+
+    /// <summary>
+    /// Called each betting round unless folded or bankrupt.
+    /// </summary>
+    public virtual void TakeTurn(int currentBetAmount, Hand communityCards, bool checkPossible)
+    {
+        if (!IsActive)
+            throw new InvalidOperationException("Bet component should not call this player " +
+                "to take their turn.");
+
+        if (currentBetAmount < 0)
+            throw new ArgumentException("Negative bets are not possible.");
+    }
+
     void OnBlindChipChanged(BlindChip prevBlindChip, BlindChip newBlindChip)
     {
         if (newBlindChip is not null)
         {
             newBlindChip.Position = BlindChipPosition;
-            BetAmount = newBlindChip is SmallBlindChip ? BetComponent.SmallBlind : BetComponent.BigBlind;
+
+            int betAmount = newBlindChip is SmallBlindChip ? BetComponent.SmallBlind : BetComponent.BigBlind;
+            if (Balance >= betAmount)
+                Raise(betAmount);
+            else if (Balance > 0)
+                AllIn();
+            else
+                throw new Exception("This player should not have been issued the blind chip.");
         }
     }
 
-    void OnBetAmountChanged(int prevBetAmount, int newBetAmount)
+    protected void OnBetAmountChanged(int prevBetAmount, int newBetAmount)
     {
         // this shouldn't happen
         if (newBetAmount < 0 || newBetAmount > Balance)
@@ -329,5 +474,22 @@ class PokerBettingPlayer : PokerCardsHolder
         }
 
         AddChips(newBetAmount - prevBetAmount);
+    }
+
+    void OnBalanceChanged(int prevBalance, int newBalance)
+    {
+        // player lost all their money
+        if (prevBalance > newBalance && newBalance == 0)
+            State = PlayerState.Bankrupt;
+
+        // game is being reset
+        if (newBalance == StartBalance)
+            State = PlayerState.Waiting;
+    }
+
+    void OnStateChanged(PlayerState prevState, PlayerState newState)
+    {
+        var args = new PlayerStateChangedEventArgs(prevState, newState);
+        StateChanged?.Invoke(this, args);
     }
 }

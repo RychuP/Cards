@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System;
 using Framework.Misc;
-using System.Collections;
-using System.Net.NetworkInformation;
-using System.Threading;
 
 namespace Poker.Gameplay.Players;
 
@@ -36,7 +33,23 @@ class Dealer : Hand
         cardPacket.DealCardsToHand(this, cardPacket.Count);
     }
 
-    // test shuffle
+    /// <summary>
+    /// Puts everything in the default state.
+    /// </summary>
+    public void Reset()
+    {
+        ShufflingType = ShufflingType.Random;
+    }
+
+    /// <summary>
+    /// Called when the game moves from start screen to the gameplay screen.
+    /// </summary>
+    public void StartPlaying()
+    {
+        if (Count != 52)
+            throw new Exception("Missing cards in the deck. Have all card holders emptied their hands?");
+    }
+
     public override void Shuffle()
     {
         base.Shuffle();
@@ -85,9 +98,9 @@ class Dealer : Hand
         var suit = GetRandomSuit();
 
         AddCardToDeck(FindCard(suit, CardValues.Ace), deck);
-        AddCardToDeck(FindCard(suit, CardValues.King), deck);
         AddCardToDeck(FindCard(suit, CardValues.Queen), deck);
         AddCardToDeck(FindCard(suit, CardValues.Jack), deck);
+        AddCardToDeck(FindCard(suit, CardValues.King), deck);
         AddCardToDeck(FindCard(suit, CardValues.Ten), deck);
 
         _pokerHand = PokerHand.StraightFlush;
@@ -98,9 +111,9 @@ class Dealer : Hand
         var suit = GetRandomSuit();
 
         AddCardToDeck(FindCard(suit, CardValues.Queen), deck);
-        AddCardToDeck(FindCard(suit, CardValues.Jack), deck);
         AddCardToDeck(FindCard(suit, CardValues.Ten), deck);
         AddCardToDeck(FindCard(suit, CardValues.Nine), deck);
+        AddCardToDeck(FindCard(suit, CardValues.Jack), deck);
         AddCardToDeck(FindCard(suit, CardValues.Eight), deck);
 
         _pokerHand = PokerHand.FourOfKind;
@@ -121,9 +134,9 @@ class Dealer : Hand
     void InsertFullHouse(List<TraditionalCard> deck)
     {
         AddCardToDeck(FindCard(CardSuits.Club, CardValues.Eight), deck);
-        AddCardToDeck(FindCard(CardSuits.Spade, CardValues.Eight), deck);
         AddCardToDeck(FindCard(CardSuits.Diamond, CardValues.Jack), deck);
         AddCardToDeck(FindCard(CardSuits.Heart, CardValues.Jack), deck);
+        AddCardToDeck(FindCard(CardSuits.Spade, CardValues.Eight), deck);
         AddCardToDeck(FindCard(CardSuits.Club, CardValues.Jack), deck);
 
         _pokerHand = PokerHand.Flush;

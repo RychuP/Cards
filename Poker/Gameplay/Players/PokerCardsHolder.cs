@@ -15,6 +15,15 @@ abstract class PokerCardsHolder : Player
     { }
 
     /// <summary>
+    /// Puts everything in the default state.
+    /// </summary>
+    public virtual void Reset()
+    {
+        if (Hand.Count > 0)
+            ReturnCardsToDealer();
+    }
+
+    /// <summary>
     /// Display an animation when a card is dealt.
     /// </summary>
     /// <param name="card">The card being dealt.</param>

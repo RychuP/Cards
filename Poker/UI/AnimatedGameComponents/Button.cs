@@ -3,7 +3,6 @@ using Framework.Assets;
 using Framework.UI;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Poker.Gameplay;
 using InputButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 
 namespace Poker.UI.AnimatedGameComponents;

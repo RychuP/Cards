@@ -13,19 +13,21 @@ static class Art
     public static Texture2D PauseTitle { get; private set; }
     public static Texture2D SmallBlindChip { get; private set; }
     public static Texture2D BigBlindChip { get; private set; }
+    public static Texture2D Label { get; private set; }
     public static Texture2D ButtonSpriteSheet { get; private set; }
 
     public static void Initialize(Game game)
     {
-        Table = LoadTexture(Constants.BackgroundScreenTextureName);
-        TableCardOutlines = LoadTexture(Constants.TableCardOutlinesTextureName);
-        ChipOutline = LoadTexture(Constants.ChipOutlineTextureName);
-        PokerTitle = LoadTexture(Constants.PokerTitleTextureName);
-        ThemeTitle = LoadTexture(Constants.ThemeScreenTextureName);
-        PauseTitle = LoadTexture(Constants.PauseScreenTextureName);
-        SmallBlindChip = LoadTexture(Constants.SmallBlindTextureName);
-        BigBlindChip = LoadTexture(Constants.BigBlindTextureName);
-        ButtonSpriteSheet = LoadTexture(Constants.ButtonSpriteSheetName);
+        TableCardOutlines = LoadTexture("card_outlines");
+        ButtonSpriteSheet = LoadTexture("buttons");
+        SmallBlindChip = LoadTexture("smallblind");
+        ChipOutline = LoadTexture("chip_outline");
+        BigBlindChip = LoadTexture("bigblind");
+        PokerTitle = LoadTexture("title");
+        ThemeTitle = LoadTexture("theme");
+        PauseTitle = LoadTexture("pause");
+        Table = LoadTexture("background");
+        Label = LoadTexture("label");
 
         Texture2D LoadTexture(string textureName) =>
             game.Content.Load<Texture2D>(Path.Combine("Images", textureName));

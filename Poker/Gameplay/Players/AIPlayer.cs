@@ -1,28 +1,29 @@
-﻿namespace Poker.Gameplay.Players;
+﻿using Framework.Engine;
+
+namespace Poker.Gameplay.Players;
 
 class AIPlayer : PokerBettingPlayer
 {
     public AIPlayer(string name, Gender gender, int place, GameManager gm) : base(name, gender, place, gm)
     { }
 
-    /// <summary>
-    /// Called when there was a raise during turn.
-    /// </summary>
-    /// <param name="currentBetAmount"></param>
-    public void TakeTurn(int currentBetAmount)
+    /// <inheritdoc/>
+    public override void TakeTurn(int currentBetAmount, Hand communityCards, bool checkPossible)
     {
-        if (currentBetAmount > BetAmount)
-        {
-            BetAmount = currentBetAmount;
-            State = PlayerState.Called;
-        }
-    }
+        base.TakeTurn(currentBetAmount, communityCards, checkPossible);
 
-    /// <summary>
-    /// Called when there was no raise during turn.
-    /// </summary>
-    public void TakeTurn()
-    {
-        State = PlayerState.Checked;
+        if (checkPossible)
+        {
+            Check();
+        }
+        // equals sign for the case of big blind rule
+        else if (currentBetAmount >= BetAmount && BetAmount < Balance)
+        {
+            Call(currentBetAmount);
+        }
+        else if (currentBetAmount > Balance)
+        {
+            AllIn();
+        }
     }
 }
