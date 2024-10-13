@@ -66,9 +66,9 @@ static class Constants
     /// </summary>
     public static readonly int PlayerCardMargin = 31;
     /// <summary>
-    /// Vertical space between the lines of text in the player area.
+    /// Vertical spacing between the lines of text.
     /// </summary>
-    public static readonly int PlayerTextVerticalPadding = 10;
+    public static readonly int TextVerticalSpacing = 10;
     public static readonly int PlayerAreaWidth = CardSize.X * 2 + PlayerCardPadding;
 
     // quantities
@@ -98,5 +98,5 @@ static class Constants
     public static TimeSpan CardPileTransitionDuration = TimeSpan.FromSeconds(0.2f);
     public static TimeSpan ShuffleDuration = TimeSpan.FromSeconds(1.5f);
     public static readonly TimeSpan DealAnimationDuration = TimeSpan.FromMilliseconds(500); // 500
-    public static readonly TimeSpan FlipAnimationDuration = TimeSpan.FromMilliseconds(500); // 500
+    public static readonly TimeSpan CardFlipAnimationDuration = TimeSpan.FromMilliseconds(500); // 500
 }

@@ -10,6 +10,22 @@ namespace Poker.UI.Screens;
 
 internal class TestScreen : StaticGameScreen
 {
+    const string BetterText = "Better";
+    const string WorseText = "Worse";
+    const string EqualText = "Equal";
+    const string CardText = "Card";
+    readonly Color TextColor = Color.WhiteSmoke;
+
+    /// <summary>
+    /// Delay after which to display the hand and card description texts.
+    /// </summary>
+    readonly TimeSpan TextDelay = Constants.DealAnimationDuration + Constants.CardFlipAnimationDuration;
+
+    /// <summary>
+    /// Distance of the better/worse card description from the card.
+    /// </summary>
+    const int TextOffsetX = 50;
+
     Dealer _dealer;
     PokerBettingPlayer _player;
     CommunityCards _communityCards;
@@ -18,6 +34,17 @@ internal class TestScreen : StaticGameScreen
     Vector2 _playerTemporaryPosition;
     PokerHand _pokerHand;
     TraditionalCard[] _evaluationResult;
+
+    /// <summary>
+    /// Cards finished their transition and flip animations.
+    /// </summary>
+    bool _cardsAreDown;
+
+    /// <summary>
+    /// Measures time from the start of the deal animation.<br></br> 
+    /// It's compared with <see cref="TextDelay"/>.
+    /// </summary>
+    TimeSpan _textShowingDelay;
 
     public TestScreen(ScreenManager sm) : base(sm, 2)
     { }
@@ -47,6 +74,7 @@ internal class TestScreen : StaticGameScreen
 
     public override void Update(GameTime gameTime)
     {
+        // raise winning cards
         if (_pokerHand != PokerHand.HighCard && !_communityCards.AnimatedHand.IsAnimating)
         {
             if (_evaluationResult != null)
@@ -71,21 +99,87 @@ internal class TestScreen : StaticGameScreen
             }
         }
 
+        // check when all the cards are down and their transition and flip animations are done
+        if (!_cardsAreDown)
+        {
+            _textShowingDelay += gameTime.ElapsedGameTime;
+            if (_textShowingDelay >= TextDelay)
+                _cardsAreDown = true;
+        }
+
         base.Update(gameTime);
     }
 
     public override void Draw(GameTime gameTime)
     {
+        if (!_cardsAreDown)
+            return;
+
         var sb = Game.Services.GetService<SpriteBatch>();
         sb.Begin();
 
+        // draw hand description
         string text = _pokerHand != PokerHand.HighCard ? 
             $"Poker hand: {_pokerHand}" : 
             "No poker hands in this draw.";
-        var size = _gameManager.Font.MeasureString(text);
-        float x = (Constants.GameWidth - size.X) / 2;
-        float y = (int)_communityCards.AnimatedHand.Position.Y - size.Y * 3;
-        sb.DrawString(_gameManager.Font, text, new Vector2(x, y), Color.WhiteSmoke);
+        var cardTextSize = _gameManager.Font.MeasureString(text);
+        float x = (Constants.GameWidth - cardTextSize.X) / 2;
+        float y = (int)_communityCards.AnimatedHand.Position.Y - cardTextSize.Y * 3;
+        sb.DrawString(_gameManager.Font, text, new Vector2(x, y), TextColor);
+
+        // determine card description text
+        string leftCardDesc = EqualText,
+            rightCardDesc = EqualText;
+        if (_player.BetterCard.Value != _player.WorseCard.Value)
+        {
+            leftCardDesc = _player.BetterCard == _player.Hand[0] ?
+                BetterText : WorseText;
+            rightCardDesc = _player.BetterCard == _player.Hand[1] ?
+                BetterText : WorseText;
+        }
+
+        // measure card text size
+        cardTextSize = _gameManager.Font.MeasureString(CardText);
+        float textHeight = cardTextSize.Y * 2 + Constants.TextVerticalSpacing;
+
+        // calculate left card text position
+        x = _playerTemporaryPosition.X - TextOffsetX - cardTextSize.X;
+        y = _playerTemporaryPosition.Y + ((Constants.CardSize.Y - textHeight) / 2) + 
+            cardTextSize.Y + Constants.TextVerticalSpacing;
+        Vector2 leftCardTextPos = new(x, y);
+
+        // measure left card desc size
+        var leftDescSize = _gameManager.Font.MeasureString(leftCardDesc);
+
+        // calculate left card desc position
+        float offsetX = (leftDescSize.X - cardTextSize.X) / 2;
+        x = leftCardTextPos.X - offsetX;
+        y = leftCardTextPos.Y - Constants.TextVerticalSpacing - leftDescSize.Y;
+        Vector2 leftCardDescPos = new(x, y);
+
+        // measure right card desc size
+        var rightDescSize = _gameManager.Font.MeasureString(rightCardDesc);
+
+        // calculate right card text position
+        x = _playerTemporaryPosition.X + Constants.PlayerAreaWidth + TextOffsetX;
+        Vector2 rightCardTextPos = new(x, leftCardTextPos.Y);
+
+        // calculate right card desc position
+        offsetX = (rightDescSize.X - cardTextSize.X) / 2;
+        x = rightCardTextPos.X - offsetX;
+        Vector2 rightCardDescPos = new(x, leftCardDescPos.Y);
+
+        // draw player card descriptions
+        if (leftCardDesc == BetterText || leftCardDesc == EqualText)
+        {
+            sb.DrawString(_gameManager.Font, leftCardDesc, leftCardDescPos, TextColor);
+            sb.DrawString(_gameManager.Font, CardText, leftCardTextPos, TextColor);
+        }
+        if (rightCardDesc == BetterText || rightCardDesc == EqualText)
+        {
+            sb.DrawString(_gameManager.Font, rightCardDesc, rightCardDescPos, TextColor);
+            sb.DrawString(_gameManager.Font, CardText, rightCardTextPos, TextColor);
+        }
 
         sb.End();
         base.Draw(gameTime);
@@ -111,6 +205,9 @@ internal class TestScreen : StaticGameScreen
 
         // check result
         _pokerHand = Evaluator.CheckHand(_player, _communityCards, out _evaluationResult);
+
+        _cardsAreDown = false;
+        _textShowingDelay = TimeSpan.Zero;
     }
 
     void ReturnCards()

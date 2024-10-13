@@ -16,14 +16,10 @@ class AIPlayer : PokerBettingPlayer
         {
             Check();
         }
-        // equals sign for the case of big blind rule
-        else if (currentBetAmount >= BetAmount && BetAmount < Balance)
+        // equals sign for the case of the big blind rule
+        else if (currentBetAmount >= BetAmount)
         {
             Call(currentBetAmount);
-        }
-        else if (currentBetAmount > Balance)
-        {
-            AllIn();
         }
     }
 }

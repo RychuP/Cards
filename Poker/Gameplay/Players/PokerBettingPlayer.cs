@@ -1,8 +1,10 @@
 ﻿using Framework.Engine;
+using Framework.Misc;
 using Poker.Gameplay.Chips;
 using Poker.UI.AnimatedGameComponents;
 using System;
 using System.Collections.Generic;
+using System.Transactions;
 
 namespace Poker.Gameplay.Players;
 
@@ -54,6 +56,11 @@ class PokerBettingPlayer : PokerCardsHolder
     public Vector2 BlindChipPosition { get; }
 
     /// <summary>
+    /// The best achieved poker hand determined during showdown. 
+    /// </summary>
+    public Result Result { get; set; }
+
+    /// <summary>
     /// Index of the player's location on the table.
     /// </summary>
     public int Place {  get; }
@@ -62,6 +69,40 @@ class PokerBettingPlayer : PokerCardsHolder
     /// Convenience cached position normally provided by the game table.
     /// </summary>
     public Vector2 Position { get; }
+
+    /// <summary>
+    /// Returns the better card out of the two the player holds.<br></br>
+    /// If both cards are equal, the first card is returned.
+    /// </summary>
+    public TraditionalCard BetterCard
+    {
+        get
+        {
+            int result = Hand[0].CompareTo(Hand[1]);
+            // card 0 is better or equal to card 1
+            if (result <= 0)
+                return Hand[0];
+            else 
+                return Hand[1];
+        }
+    }
+
+    /// <summary>
+    /// Returns the worse card value out of the two the player holds.<br></br>
+    /// If both cards are equal, the second card's value is returned.
+    /// </summary>
+    public TraditionalCard WorseCard
+    {
+        get
+        {
+            int result = Hand[1].CompareTo(Hand[0]);
+            // card 1 is weaker or equal to card 0
+            if (result >= 0)
+                return Hand[1];
+            else
+                return Hand[0];
+        }
+    }
 
     // backing field
     PlayerState _state;
@@ -138,10 +179,15 @@ class PokerBettingPlayer : PokerCardsHolder
     /// <summary>
     /// Whether this player can take an action in the current betting round.
     /// </summary>
-    public bool IsActive =>
-        State != PlayerState.Bankrupt &&
-        State != PlayerState.Folded &&
-        State != PlayerState.AllIn;
+    public bool CanParticipateInBettingRound =>
+        !IsOut && State != PlayerState.AllIn;
+
+    /// <summary>
+    /// Whether this player is out of the current game (<see cref="GameState.RoundEnd"/>).
+    /// </summary>
+    public bool IsOut =>
+        State == PlayerState.Bankrupt ||
+        State == PlayerState.Folded;
 
     public PokerBettingPlayer(string name, Gender gender, int place, GameManager gm)
         : base(name, gm)
@@ -154,8 +200,8 @@ class PokerBettingPlayer : PokerCardsHolder
         // calculate the first line of text position
         var stringSize = gm.Font.MeasureString(Name);
         int verticalOffset = IsAtTheBottom ?
-            -Constants.PlayerTextVerticalPadding - (int)stringSize.Y :
-            Constants.CardSize.Y + Constants.PlayerTextVerticalPadding;
+            -Constants.TextVerticalSpacing - (int)stringSize.Y :
+            Constants.CardSize.Y + Constants.TextVerticalSpacing;
         _textPosition = Position + new Vector2(0, verticalOffset);
 
         // calculate name position in the player area
@@ -183,6 +229,7 @@ class PokerBettingPlayer : PokerCardsHolder
         Balance = StartBalance;
         BlindChip = null;
         BetAmount = 0;
+        Result = null;
         State = PlayerState.Waiting;
         _label.Hide();
 
@@ -204,6 +251,7 @@ class PokerBettingPlayer : PokerCardsHolder
     {
         ReturnCardsToDealer();
         BetAmount = 0;
+        Result = null;
 
         if (State != PlayerState.Bankrupt)
         {
@@ -216,7 +264,7 @@ class PokerBettingPlayer : PokerCardsHolder
     /// </summary>
     public virtual void StartNewBettingRound()
     {
-        if (State != PlayerState.Folded || State != PlayerState.AllIn || State != PlayerState.Bankrupt)
+        if (CanParticipateInBettingRound)
             State = PlayerState.Waiting;
     }
 
@@ -343,8 +391,8 @@ class PokerBettingPlayer : PokerCardsHolder
         var stringSize = CardGame.Font.MeasureString(text);
         int horizontalOffset = (Constants.PlayerAreaWidth - (int)stringSize.X) / 2;
         int verticalOffset = IsAtTheBottom ?
-            -Constants.PlayerTextVerticalPadding - (int)stringSize.Y :
-            Constants.PlayerTextVerticalPadding + (int)stringSize.Y;
+            -Constants.TextVerticalSpacing - (int)stringSize.Y :
+            Constants.TextVerticalSpacing + (int)stringSize.Y;
         var textPos = _textPosition + new Vector2(horizontalOffset, verticalOffset * lineNumber);
         return textPos;
     }
@@ -380,8 +428,13 @@ class PokerBettingPlayer : PokerCardsHolder
         if (newBetAmount > Balance)
             throw new ArgumentException("Insufficient balance to call.");
 
-        BetAmount = newBetAmount;
-        State = PlayerState.Called;
+        if (newBetAmount == Balance)
+            AllIn();
+        else
+        {
+            BetAmount = newBetAmount;
+            State = PlayerState.Called;
+        }
     }
 
     public virtual void Check()
@@ -424,12 +477,20 @@ class PokerBettingPlayer : PokerCardsHolder
     /// </summary>
     public virtual void TakeTurn(int currentBetAmount, Hand communityCards, bool checkPossible)
     {
-        if (!IsActive)
+        if (!CanParticipateInBettingRound)
             throw new InvalidOperationException("Bet component should not call this player " +
                 "to take their turn.");
 
         if (currentBetAmount < 0)
             throw new ArgumentException("Negative bets are not possible.");
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public void ShowWinner()
+    {
+        _label.Extend("Winner");
     }
 
     void OnBlindChipChanged(BlindChip prevBlindChip, BlindChip newBlindChip)
@@ -455,25 +516,20 @@ class PokerBettingPlayer : PokerCardsHolder
             throw new ArgumentOutOfRangeException(nameof(newBetAmount), "Invalid bet amount.");
 
         // remove all chips if new balance is zero
-        if (newBetAmount == 0)
-        {
+        else if (newBetAmount == 0)
             RemoveAllChips();
-            return;
-        }
 
         // this can happen only on human player turn (clear button click)
-        if (newBetAmount < prevBetAmount)
+        else if (newBetAmount < prevBetAmount)
         {
             if (this is AIPlayer)
                 throw new ArgumentException("New bet cannot be lower than previous bet unless it is zero.");
             else if (this is HumanPlayer)
-            {
                 RemoveChips(prevBetAmount - newBetAmount);
-                return;
-            }
         }
 
-        AddChips(newBetAmount - prevBetAmount);
+        else 
+            AddChips(newBetAmount - prevBetAmount);
     }
 
     void OnBalanceChanged(int prevBalance, int newBalance)

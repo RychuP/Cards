@@ -178,9 +178,10 @@ class BetComponent : DrawableGameComponent
         var rand = Game.Services.GetService<Random>();
         int index = rand.Next(0, Constants.MaxPlayers);
 
-        // DEBUGGING -> CHANGE
-        //_smallBlindPlayer = _gameManager[index];
-        _smallBlindPlayer = _gameManager[3];  
+        // DEBUGGING
+        //_smallBlindPlayer = _gameManager[3];  
+
+        _smallBlindPlayer = _gameManager[index];
 
         // bring the community chips to the table
         ShowCommunityChips();
@@ -269,15 +270,7 @@ class BetComponent : DrawableGameComponent
     /// <param name="currentPlayer"><see cref="PokerBettingPlayer"/> currently taking their turn.</param>
     public void HandleBetting(PokerBettingPlayer currentPlayer)
     {
-        int waitingPlayerCount = 0;
-        for (int i = 0; i < _gameManager.PlayerCount; ++i)
-        {
-            var player = _gameManager[i];
-            if (player.State == PlayerState.Waiting)
-                waitingPlayerCount++;
-        }
-
-        if (waitingPlayerCount == 0)
+        if (_gameManager.WaitingPlayerCount == 0)
         {
             // check if the live blind rule is active
             if (LiveBlindActive)
@@ -295,15 +288,15 @@ class BetComponent : DrawableGameComponent
         // players get the chance to check, raise or fold
         else
         {
-            MakePlayerTakeTurn(currentPlayer);
+            PlayerTakeTurn(currentPlayer);
         }
     }
 
     /// <summary>
-    /// Makes the player to take their turn.
+    /// Gets the player to take their turn.
     /// </summary>
     /// <param name="player">Player to take turn.</param>
-    void MakePlayerTakeTurn(PokerBettingPlayer player)
+    void PlayerTakeTurn(PokerBettingPlayer player)
     {
         if (CurrentBet == 0)
             throw new Exception("Betting stage should not have a current bet equal to zero.");
@@ -383,7 +376,7 @@ class BetComponent : DrawableGameComponent
             for (int i = 0; i < _gameManager.PlayerCount; ++i)
             {
                 var player = _gameManager[i];
-                if (player != _gameManager.CurrentPlayer && player.IsActive)
+                if (player != _gameManager.CurrentPlayer && player.CanParticipateInBettingRound)
                     player.ResetState();
             }
         }

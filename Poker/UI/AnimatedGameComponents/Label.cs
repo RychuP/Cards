@@ -153,6 +153,12 @@ internal class Label : AnimatedGameComponent
         });
     }
 
+    public void Extend(string text)
+    {
+        Text = text;
+        Extend();
+    }
+
     void Retract(Action<object> performWhenDone = null)
     {
         RemoveAnimations();

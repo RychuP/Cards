@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using Poker.UI.AnimatedGameComponents;
 using Poker.Gameplay.Chips;
 using System.Linq;
+using Poker.Gameplay.Evaluation;
 
 namespace Poker.Gameplay;
 
@@ -29,11 +30,6 @@ class GameManager : CardGame, IGlobalManager
     /// Used to make sure that animations finish playing before the next player takes turn.
     /// </summary>
     bool _ignorePlayerAnimations;
-
-    /// <summary>
-    /// Used during showdown to iterate over the animated card components only once.
-    /// </summary>
-    bool _allCardsAreFaceUp;
 
     // used for pausing and resuming gameplay components
     readonly List<DrawableGameComponent> _pauseEnabledComponents = new();
@@ -81,13 +77,29 @@ class GameManager : CardGame, IGlobalManager
     /// <summary>
     /// Number of players that can take action in the current betting round.
     /// </summary>
-    public int ActivePlayersCount
+    public int ActivePlayerCount
     {
         get
         {
             int count = 0;
             foreach (var player in Players.Cast<PokerBettingPlayer>())
-                if (player.IsActive) count++;
+                if (player.CanParticipateInBettingRound) 
+                    count++;
+            return count;
+        }
+    }
+
+    /// <summary>
+    /// Number of players waiting to take their turn.
+    /// </summary>
+    public int WaitingPlayerCount
+    {
+        get
+        {
+            int count = 0;
+            foreach (var player in Players.Cast<PokerBettingPlayer>())
+                if (player.State == PlayerState.Waiting)
+                    count++;
             return count;
         }
     }
@@ -129,7 +141,7 @@ class GameManager : CardGame, IGlobalManager
 
     public void Update()
     {
-        HandleInput();
+        HandleKeyboardEscapeButton();
 
         if (_screenManager.ActiveScreen is GameplayScreen)
             HandleGameplay();
@@ -196,6 +208,14 @@ class GameManager : CardGame, IGlobalManager
             case GameState.Showdown:
                 HandleShowdown();
                 break;
+
+            case GameState.Evaluation:
+                HandleEvaluation(); 
+                break;
+
+            case GameState.RoundEnd:
+                HandleRoundEnd();
+                break;
         }
     }
 
@@ -221,9 +241,13 @@ class GameManager : CardGame, IGlobalManager
         }
     }
 
+    /// <summary>
+    /// Handles flop, turn and river stages.
+    /// </summary>
+    /// <param name="cardCount">Number of cards to deal (Flop 3, Turn 1, River 1).</param>
     void HandleCardDealingState(int cardCount)
     {
-        if (!CheckForRunningAnimations<AnimatedChipComponent>())
+        if (!CheckForRunningAnimations<AnimatedGameComponent>())
         {
             // show card pile
             if (_animatedCardPile.Position != Constants.CardPileVisiblePosition &&
@@ -234,11 +258,21 @@ class GameManager : CardGame, IGlobalManager
             if (!CheckForRunningAnimations<AnimatedCardPile>())
             {
                 DealCommunityCards(cardCount);
-                State++;
+
+                // check if there are at least two players able to take action
+                if (ActivePlayerCount > 1)
+                    State++;
+
+                // looks like everyone (or all but one) is all in
+                else
+                    State += 2;
             }
         }
     }
 
+    /// <summary>
+    /// Handles three stages of betting: post flop, post turn and post river.
+    /// </summary>
     void HandleBettingState()
     {
         // wait for the community cards animations to finish
@@ -251,52 +285,127 @@ class GameManager : CardGame, IGlobalManager
                 _animatedCardPile.SlideUp();
 
             _ignorePlayerAnimations = true;
-
             _betComponent.HandleBetting(CurrentPlayer);
         }
     }
 
+    /// <summary>
+    /// Card reveal after the last betting round.
+    /// </summary>
     void HandleShowdown()
     {
         if (!CheckForRunningAnimations<AnimatedGameComponent>())
         {
-            if (_allCardsAreFaceUp)
+            var startTime = DateTime.Now;
+            foreach (var player in Players.Cast<PokerBettingPlayer>())
             {
-
-
-            }
-            // make sure all the cards are flipped face up
-            else
-            {
-                foreach (var component in Game.Components)
+                if (player.State != PlayerState.Folded && player.State != PlayerState.Bankrupt)
                 {
-                    if (component is AnimatedCardGameComponent cardComponent
-                        && cardComponent.IsFaceDown)
+                    // flip the cards if they are face down
+                    if (player.AnimatedHand.IsFaceDown)
                     {
-                        cardComponent.AddAnimation(new FlipGameComponentAnimation());
+                        player.FlipCards(startTime);
+                        startTime += Constants.CardFlipAnimationDuration; // * player.Hand.Count;
                     }
-                }
-                _allCardsAreFaceUp = true;
-            }
 
-
-            // cards
-            foreach (var player in Players)
-            {
-                if (player is AIPlayer aiPlayer
-                    && aiPlayer.State != PlayerState.Folded
-                    && aiPlayer.State != PlayerState.Bankrupt)
-                {
-                    for (var i = 0; i < 2; i++)
-                    {
-
-                    }
+                    // reset state and hide the label
+                    player.ResetState();
                 }
             }
+
+            // change state
+            State++;
         }
     }
 
-    void HandleInput()
+    /// <summary>
+    /// Poker hand evaluation and finding the winner stage.
+    /// </summary>
+    void HandleEvaluation()
+    {
+        if (!CheckForRunningAnimations<AnimatedGameComponent>())
+        {
+            // check if all cards are face up
+            //foreach (var component in Game.Components)
+            //{
+            //    if (component is AnimatedCardGameComponent animatedCard && animatedCard.IsFaceDown)
+            //        return;
+            //}
+
+            // evaluate all players
+            foreach (var player in Players.Cast<PokerBettingPlayer>())
+            {
+                if (player.IsOut)
+                    continue;
+
+                var handType = Evaluator.CheckHand(player, CommunityCards,
+                    out TraditionalCard[] cards);
+                player.Result = new Result(handType, cards, player);
+            }
+
+            // evaluate results and find the winner (winners)
+            List<PokerBettingPlayer> winners = new();
+            PokerBettingPlayer winner = null;
+            foreach (var player in Players.Cast<PokerBettingPlayer>())
+            {
+                if (player.IsOut)
+                    continue;
+
+                if (winner is null)
+                {
+                    winner = player;
+                }
+                else if (winner.Result < player.Result)
+                {
+                    winner = player;
+                    winners.Clear();
+                }
+                else if (winner.Result == player.Result)
+                {
+                    winners.Add(player);
+                }
+            }
+
+            if (winner is null)
+                throw new Exception("There has to be at least one winner.");
+
+            // raise the winning cards
+            DateTime startTime = DateTime.Now;
+
+            foreach (var card in winner.Result.Cards)
+            {
+                if (CommunityCards.HasCard(card))
+                {
+                    CommunityCards.RaiseCard(card, startTime);
+                    startTime += TimeSpan.FromMilliseconds(200);
+                }
+                else if (winner.HasCard(card))
+                {
+                    winner.RaiseCard(card, startTime);
+                    startTime += TimeSpan.FromMilliseconds(200);
+                }
+            }
+
+            // change player label
+            winner.ShowWinner();
+
+            // change state
+            State++;
+        }
+    }
+
+    /// <summary>
+    /// Chips distribution between winning players.
+    /// </summary>
+    void HandleRoundEnd()
+    {
+        
+    }
+
+    /// <summary>
+    /// Since the game uses mostly mouse for the player input, keyboard is checked just for the escape button. 
+    /// </summary>
+    void HandleKeyboardEscapeButton()
     {
         if (InputManager.IsNewKeyPress(Keys.Escape))
         {
@@ -406,7 +515,6 @@ class GameManager : CardGame, IGlobalManager
         _betComponent.Reset();
         _animatedCardPile.Reset();
         CurrentPlayer = null;
-        _allCardsAreFaceUp = false;
     }
 
     /// <summary>
@@ -598,9 +706,8 @@ class GameManager : CardGame, IGlobalManager
         {
             _betComponent.StartNewBettingRound();
 
-            for (int i = 0; i < PlayerCount; i++)
+            foreach (var player in Players.Cast<PokerBettingPlayer>())
             {
-                var player = this[i];
                 player.StartNewBettingRound();
 
                 // set the current player as the one with the small blind chip

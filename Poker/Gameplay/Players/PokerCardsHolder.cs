@@ -52,7 +52,7 @@ abstract class PokerCardsHolder : Player
             cardComponent.AddAnimation(new FlipGameComponentAnimation
             {
                 IsFromFaceDownToFaceUp = true,
-                Duration = Constants.FlipAnimationDuration,
+                Duration = Constants.CardFlipAnimationDuration,
                 StartTime = startTime + Constants.DealAnimationDuration,
                 PerformWhenDone = (o) => CardSounds.Flip.Play()
             });
@@ -93,8 +93,13 @@ abstract class PokerCardsHolder : Player
 
     public void RaiseCard(TraditionalCard card, DateTime startTime)
     {
+        if (!HasCard(card))
+            throw new ArgumentException("No such card in hand.", nameof(card));
+
         var animatedCard = AnimatedHand.GetCardGameComponent(card);
-        if (animatedCard is null) return;
+        if (animatedCard is null)
+            throw new Exception("Internal error. " +
+                    $"The card is missing its animated component.");
 
         var dest = animatedCard.Position - new Vector2(0, 30);
         animatedCard.AddAnimation(new TransitionGameComponentAnimation(animatedCard.Position, dest)
@@ -103,5 +108,23 @@ abstract class PokerCardsHolder : Player
             PerformWhenDone = (o) => CardSounds.Deal.Play(),
             Duration = TimeSpan.FromMilliseconds(200)
         });
+    }
+
+    public void FlipCards(DateTime startTime)
+    {
+        for (int i = 0; i < Hand.Count; i++)
+        {
+            var card = Hand[i];
+            var animatedCard = AnimatedHand.GetCardGameComponent(card) ?? 
+                throw new Exception("Internal error. " +
+                    $"The card with index {i} is missing its animated component.");
+
+            animatedCard.AddAnimation(new FlipGameComponentAnimation()
+            {
+                StartTime = startTime
+            });
+
+            //startTime += Constants.FlipAnimationDuration;
+        }
     }
 }
