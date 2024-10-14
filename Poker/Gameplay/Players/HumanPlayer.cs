@@ -111,7 +111,9 @@ class HumanPlayer : PokerBettingPlayer
 
     void ClearButton_OnClick(object o, EventArgs e)
     {
-        BetAmount = _initialBetAmount;
+        int diff = BetAmount - _initialBetAmount;
+        BetAmount -= diff;
+        Balance += diff;
     }
 
     void RaiseButton_OnClick(object o, EventArgs e)

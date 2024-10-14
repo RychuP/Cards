@@ -83,7 +83,7 @@ class MenuEntry
 
         // Draw text, centered on the middle of each line.
         ScreenManager screenManager = screen.ScreenManager;
-        var sb = screenManager.Game.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
+        var sb = screenManager.Game.Services.GetService<SpriteBatch>();
 
         sb.Draw(Art.Button, Destination, tintColor);
 

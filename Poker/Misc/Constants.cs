@@ -4,14 +4,7 @@ namespace Poker.Misc;
 
 static class Constants
 {
-    
-
     // button texts
-    public static readonly string ButtonRaiseText = "Raise";
-    public static readonly string ButtonCheckText = "Check";
-    public static readonly string ButtonFoldText = "Fold";
-    public static readonly string ButtonCallText = "Call";
-    public static readonly string ButtonAllInText = "All In";
     public static readonly string ButtonPlayText = "Play";
     public static readonly string ButtonThemeText = "Theme";
     public static readonly string ButtonExitText = "Exit";

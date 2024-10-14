@@ -34,6 +34,16 @@ class AnimatedCardPile : AnimatedGameComponent
     /// <param name="arg"></param>
     public void StartPlaying()
     {
+        SlideDownAndShuffle();
+    }
+
+    public void StartNewGame()
+    {
+        SlideDownAndShuffle();
+    }
+
+    void SlideDownAndShuffle()
+    {
         FramesetGameComponentAnimation shuffle = new(Texture, 32, 11, Constants.ShuffleFrameSize.ToVector2())
         {
             PerformBeforeStart = (o) => CardSounds.Shuffle.Play(),

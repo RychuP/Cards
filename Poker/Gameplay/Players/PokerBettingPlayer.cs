@@ -150,7 +150,14 @@ class PokerBettingPlayer : PokerCardsHolder
         get => _betAmount;
         set
         {
-            if (_betAmount == value || value > Balance) return;
+            if (_betAmount == value) return;
+
+            if (value < 0)
+                throw new Exception("Bets cannot be negative.");
+
+            if (value > (Balance + _betAmount))
+                throw new Exception("Insufficient funds to cover the bet");
+
             int prevBetAmount = _betAmount;
             _betAmount = value;
             OnBetAmountChanged(prevBetAmount, value);
@@ -249,14 +256,11 @@ class PokerBettingPlayer : PokerCardsHolder
     /// </summary>
     public virtual void StartNewGame()
     {
+        if (State == PlayerState.Bankrupt) return;
         ReturnCardsToDealer();
         BetAmount = 0;
         Result = null;
-
-        if (State != PlayerState.Bankrupt)
-        {
-            State = PlayerState.Waiting;
-        }
+        State = PlayerState.Waiting;
     }
 
     /// <summary>
@@ -266,6 +270,12 @@ class PokerBettingPlayer : PokerCardsHolder
     {
         if (CanParticipateInBettingRound)
             State = PlayerState.Waiting;
+    }
+
+    public void CheckBankrupt()
+    {
+        if (Balance == 0)
+            State = PlayerState.Bankrupt;
     }
 
     /// <summary>
@@ -336,15 +346,20 @@ class PokerBettingPlayer : PokerCardsHolder
         }
         else
         {
+            var startTime = DateTime.Now;
             foreach (var chipValue in chipValues)
             {
                 // create the chip and place it in the player area
                 var valueChip = new ValueChip(Game, Vector2.Zero, chipValue);
+                // start position
                 valueChip.Position = valueChip.GetTablePosition();
                 int offsetX = ValueChip.HorizontalOffset * _chips.Count;
                 Vector2 offset = new(IsOnTheLeft ? offsetX : -offsetX, 0);
+                valueChip.AnimationStartTime = startTime;
+                // end position for the animation
                 valueChip.Position = ChipPosition + offset;
                 _chips.Add(valueChip);
+                startTime += Chip.Delay;
             }
         }
     }
@@ -425,14 +440,16 @@ class PokerBettingPlayer : PokerCardsHolder
         if (newBetAmount < BetAmount)
             throw new ArgumentException("Cannot call bets lower than the current bet.");
 
-        if (newBetAmount > Balance)
+        if (newBetAmount > (Balance + BetAmount))
             throw new ArgumentException("Insufficient balance to call.");
 
-        if (newBetAmount == Balance)
+        if (newBetAmount == (Balance + BetAmount))
             AllIn();
         else
         {
-            BetAmount = newBetAmount;
+            int diff = newBetAmount - BetAmount;
+            BetAmount += diff;
+            Balance -= diff;
             State = PlayerState.Called;
         }
     }
@@ -447,23 +464,26 @@ class PokerBettingPlayer : PokerCardsHolder
         if (newBetAmount < 0)
             throw new ArgumentException("Bet amount cannot be negative.");
 
-        if (newBetAmount > Balance)
+        if (newBetAmount > (Balance + BetAmount))
             throw new ArgumentException("Insufficient balance to raise.");
 
-        if (newBetAmount == Balance)
+        if (newBetAmount == (Balance + BetAmount))
         {
             AllIn();
         }
         else
         {
-            BetAmount = newBetAmount;
+            var diff = newBetAmount - BetAmount;
+            BetAmount += diff;
+            Balance -= diff;
             State = PlayerState.Raised;
         }
     }
 
     public virtual void AllIn()
     {
-        BetAmount = Balance;
+        BetAmount += Balance;
+        Balance = 0;
         State = PlayerState.AllIn;
     }
 
@@ -486,11 +506,30 @@ class PokerBettingPlayer : PokerCardsHolder
     }
 
     /// <summary>
-    /// 
+    /// Extendes the label with the text: Winner.
     /// </summary>
     public void ShowWinner()
     {
-        _label.Extend("Winner");
+        //_label.Extend("Winner");
+        State = PlayerState.Winner;
+    }
+
+    public int SendChipsToWinner(PokerBettingPlayer winner, DateTime startTime)
+    {
+        int chipCount = _chips.Count;
+        for (int i = _chips.Count - 1; i >= 0; i--)
+        {
+            var chip = _chips[i];
+            chip.AnimationStartTime = startTime;
+            chip.Arrived += (o, e) =>
+            {
+                winner.Balance += chip.Value;
+                BetAmount -= chip.Value;
+            };
+            chip.Position = winner.Position;
+            startTime += Chip.Delay;
+        }
+        return chipCount;
     }
 
     void OnBlindChipChanged(BlindChip prevBlindChip, BlindChip newBlindChip)
@@ -511,33 +550,20 @@ class PokerBettingPlayer : PokerCardsHolder
 
     protected void OnBetAmountChanged(int prevBetAmount, int newBetAmount)
     {
-        // this shouldn't happen
-        if (newBetAmount < 0 || newBetAmount > Balance)
-            throw new ArgumentOutOfRangeException(nameof(newBetAmount), "Invalid bet amount.");
-
         // remove all chips if new balance is zero
-        else if (newBetAmount == 0)
+        if (newBetAmount == 0)
             RemoveAllChips();
 
-        // this can happen only on human player turn (clear button click)
+        // 
         else if (newBetAmount < prevBetAmount)
-        {
-            if (this is AIPlayer)
-                throw new ArgumentException("New bet cannot be lower than previous bet unless it is zero.");
-            else if (this is HumanPlayer)
-                RemoveChips(prevBetAmount - newBetAmount);
-        }
+            RemoveChips(prevBetAmount - newBetAmount);
 
-        else 
+        else
             AddChips(newBetAmount - prevBetAmount);
     }
 
     void OnBalanceChanged(int prevBalance, int newBalance)
     {
-        // player lost all their money
-        if (prevBalance > newBalance && newBalance == 0)
-            State = PlayerState.Bankrupt;
-
         // game is being reset
         if (newBalance == StartBalance)
             State = PlayerState.Waiting;

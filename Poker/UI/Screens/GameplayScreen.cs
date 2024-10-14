@@ -16,21 +16,32 @@ class GameplayScreen : MenuGameScreen
     public Button FoldButton { get; private set; }
     public Button ClearButton { get; private set; }
     public Button AllInButton { get; private set; }
+    public Button RestartButton { get; private set; }
+    public Button DealButton {  get; private set; }
+    public Button ExitButton {  get; private set; }
 
     public GameplayScreen(ScreenManager screenManager) : base(screenManager, 6)
     { }
 
     public override void Initialize()
     {
+        var gm = Game.Services.GetService<GameManager>();
+        var humanPlayer = gm[0] as HumanPlayer;
+
         // create buttons
-        CheckButton = new Button(Constants.ButtonCheckText, Game);
-        RaiseButton = new Button(Constants.ButtonRaiseText, Game);
-        CallButton = new Button(Constants.ButtonCallText, Game);
-        FoldButton = new Button(Constants.ButtonFoldText, Game);
-        ClearButton = new Button(Constants.ButtonClearText, Game);
-        AllInButton = new Button(Constants.ButtonAllInText, Game);
-        Buttons.AddRange(new[] { AllInButton, CheckButton, RaiseButton, CallButton, FoldButton, ClearButton });
-        (Game.Services.GetService<GameManager>()[0] as HumanPlayer).AssignClickHandlers();
+        CheckButton = new Button("Check", Game);
+        RaiseButton = new Button("Raise", Game);
+        CallButton = new Button("Call", Game);
+        FoldButton = new Button("Fold", Game);
+        ClearButton = new Button("Clear", Game);
+        AllInButton = new Button("All In", Game);
+        RestartButton = new Button("Restart", Game);
+        DealButton = new Button("Deal", Game);
+        ExitButton = new Button("Exit", Game);
+        Buttons.AddRange(new[] { AllInButton, CheckButton, RaiseButton, CallButton, FoldButton, 
+            ClearButton, RestartButton, DealButton, ExitButton });
+        humanPlayer.AssignClickHandlers();
+        gm.StateChanged += GameManager_OnStateChanged;
 
         base.Initialize();
     }
@@ -137,23 +148,28 @@ class GameplayScreen : MenuGameScreen
             button.Hide();
     }
 
-    void RaiseButton_OnClick(object o, EventArgs e)
+    void GameManager_OnStateChanged(object o, GameStateEventArgs e)
     {
-        throw new NotImplementedException();
-    }
+        if (o is not GameManager gm) return;
 
-    void CheckButton_OnClick(object o, EventArgs e)
-    {
-        throw new NotImplementedException();
-    }
+        switch (e.NewState)
+        {
+            case GameState.Shuffling:
+                HideButtons();
+                break;
 
-    void FoldButton_OnClick(object o, EventArgs e)
-    {
-        throw new NotImplementedException();
-    }
+            case GameState.Waiting:
+                List<Button> buttons = new();
 
-    void CallButton_OnClick(object o, EventArgs e)
-    {
-        throw new NotImplementedException();
+                // there are at least two players remaining that are not bankrupt
+                if (gm.BankruptPlayerCount < gm.PlayerCount - 2)
+                    buttons.Add(DealButton);
+                else
+                    buttons.Add(RestartButton);
+
+                buttons.Add(ExitButton);
+                ShowButtons(buttons);
+                break;
+        }
     }
 }

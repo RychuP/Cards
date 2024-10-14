@@ -8,7 +8,18 @@ namespace Poker.Gameplay.Chips;
 
 abstract class Chip
 {
+    public event EventHandler<PositionChangedEventArgs> Departed;
+    public event EventHandler<PositionChangedEventArgs> Arrived;
+
+    /// <summary>
+    /// Duration of the transition and flip animation.
+    /// </summary>
     public static readonly TimeSpan AnimationDuration = TimeSpan.FromMilliseconds(800);
+
+    /// <summary>
+    /// Delay between animating individual chips.
+    /// </summary>
+    public static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(200);
 
     /// <summary>
     /// Size of any chip used in the game.
@@ -37,6 +48,8 @@ abstract class Chip
     AnimatedChipComponent _animatedChipComponent;
 
     protected readonly Game Game;
+
+    public DateTime AnimationStartTime { get; set; } = DateTime.Now;
 
     Vector2 _position;
     /// <summary>
@@ -100,19 +113,36 @@ abstract class Chip
         }
         
         _animatedChipComponent.RemoveAnimations();
+        var startTime = AnimationStartTime < DateTime.Now ? DateTime.Now : AnimationStartTime; 
 
         // Add transition animation
         _animatedChipComponent.AddAnimation(new TransitionGameComponentAnimation(prevPosition, newPosition)
         {
+            PerformBeforeStart = (o) => OnDeparted(prevPosition, newPosition),
+            StartTime = startTime,
             Duration = AnimationDuration,
-            PerformWhenDone = (o) => CardSounds.Bet.Play()
+            PerformWhenDone = (o) => OnArrived(prevPosition, newPosition)
         });
 
         // Add flip animation
         _animatedChipComponent.AddAnimation(new FlipGameComponentAnimation()
         {
+            StartTime = startTime,
             Duration = AnimationDuration,
             AnimationCycles = 3,
         });
+    }
+
+    void OnDeparted(Vector2 startPos, Vector2 endPos)
+    {
+        var args = new PositionChangedEventArgs(startPos, endPos);
+        Departed?.Invoke(this, args);
+    }
+
+    void OnArrived(Vector2 startPos, Vector2 endPos)
+    {
+        CardSounds.Bet.Play();
+        var args = new PositionChangedEventArgs(startPos, endPos);
+        Arrived?.Invoke(this, args);
     }
 }

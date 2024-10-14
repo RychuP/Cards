@@ -38,7 +38,9 @@ internal class Label : AnimatedGameComponent
         { PlayerState.Folded, "Fold" },
         { PlayerState.Raised, "Raise" },
         { PlayerState.Called, "Call" },
-        { PlayerState.AllIn, "All In" }
+        { PlayerState.AllIn, "All In" },
+        { PlayerState.Bankrupt, "Bankrupt" },
+        { PlayerState.Winner, "Winner" }
     };
 
     /// <summary>
@@ -159,6 +161,20 @@ internal class Label : AnimatedGameComponent
         Extend();
     }
 
+    public void CheckAndShowPlayerState(PlayerState state)
+    {
+        //if (state == PlayerState.Raised ||
+        //    state == PlayerState.Called ||
+        //    state == PlayerState.Checked ||
+        //    state == PlayerState.AllIn ||
+        //    state == PlayerState.Folded)
+        if (state != PlayerState.Bankrupt)
+        {
+            Text = Descriptions[state];
+            Extend();
+        }
+    }
+
     void Retract(Action<object> performWhenDone = null)
     {
         RemoveAnimations();
@@ -173,23 +189,22 @@ internal class Label : AnimatedGameComponent
         AddAnimation(anim);
     }
 
+
     void Player_OnStateChanged(object o, PlayerStateChangedEventArgs e)
     {
-        if (e.PrevState == PlayerState.Waiting)
-        {
-            Text = Descriptions[e.NewState];
-            Extend();
-        }
-        else if (e.NewState == PlayerState.Waiting)
+        if (e.NewState == PlayerState.Waiting)
         {
             Retract();
+        }
+        else if (e.PrevState == PlayerState.Waiting)
+        {
+            CheckAndShowPlayerState(e.NewState);
         }
         else
         {
             void performWhenDone(object o)
             {
-                Text = Descriptions[e.NewState];
-                Extend();
+                CheckAndShowPlayerState(e.NewState);
             }
             Retract(performWhenDone);
         }

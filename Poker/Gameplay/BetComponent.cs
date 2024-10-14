@@ -1,9 +1,12 @@
 ﻿using Framework.Engine;
 using Microsoft.Xna.Framework.Graphics;
 using Poker.Gameplay.Chips;
+using Poker.Gameplay.Evaluation;
 using Poker.Gameplay.Players;
+using Poker.Misc;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Poker.Gameplay;
 
@@ -123,12 +126,29 @@ class BetComponent : DrawableGameComponent
             sb.DrawString(_gameManager.Font, betText, betPos, Color.OrangeRed);
         }
 
+        // draw winning hand
+        if (_gameManager.Winner is PokerBettingPlayer winner)
+        {
+            string text = $"Poker hand: {Evaluator.PokerHands[winner.Result.HandType]}";
+            var cardTextSize = _gameManager.Font.MeasureString(text);
+            float x = (Constants.GameWidth - cardTextSize.X) / 2;
+            float y = (int)_gameManager.CommunityCards.AnimatedHand.Position.Y - cardTextSize.Y * 3;
+            sb.DrawString(_gameManager.Font, text, new Vector2(x, y), Color.WhiteSmoke);
+        }
+
         // draw outlines for community chips in hover mode
         foreach (var chip in CommunityChips)
         {
             if (chip.IsHover)
                 sb.Draw(Art.ChipOutline, chip.OutlineDestination, Color.White);
         }
+
+        // debug
+        //string t = Stage.ToString();
+        //var s = _gameManager.Font.MeasureString(t);
+        //float z = (Constants.GameWidth - s.X) / 2;
+        //float g = 430;
+        //sb.DrawString(_gameManager.Font, t, new Vector2(z, g), Color.White);
         
         sb.End();
     }
@@ -208,7 +228,10 @@ class BetComponent : DrawableGameComponent
         {
             player = _gameManager.GetNextPlayer(player);
             if (player.State != PlayerState.Bankrupt)
+            {
                 _smallBlindPlayer = player;
+                break;
+            }
         }
     }
 
@@ -324,9 +347,12 @@ class BetComponent : DrawableGameComponent
                     if (chip.IsClick)
                     {
                         bool playerHasSufficientBalance =
-                            humanPlayer.Balance - chip.Value - humanPlayer.BetAmount >= 0;
+                            humanPlayer.Balance - chip.Value >= 0;
                         if (playerHasSufficientBalance)
+                        {
                             humanPlayer.BetAmount += chip.Value;
+                            humanPlayer.Balance -= chip.Value;
+                        }
                     }
                 }
             }
@@ -352,17 +378,18 @@ class BetComponent : DrawableGameComponent
         }
     }
 
-    public void TransferPotToWinner(PokerBettingPlayer winner)
+    public void HandleWinning(PokerBettingPlayer winner)
     {
+        var startTime = DateTime.Now;
+        var player = winner;
         for (int i = 0; i < _gameManager.PlayerCount; i++)
         {
-            var player = _gameManager[i];
-            if (player != winner && player.State != PlayerState.Bankrupt)
+            if (player.State != PlayerState.Bankrupt)
             {
-                winner.Balance += player.BetAmount;
-                player.BetAmount = 0;
+                int chipCount = player.SendChipsToWinner(winner, startTime);
+                startTime += Chip.Delay * chipCount;
             }
-            winner.BetAmount = 0;
+            player = _gameManager.GetNextPlayer(player);
         }
     }
 

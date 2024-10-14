@@ -120,7 +120,7 @@ internal class TestScreen : StaticGameScreen
 
         // draw hand description
         string text = _pokerHand != PokerHand.HighCard ? 
-            $"Poker hand: {_pokerHand}" : 
+            $"Poker hand: {Evaluator.PokerHands[_pokerHand]}" : 
             "No poker hands in this draw.";
         var cardTextSize = _gameManager.Font.MeasureString(text);
         float x = (Constants.GameWidth - cardTextSize.X) / 2;

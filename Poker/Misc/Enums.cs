@@ -36,7 +36,8 @@ public enum GameState
     Showdown,
     Evaluation,
     RoundEnd,
-    GameOver
+    GameOver,
+    Waiting
 }
 
 public enum PlayerState
@@ -49,7 +50,8 @@ public enum PlayerState
 
     AllIn,
     Folded,
-    Bankrupt
+    Bankrupt,
+    Winner
 }
 
 /// <summary>

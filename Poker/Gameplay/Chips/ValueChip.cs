@@ -75,7 +75,6 @@ class ValueChip : Chip
     /// <summary>
     /// Calculates the position for the chips below the community cards.
     /// </summary>
-    /// <returns></returns>
     public override Vector2 GetTablePosition()
     {
         int widthCombined = Size.X * Count;

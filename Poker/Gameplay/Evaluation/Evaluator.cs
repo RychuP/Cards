@@ -46,6 +46,20 @@ class Evaluator
     };
     #endregion
 
+    public static Dictionary<PokerHand, string> PokerHands = new()
+    {
+        { PokerHand.HighCard, "High Card" },
+        { PokerHand.OnePair, "One Pair" },
+        { PokerHand.TwoPair, "Two Pairs" },
+        { PokerHand.ThreeOfKind, "Three-of-a-kind" },
+        { PokerHand.Straight, "Straight" },
+        { PokerHand.Flush, "Flush" },
+        { PokerHand.FullHouse, "Full House" },
+        { PokerHand.FourOfKind, "Four-of-a-kind" },
+        { PokerHand.StraightFlush, "Straight Flush" },
+        { PokerHand.RoyalFlush, "Royal Flush" }
+    };
+
     /// <summary>
     /// Looks for the strongest combination of the player cards and the community cards.
     /// </summary>

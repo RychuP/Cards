@@ -56,6 +56,7 @@ class PokerGame : Game
 
     protected override void BeginRun()
     {
+        Services.GetService<GameManager>().AssignEventHandlers();
         Services.GetService<ScreenManager>().BeginRun();
         base.BeginRun();
     }

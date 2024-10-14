@@ -18,7 +18,7 @@ namespace Poker.Gameplay;
 class GameManager : CardGame, IGlobalManager
 {
     public event EventHandler<ThemeChangedEventArgs> ThemeChanged;
-    public event EventHandler<GameStateEventArgs> GameStateChanged;
+    public event EventHandler<GameStateEventArgs> StateChanged;
     public event EventHandler<PlayerChangedEventArgs> PlayerChanged;
 
     readonly AnimatedCardPile _animatedCardPile;
@@ -39,6 +39,8 @@ class GameManager : CardGame, IGlobalManager
     /// Represents the 5 community cards placed on the table.
     /// </summary>
     public CommunityCards CommunityCards { get; }
+
+    public PokerBettingPlayer Winner { get; private set; }
 
     // backing field
     GameState _state = GameState.None;
@@ -92,17 +94,9 @@ class GameManager : CardGame, IGlobalManager
     /// <summary>
     /// Number of players waiting to take their turn.
     /// </summary>
-    public int WaitingPlayerCount
-    {
-        get
-        {
-            int count = 0;
-            foreach (var player in Players.Cast<PokerBettingPlayer>())
-                if (player.State == PlayerState.Waiting)
-                    count++;
-            return count;
-        }
-    }
+    public int WaitingPlayerCount => CountPlayers(PlayerState.Waiting);
+
+    public int BankruptPlayerCount => CountPlayers(PlayerState.Bankrupt);
 
     public int PlayerCount => Players.Count;
 
@@ -138,6 +132,17 @@ class GameManager : CardGame, IGlobalManager
     public Dealer GetPokerDealer() => _dealer;
 
     public override Player GetCurrentPlayer() => CurrentPlayer;
+
+    int CountPlayers(PlayerState state)
+    {
+        int count = 0;
+        foreach (var player in Players.Cast<PokerBettingPlayer>())
+        {
+            if (player.State == state)
+                count++;
+        }
+        return count;
+    }
 
     public void Update()
     {
@@ -215,6 +220,10 @@ class GameManager : CardGame, IGlobalManager
 
             case GameState.RoundEnd:
                 HandleRoundEnd();
+                break;
+
+            case GameState.GameOver:
+                HandleGameOver();
                 break;
         }
     }
@@ -325,13 +334,6 @@ class GameManager : CardGame, IGlobalManager
     {
         if (!CheckForRunningAnimations<AnimatedGameComponent>())
         {
-            // check if all cards are face up
-            //foreach (var component in Game.Components)
-            //{
-            //    if (component is AnimatedCardGameComponent animatedCard && animatedCard.IsFaceDown)
-            //        return;
-            //}
-
             // evaluate all players
             foreach (var player in Players.Cast<PokerBettingPlayer>())
             {
@@ -345,49 +347,48 @@ class GameManager : CardGame, IGlobalManager
 
             // evaluate results and find the winner (winners)
             List<PokerBettingPlayer> winners = new();
-            PokerBettingPlayer winner = null;
             foreach (var player in Players.Cast<PokerBettingPlayer>())
             {
                 if (player.IsOut)
                     continue;
 
-                if (winner is null)
+                if (Winner is null)
                 {
-                    winner = player;
+                    Winner = player;
                 }
-                else if (winner.Result < player.Result)
+                else if (Winner.Result < player.Result)
                 {
-                    winner = player;
+                    Winner = player;
                     winners.Clear();
                 }
-                else if (winner.Result == player.Result)
+                else if (Winner.Result == player.Result)
                 {
                     winners.Add(player);
                 }
             }
 
-            if (winner is null)
+            if (Winner is null)
                 throw new Exception("There has to be at least one winner.");
 
             // raise the winning cards
             DateTime startTime = DateTime.Now;
 
-            foreach (var card in winner.Result.Cards)
+            foreach (var card in Winner.Result.Cards)
             {
                 if (CommunityCards.HasCard(card))
                 {
                     CommunityCards.RaiseCard(card, startTime);
                     startTime += TimeSpan.FromMilliseconds(200);
                 }
-                else if (winner.HasCard(card))
+                else if (Winner.HasCard(card))
                 {
-                    winner.RaiseCard(card, startTime);
+                    Winner.RaiseCard(card, startTime);
                     startTime += TimeSpan.FromMilliseconds(200);
                 }
             }
 
             // change player label
-            winner.ShowWinner();
+            Winner.ShowWinner();
 
             // change state
             State++;
@@ -399,7 +400,24 @@ class GameManager : CardGame, IGlobalManager
     /// </summary>
     void HandleRoundEnd()
     {
-        
+        if (!CheckForRunningAnimations<AnimatedGameComponent>())
+        {
+            _betComponent.HandleWinning(Winner);
+            State++;
+        }
+    }
+
+    void HandleGameOver()
+    {
+        if (!CheckForRunningAnimations<AnimatedChipComponent>())
+        {
+            foreach (var player in Players.Cast<PokerBettingPlayer>())
+            {
+                if (!player.IsOut)
+                    player.CheckBankrupt();
+            }
+            State++;
+        }
     }
 
     /// <summary>
@@ -410,7 +428,12 @@ class GameManager : CardGame, IGlobalManager
         if (InputManager.IsNewKeyPress(Keys.Escape))
         {
             if (_screenManager.ActiveScreen is GameplayScreen)
-                PauseGame();
+            {
+                if (State == GameState.Waiting)
+                    StopPlaying();
+                else
+                    PauseGame();
+            }
             else if (_screenManager.ActiveScreen is PauseScreen)
                 StopPlaying();
             else if (_screenManager.ActiveScreen is StartScreen)
@@ -420,16 +443,6 @@ class GameManager : CardGame, IGlobalManager
             else if (_screenManager.ActiveScreen is TestScreen)
                 StopPlaying();
         }
-    }
-
-    void BetOrSkip()
-    {
-        if (CurrentPlayer.State == PlayerState.Folded || CurrentPlayer.State == PlayerState.Bankrupt)
-            ChangeCurrentPlayer();
-        else
-            _betComponent.HandleBetting(CurrentPlayer);
-
-        CheckRules();
     }
 
     /// <summary>
@@ -515,6 +528,7 @@ class GameManager : CardGame, IGlobalManager
         _betComponent.Reset();
         _animatedCardPile.Reset();
         CurrentPlayer = null;
+        Winner = null;
     }
 
     /// <summary>
@@ -553,10 +567,13 @@ class GameManager : CardGame, IGlobalManager
         foreach (var player in Players)
             ((PokerBettingPlayer)player).StartNewGame();
 
-        // return community cards
         CommunityCards.ReturnCardsToDealer();
+        _betComponent.StartNewGame();
+        _animatedCardPile.StartNewGame();
 
         CurrentPlayer = null;
+        Winner = null;
+        State = GameState.Shuffling;
     }
 
     public override void DealCardsToPlayers()
@@ -598,7 +615,7 @@ class GameManager : CardGame, IGlobalManager
     /// <typeparam name="T">The type of animation to look for.</typeparam>
     /// <returns>True if a running animation of the desired type is found and
     /// false otherwise.</returns>
-    internal bool CheckForRunningAnimations<T>() where T : AnimatedGameComponent
+    public bool CheckForRunningAnimations<T>() where T : AnimatedGameComponent
     {
         for (int componentIndex = 0; componentIndex < Game.Components.Count; componentIndex++)
             if (Game.Components[componentIndex] is T animComponent && animComponent.IsAnimating)
@@ -664,6 +681,14 @@ class GameManager : CardGame, IGlobalManager
             Players.Add(player);
     }
 
+    public void AssignEventHandlers()
+    {
+        var gameplayScreen = Game.Components.Find<GameplayScreen>();
+        gameplayScreen.RestartButton.Click += GameplayScreen_OnRestartClick;
+        gameplayScreen.DealButton.Click += GameplayScreen_OnDealClick;
+        gameplayScreen.ExitButton.Click += GameplayScreen_OnExitClick;
+    }
+
     /// <summary>
     /// Gets the <see cref="PokerBettingPlayer"/> that follows given player in the parameter.
     /// </summary>
@@ -717,12 +742,7 @@ class GameManager : CardGame, IGlobalManager
             }
         }
 
-        GameStateChanged?.Invoke(this, new GameStateEventArgs(prevGameState, newGameState));
-    }
-
-    void AllFoldedButOne_OnRuleMatch(object o, GameEndEventArgs e)
-    {
-        _betComponent.TransferPotToWinner(e.Winner);
+        StateChanged?.Invoke(this, new GameStateEventArgs(prevGameState, newGameState));
     }
 
     void OnCurrentPlayerChanged(PokerBettingPlayer prevPlayer, PokerBettingPlayer newPlayer)
@@ -731,5 +751,21 @@ class GameManager : CardGame, IGlobalManager
 
         var args = new PlayerChangedEventArgs(prevPlayer, newPlayer);
         PlayerChanged?.Invoke(this, args);
+    }
+
+    void GameplayScreen_OnRestartClick(object o, EventArgs e)
+    {
+        Reset();
+        StartPlaying();
+    }
+
+    void GameplayScreen_OnExitClick(object o, EventArgs e)
+    {
+        StopPlaying();
+    }
+
+    void GameplayScreen_OnDealClick(object o, EventArgs e)
+    {
+        StartNewGame();
     }
 }
