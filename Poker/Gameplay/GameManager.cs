@@ -27,7 +27,7 @@ class GameManager : CardGame, IGlobalManager
     readonly Dealer _dealer;
 
     /// <summary>
-    /// Used to make sure that animations finish playing before the next player takes turn.
+    /// Used to make sure that the label animations are ignored during betting rounds.
     /// </summary>
     bool _ignorePlayerAnimations;
 
@@ -40,6 +40,9 @@ class GameManager : CardGame, IGlobalManager
     /// </summary>
     public CommunityCards CommunityCards { get; }
 
+    /// <summary>
+    /// Stores the winner for the purpose of distributing chips.
+    /// </summary>
     public PokerBettingPlayer Winner { get; private set; }
 
     // backing field
@@ -94,10 +97,21 @@ class GameManager : CardGame, IGlobalManager
     /// <summary>
     /// Number of players waiting to take their turn.
     /// </summary>
-    public int WaitingPlayerCount => CountPlayers(PlayerState.Waiting);
+    public int WaitingPlayerCount => CountPlayers(p => p.IsWaiting);
 
-    public int BankruptPlayerCount => CountPlayers(PlayerState.Bankrupt);
+    /// <summary>
+    /// Number of players that are bankrupt.
+    /// </summary>
+    public int BankruptPlayerCount => CountPlayers(p => p.IsBankrupt);
 
+    /// <summary>
+    /// Number of players that are bankrupt or folded.
+    /// </summary>
+    public int OutPlayerCount => CountPlayers(p => p.IsOut);
+
+    /// <summary>
+    /// Number of players in the game.
+    /// </summary>
     public int PlayerCount => Players.Count;
 
     public GameManager(Game game, ScreenManager screenManager) 
@@ -129,19 +143,41 @@ class GameManager : CardGame, IGlobalManager
         game.Components.Add(_betComponent);
     }
 
+    /// <summary>
+    /// Indexer that returns <see cref="PokerBettingPlayer"/>.
+    /// </summary>
+    /// <returns><see cref="PokerBettingPlayer"/> with the given index.</returns>
+    public PokerBettingPlayer this[int index] =>
+        Players[index] as PokerBettingPlayer;
+
     public Dealer GetPokerDealer() => _dealer;
 
     public override Player GetCurrentPlayer() => CurrentPlayer;
 
-    int CountPlayers(PlayerState state)
+    int CountPlayers(Predicate<PokerBettingPlayer> predicate)
     {
         int count = 0;
         foreach (var player in Players.Cast<PokerBettingPlayer>())
         {
-            if (player.State == state)
+            if (predicate(player))
                 count++;
         }
         return count;
+    }
+
+    /// <summary>
+    /// Finds the player who meets given criteria in the predicate.
+    /// </summary>
+    /// <param name="predicate">Predicate to find the player by.</param>
+    /// <returns>Player if found or null.</returns>
+    PokerBettingPlayer FindPlayer(Predicate<PokerBettingPlayer> predicate)
+    {
+        foreach (var player in Players.Cast<PokerBettingPlayer>())
+        {
+            if (predicate(player))
+                return player;
+        }
+        return null;
     }
 
     public void Update()
@@ -231,19 +267,37 @@ class GameManager : CardGame, IGlobalManager
     void HandlePreflop()
     {
         // wait for the player chips animations to finish
-        if (!CheckForRunningAnimations<AnimatedChipComponent>() ||
-            _ignorePlayerAnimations)
+        if (!CheckForRunningAnimations<AnimatedChipComponent>() || _ignorePlayerAnimations)
         {
-            _ignorePlayerAnimations = true;
-
-            // establish who the current player is if not done already
-            if (CurrentPlayer is null)
+            if (!_ignorePlayerAnimations)
             {
-                for (int i = 0; i < PlayerCount; i++)
+                // establish who the current player is if not done already
+                if (CurrentPlayer is null)
                 {
-                    if (this[i].BlindChip is BigBlindChip)
-                        CurrentPlayer = GetNextPlayer(this[i]);
+                    var bigBlindPlayer = FindPlayer(p => p.BlindChip is BigBlindChip) ??
+                        throw new Exception("Big blind player cannot be found.");
+                    CurrentPlayer = GetNextPlayer(bigBlindPlayer);
+
+                    //for (int i = 0; i < PlayerCount; i++)
+                    //{
+                    //    if (this[i].BlindChip is BigBlindChip)
+                    //        CurrentPlayer = GetNextPlayer(this[i]);
+                    //}
                 }
+
+                // check if everyone folded 
+                else if (OutPlayerCount == PlayerCount - 1)
+                {
+                    var player = FindPlayer(p => !p.IsOut) ??
+                        throw new Exception("Cannot find any players who are not out.");
+
+                    Winner = player;
+                    Winner.ShowWinner();
+                    State = GameState.RoundEnd;
+                    return;
+                }
+
+                _ignorePlayerAnimations = true;
             }
 
             _betComponent.HandleBetting(CurrentPlayer);
@@ -272,7 +326,7 @@ class GameManager : CardGame, IGlobalManager
                 if (ActivePlayerCount > 1)
                     State++;
 
-                // looks like everyone (or all but one) is all in
+                // looks like everyone (or everyone but one) is all in
                 else
                     State += 2;
             }
@@ -285,15 +339,30 @@ class GameManager : CardGame, IGlobalManager
     void HandleBettingState()
     {
         // wait for the community cards animations to finish
-        if (!CheckForRunningAnimations<AnimatedGameComponent>()
-            || _ignorePlayerAnimations)
+        if (!CheckForRunningAnimations<AnimatedGameComponent>() || _ignorePlayerAnimations)
         {
-            // hide card pile
-            if (_animatedCardPile.Position != Constants.CardPileHiddenPosition &&
-                !_animatedCardPile.IsAnimating)
-                _animatedCardPile.SlideUp();
+            if (!_ignorePlayerAnimations)
+            {
+                // hide card pile
+                if (_animatedCardPile.Position != Constants.CardPileHiddenPosition &&
+                    !_animatedCardPile.IsAnimating)
+                    _animatedCardPile.SlideUp();
 
-            _ignorePlayerAnimations = true;
+                // check if everyone folded 
+                if (OutPlayerCount == PlayerCount - 1)
+                {
+                    var player = FindPlayer(p => !p.IsOut) ?? 
+                        throw new Exception("Cannot find any players who are not out.");
+
+                    Winner = player;
+                    Winner.ShowWinner();
+                    State = GameState.RoundEnd;
+                    return;
+                }
+
+                _ignorePlayerAnimations = true;
+            }
+
             _betComponent.HandleBetting(CurrentPlayer);
         }
     }
@@ -308,7 +377,7 @@ class GameManager : CardGame, IGlobalManager
             var startTime = DateTime.Now;
             foreach (var player in Players.Cast<PokerBettingPlayer>())
             {
-                if (player.State != PlayerState.Folded && player.State != PlayerState.Bankrupt)
+                if (!player.IsOut)
                 {
                     // flip the cards if they are face down
                     if (player.AnimatedHand.IsFaceDown)
@@ -402,6 +471,16 @@ class GameManager : CardGame, IGlobalManager
     {
         if (!CheckForRunningAnimations<AnimatedGameComponent>())
         {
+            foreach (var component in Game.Components)
+            {
+                if (component is Label label && 
+                    label.Player == Winner)
+                {
+                    var test = label;
+                    var count = label.IsAnimating;
+                }
+            }
+
             _betComponent.HandleWinning(Winner);
             State++;
         }
@@ -451,6 +530,8 @@ class GameManager : CardGame, IGlobalManager
     public void ChangeCurrentPlayer()
     {
         CurrentPlayer = GetNextPlayer(CurrentPlayer);
+        _ignorePlayerAnimations = false;
+        
     }
 
     /// <summary>
@@ -586,8 +667,16 @@ class GameManager : CardGame, IGlobalManager
             for (int playerIndex = 0; playerIndex < Players.Count; playerIndex++)
             {
                 var player = this[playerIndex];
+                if (player.IsBankrupt) continue;
+
                 TraditionalCard card = _dealer.DealCardToHand(player.Hand);
-                bool flip = player is HumanPlayer;
+                bool flip = false;
+
+                if (player is HumanPlayer)
+                {
+                    flip = true;
+                    player.AnimatedHand.IsFaceDown = false;
+                }
 
                 // calculate start time and add deal animation
                 player.AddDealAnimation(card, flip, startTime);
@@ -622,13 +711,6 @@ class GameManager : CardGame, IGlobalManager
                 return true;
         return false;
     }
-
-    /// <summary>
-    /// Indexer that returns <see cref="PokerBettingPlayer"/>.
-    /// </summary>
-    /// <returns><see cref="PokerBettingPlayer"/> with the given index.</returns>
-    public PokerBettingPlayer this[int index] =>
-        Players[index] as PokerBettingPlayer;
 
     /// <summary>
     /// Changes card theme for the game.

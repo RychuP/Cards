@@ -1,9 +1,7 @@
-﻿using Framework.Engine;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Poker.Gameplay.Chips;
 using Poker.Gameplay.Evaluation;
 using Poker.Gameplay.Players;
-using Poker.Misc;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -66,6 +64,10 @@ class BetComponent : DrawableGameComponent
                 }
                 return;
             }
+            else if (_currentBet > value && value != 0)
+            {
+                throw new ArgumentException("Current bet should not be going down unless down to 0.");
+            }
 
             int prevValue = _currentBet;
             _currentBet = value;
@@ -127,7 +129,7 @@ class BetComponent : DrawableGameComponent
         }
 
         // draw winning hand
-        if (_gameManager.Winner is PokerBettingPlayer winner)
+        if (_gameManager.Winner is PokerBettingPlayer winner && winner.Result != null)
         {
             string text = $"Poker hand: {Evaluator.PokerHands[winner.Result.HandType]}";
             var cardTextSize = _gameManager.Font.MeasureString(text);
@@ -227,7 +229,7 @@ class BetComponent : DrawableGameComponent
         for (int i = 0; i < _gameManager.PlayerCount; i++)
         {
             player = _gameManager.GetNextPlayer(player);
-            if (player.State != PlayerState.Bankrupt)
+            if (!player.IsBankrupt)
             {
                 _smallBlindPlayer = player;
                 break;
@@ -267,7 +269,7 @@ class BetComponent : DrawableGameComponent
         for (int i = 0; i < _gameManager.PlayerCount; i++)
         {
             player = _gameManager.GetNextPlayer(player);
-            if (player.State != PlayerState.Bankrupt)
+            if (!player.IsBankrupt)
             {
                 bigBlindPlayer = player;
                 break;
@@ -298,6 +300,9 @@ class BetComponent : DrawableGameComponent
             // check if the live blind rule is active
             if (LiveBlindActive)
             {
+                if (!currentPlayer.CanParticipateInBettingRound)
+                    throw new Exception("This player should not be allowed to bet.");
+
                 // give the big blind player a chance to raise
                 currentPlayer.ResetState();
                 return;
@@ -311,7 +316,10 @@ class BetComponent : DrawableGameComponent
         // players get the chance to check, raise or fold
         else
         {
-            PlayerTakeTurn(currentPlayer);
+            if (currentPlayer.CanParticipateInBettingRound)
+                PlayerTakeTurn(currentPlayer);
+            else
+                _gameManager.ChangeCurrentPlayer();
         }
     }
 
@@ -384,7 +392,7 @@ class BetComponent : DrawableGameComponent
         var player = winner;
         for (int i = 0; i < _gameManager.PlayerCount; i++)
         {
-            if (player.State != PlayerState.Bankrupt)
+            if (!player.IsBankrupt)
             {
                 int chipCount = player.SendChipsToWinner(winner, startTime);
                 startTime += Chip.Delay * chipCount;

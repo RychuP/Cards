@@ -1,11 +1,9 @@
-﻿using Framework.Assets;
-using Framework.UI;
+﻿using Framework.UI;
 using Microsoft.Xna.Framework.Graphics;
 using Poker.Gameplay;
 using Poker.Gameplay.Players;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 
 namespace Poker.UI.AnimatedGameComponents;
 
@@ -52,6 +50,7 @@ internal class Label : AnimatedGameComponent
     /// Player that this label is attached to.
     /// </summary>
     readonly PokerBettingPlayer _player;
+    public PokerBettingPlayer Player => _player;
 
     readonly Vector2 _hiddenPosition;
     readonly Vector2 _visiblePosition;
@@ -163,15 +162,13 @@ internal class Label : AnimatedGameComponent
 
     public void CheckAndShowPlayerState(PlayerState state)
     {
-        //if (state == PlayerState.Raised ||
-        //    state == PlayerState.Called ||
-        //    state == PlayerState.Checked ||
-        //    state == PlayerState.AllIn ||
-        //    state == PlayerState.Folded)
         if (state != PlayerState.Bankrupt)
         {
             Text = Descriptions[state];
-            Extend();
+            AddAnimation(new TransitionGameComponentAnimation(Position, _visiblePosition)
+            {
+                Duration = AnimationDuration,
+            });
         }
     }
 

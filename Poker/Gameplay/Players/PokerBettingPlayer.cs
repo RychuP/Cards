@@ -1,5 +1,6 @@
 ﻿using Framework.Engine;
 using Framework.Misc;
+using Framework.UI;
 using Poker.Gameplay.Chips;
 using Poker.UI.AnimatedGameComponents;
 using System;
@@ -69,6 +70,30 @@ class PokerBettingPlayer : PokerCardsHolder
     /// Convenience cached position normally provided by the game table.
     /// </summary>
     public Vector2 Position { get; }
+
+    /// <summary>
+    /// Not bankrupt, folded or all-in.
+    /// </summary>
+    public bool CanParticipateInBettingRound =>
+        !IsOut && !IsAllIn;
+
+    /// <summary>
+    /// Bankrupt or folded.
+    /// </summary>
+    public bool IsOut =>
+        IsBankrupt || IsFolded;
+
+    public bool IsBankrupt =>
+        State == PlayerState.Bankrupt;
+
+    public bool IsFolded =>
+        State == PlayerState.Folded;
+
+    public bool IsWaiting =>
+        State == PlayerState.Waiting;
+
+    public bool IsAllIn =>
+        State == PlayerState.AllIn;
 
     /// <summary>
     /// Returns the better card out of the two the player holds.<br></br>
@@ -183,19 +208,6 @@ class PokerBettingPlayer : PokerCardsHolder
         }
     }
 
-    /// <summary>
-    /// Whether this player can take an action in the current betting round.
-    /// </summary>
-    public bool CanParticipateInBettingRound =>
-        !IsOut && State != PlayerState.AllIn;
-
-    /// <summary>
-    /// Whether this player is out of the current game (<see cref="GameState.RoundEnd"/>).
-    /// </summary>
-    public bool IsOut =>
-        State == PlayerState.Bankrupt ||
-        State == PlayerState.Folded;
-
     public PokerBettingPlayer(string name, Gender gender, int place, GameManager gm)
         : base(name, gm)
     {
@@ -256,11 +268,10 @@ class PokerBettingPlayer : PokerCardsHolder
     /// </summary>
     public virtual void StartNewGame()
     {
-        if (State == PlayerState.Bankrupt) return;
         ReturnCardsToDealer();
-        BetAmount = 0;
         Result = null;
-        State = PlayerState.Waiting;
+        if (!IsBankrupt)
+            State = PlayerState.Waiting;
     }
 
     /// <summary>
@@ -443,7 +454,7 @@ class PokerBettingPlayer : PokerCardsHolder
         if (newBetAmount > (Balance + BetAmount))
             throw new ArgumentException("Insufficient balance to call.");
 
-        if (newBetAmount == (Balance + BetAmount))
+        if (newBetAmount >= (Balance + BetAmount))
             AllIn();
         else
         {
@@ -467,7 +478,7 @@ class PokerBettingPlayer : PokerCardsHolder
         if (newBetAmount > (Balance + BetAmount))
             throw new ArgumentException("Insufficient balance to raise.");
 
-        if (newBetAmount == (Balance + BetAmount))
+        if (newBetAmount >= (Balance + BetAmount))
         {
             AllIn();
         }
@@ -564,13 +575,19 @@ class PokerBettingPlayer : PokerCardsHolder
 
     void OnBalanceChanged(int prevBalance, int newBalance)
     {
-        // game is being reset
-        if (newBalance == StartBalance)
-            State = PlayerState.Waiting;
+        
     }
 
     void OnStateChanged(PlayerState prevState, PlayerState newState)
     {
+        switch (newState)
+        {
+            case PlayerState.Folded:
+                if (!AnimatedHand.IsFaceDown)
+                    FlipCards(DateTime.Now);
+                break;
+        }
+
         var args = new PlayerStateChangedEventArgs(prevState, newState);
         StateChanged?.Invoke(this, args);
     }

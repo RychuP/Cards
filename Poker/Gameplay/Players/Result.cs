@@ -36,6 +36,13 @@ internal class Result
 
     public static bool operator >(Result firstResult, Result secondResult)
     {
+        if (secondResult is null)
+            return true;
+        else if (firstResult is null)
+            return false;
+        else if (firstResult ==  secondResult)
+            return false;
+
         if (firstResult.HandType > secondResult.HandType)
             return true;
         else if (firstResult.HandType < secondResult.HandType)
@@ -76,6 +83,9 @@ internal class Result
 
     public static bool operator ==(Result firstResult, Result secondResult)
     {
+        if (firstResult is null && secondResult is null) return true;
+        else if (firstResult is null || secondResult is null) return false;
+
         // compare hand types 
         bool handTypesAreEqual = firstResult.HandType == secondResult.HandType;
 

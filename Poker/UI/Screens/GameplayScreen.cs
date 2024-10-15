@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using Framework.UI;
 using Microsoft.Xna.Framework.Graphics;
 using Poker.Gameplay;
 using Poker.Gameplay.Players;
@@ -94,7 +94,7 @@ class GameplayScreen : MenuGameScreen
     {
         List<Button> buttonsToShow = new(Buttons.Count)
         {
-            AllInButton
+            AllInButton, FoldButton
         };
 
         if (startingPlayerBet != currentPlayerBet)
@@ -121,6 +121,10 @@ class GameplayScreen : MenuGameScreen
     /// </summary>
     void ShowButtons(List<Button> buttons)
     {
+        var gm = Game.Services.GetService<GameManager>();
+        if (gm.CheckForRunningAnimations<AnimatedCardGameComponent>())
+            return;
+
         // show buttons
         foreach (var button in Buttons)
         {
@@ -154,21 +158,23 @@ class GameplayScreen : MenuGameScreen
 
         switch (e.NewState)
         {
-            case GameState.Shuffling:
-                HideButtons();
-                break;
-
             case GameState.Waiting:
                 List<Button> buttons = new();
 
                 // there are at least two players remaining that are not bankrupt
-                if (gm.BankruptPlayerCount < gm.PlayerCount - 2)
+                int remainingPlayerCount = gm.PlayerCount - gm.BankruptPlayerCount;
+                var humanPlayer = gm[0];
+                if (remainingPlayerCount >= 2 && !humanPlayer.IsBankrupt)
                     buttons.Add(DealButton);
                 else
                     buttons.Add(RestartButton);
 
                 buttons.Add(ExitButton);
                 ShowButtons(buttons);
+                break;
+
+            default:
+                HideButtons();
                 break;
         }
     }

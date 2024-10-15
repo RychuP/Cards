@@ -121,8 +121,11 @@ abstract class PokerCardsHolder : Player
 
             animatedCard.AddAnimation(new FlipGameComponentAnimation()
             {
-                StartTime = startTime
+                IsFromFaceDownToFaceUp = animatedCard.IsFaceDown,
+                StartTime = startTime,
+                PerformWhenDone = (o) => CardSounds.Flip.Play()
             });
+            
 
             //startTime += Constants.FlipAnimationDuration;
         }

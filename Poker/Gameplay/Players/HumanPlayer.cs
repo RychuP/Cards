@@ -47,6 +47,7 @@ class HumanPlayer : PokerBettingPlayer
         _gameplayScreen.ClearButton.Click += ClearButton_OnClick;
         _gameplayScreen.RaiseButton.Click += RaiseButton_OnClick;
         _gameplayScreen.CheckButton.Click += CheckButton_OnClick;
+        _gameplayScreen.FoldButton.Click += FoldButton_OnClick;
     }
 
     /// <inheritdoc/>
@@ -125,6 +126,12 @@ class HumanPlayer : PokerBettingPlayer
     void CheckButton_OnClick(object o, EventArgs e)
     {
         Check();
+        HideButtons();
+    }
+
+    void FoldButton_OnClick(object o, EventArgs e)
+    {
+        Fold();
         HideButtons();
     }
 }

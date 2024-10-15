@@ -43,11 +43,9 @@ public enum GameState
 public enum PlayerState
 {
     Waiting,
-
     Checked,
     Called,
     Raised,
-
     AllIn,
     Folded,
     Bankrupt,
