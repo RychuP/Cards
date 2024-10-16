@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿global using System;
+global using Microsoft.Xna.Framework;
+
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -6,7 +8,11 @@ namespace Solitaire;
 
 public class SolitaireGame : Game
 {
-    private GraphicsDeviceManager _graphics;
+    public static readonly int Width = 1280;
+    public static readonly int Height = 720;
+    public static readonly Rectangle Bounds = new(0, 0, Width, Height);
+
+    readonly GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
     public SolitaireGame()
@@ -18,7 +24,9 @@ public class SolitaireGame : Game
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
+        _graphics.PreferredBackBufferWidth = Width;
+        _graphics.PreferredBackBufferHeight = Height;
+        _graphics.ApplyChanges();
 
         base.Initialize();
     }
@@ -51,7 +59,7 @@ public class SolitaireGame : Game
 
     static void Main()
     {
-        using var game = new Solitaire.SolitaireGame();
+        using var game = new SolitaireGame();
         game.Run();
 
     }
