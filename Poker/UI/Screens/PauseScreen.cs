@@ -8,8 +8,8 @@ class PauseScreen : StaticGameScreen
 {
     public PauseScreen(ScreenManager screenManager) : base(screenManager, 2)
     {
-        AddButton("Continue", ContinueButton_OnClick);
-        AddButton("Exit", ExitButton_OnClick);
+        AddButton(Strings.Continue, ContinueButton_OnClick);
+        AddButton(Strings.Exit, ExitButton_OnClick);
         DrawOrder = int.MaxValue;
     }
 

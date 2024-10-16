@@ -4,33 +4,6 @@ namespace Poker.Misc;
 
 static class Constants
 {
-    // button texts
-    public static readonly string ButtonPlayText = "Play";
-    public static readonly string ButtonThemeText = "Theme";
-    public static readonly string ButtonExitText = "Exit";
-    public static readonly string ButtonReturnText = "Return";
-    public static readonly string ButtonClearText = "Clear";
-    public static readonly string ButtonMatchBetText = "Match Bet";
-    public static readonly string ButtonEndTurnText = "End Turn";
-
-    // errors
-    public static readonly string OnlyHumanPlayerExceptionText = 
-        "Button clicks should occur on human player's turn only.";
-    public static readonly string EvaluatorCardArrayLengthException =
-        "Cards array must have the length of 5.";
-
-    // npc names
-    public static readonly string[] Names = new[] {
-        "Liam", "Noah", "Oliver", "James", "Elijah", "Theodore", "Henry", "Lucas", "William",
-        "Olivia", "Emily", "Charlotte", "Amelia", "Sophia", "Mia", "Isabella", "Ava", "Evelyn"};
-    public static readonly string CommunityCardsName = "Community Cards";
-
-    // themes
-    public static readonly string RedThemeText = "Red";
-    public static readonly string BlueThemeText = "Blue";
-    public static readonly string DefaultTheme = RedThemeText;
-
-    // dimensions
     public static readonly int GameWidth = 1280;
     public static readonly int GameHeight = 720;
     /// <summary>

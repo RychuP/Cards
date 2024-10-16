@@ -2,6 +2,7 @@ using Framework.Assets;
 using Framework.Engine;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics.Metrics;
 
 namespace Framework.UI;
 

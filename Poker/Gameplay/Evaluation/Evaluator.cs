@@ -219,7 +219,7 @@ class Evaluator
     static bool IsFullHouse(TraditionalCard[] cards, Hand player, out TraditionalCard[] result)
     {
         if (cards.Length != 5)
-            throw new ArgumentException(Constants.EvaluatorCardArrayLengthException);
+            throw new ArgumentException(Strings.CardArrayLengthException);
 
         if (IsFullHouse(cards))
         {
@@ -267,7 +267,7 @@ class Evaluator
     static bool IsStraight(TraditionalCard[] cards, Hand player, out TraditionalCard[] result)
     {
         if (cards.Length != 5)
-            throw new ArgumentException(Constants.EvaluatorCardArrayLengthException);
+            throw new ArgumentException(Strings.CardArrayLengthException);
 
         if (IsStraight(cards))
         {
@@ -294,7 +294,7 @@ class Evaluator
     static bool IsFlush(TraditionalCard[] cards, Hand player, out TraditionalCard[] result)
     {
         if (cards.Length != 5)
-            throw new ArgumentException(Constants.EvaluatorCardArrayLengthException);
+            throw new ArgumentException(Strings.CardArrayLengthException);
 
         if (IsFlush(cards))
         {
@@ -324,7 +324,7 @@ class Evaluator
     static bool IsFourOfKind(TraditionalCard[] cards, Hand player, out TraditionalCard[] result)
     {
         if (cards.Length != 5)
-            throw new ArgumentException(Constants.EvaluatorCardArrayLengthException);
+            throw new ArgumentException(Strings.CardArrayLengthException);
 
         var indices = s_fourOutOfFiveCombinations;
         for (int i = 0; i < indices.GetLength(0); i++)
@@ -359,7 +359,7 @@ class Evaluator
     static bool IsThreeOfKind(TraditionalCard[] cards, Hand player, out TraditionalCard[] result)
     {
         if (cards.Length != 5)
-            throw new ArgumentException(Constants.EvaluatorCardArrayLengthException);
+            throw new ArgumentException(Strings.CardArrayLengthException);
 
         var indices = s_threeOutOfFiveCombinations;
         for (int i = 0; i < indices.GetLength(0); i++)
@@ -397,7 +397,7 @@ class Evaluator
     static bool IsTwoPair(TraditionalCard[] cards, Hand player, out TraditionalCard[] result)
     {
         if (cards.Length != 5)
-            throw new ArgumentException(Constants.EvaluatorCardArrayLengthException);
+            throw new ArgumentException(Strings.CardArrayLengthException);
 
         var indices = s_fourOutOfFiveCombinations;
         for (int i = 0; i < indices.GetLength(0); i++)
@@ -440,7 +440,7 @@ class Evaluator
     static bool IsPair(TraditionalCard[] cards, Hand player, out TraditionalCard[] result)
     {
         if (cards.Length != 5)
-            throw new ArgumentException(Constants.EvaluatorCardArrayLengthException);
+            throw new ArgumentException(Strings.CardArrayLengthException);
 
         var indices = s_twoOutOfFiveCombinations;
         for (int i = 0; i < indices.GetLength(0); i++)

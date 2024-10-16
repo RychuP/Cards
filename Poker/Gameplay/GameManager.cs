@@ -116,7 +116,7 @@ class GameManager : CardGame, IGlobalManager
 
     public GameManager(Game game, ScreenManager screenManager) 
         : base(1, 0, CardSuits.AllSuits, CardValues.NonJokers, Fonts.Moire.Regular,
-        Constants.MinPlayers, Constants.MaxPlayers, new PokerTable(game), Constants.DefaultTheme, game)
+        Constants.MinPlayers, Constants.MaxPlayers, new PokerTable(game), Strings.Red, game)
     {
         _screenManager = screenManager;
 
@@ -292,7 +292,7 @@ class GameManager : CardGame, IGlobalManager
                         throw new Exception("Cannot find any players who are not out.");
 
                     Winner = player;
-                    Winner.ShowWinner();
+                    Winner.SetWinnerState();
                     State = GameState.RoundEnd;
                     return;
                 }
@@ -355,7 +355,7 @@ class GameManager : CardGame, IGlobalManager
                         throw new Exception("Cannot find any players who are not out.");
 
                     Winner = player;
-                    Winner.ShowWinner();
+                    Winner.SetWinnerState();
                     State = GameState.RoundEnd;
                     return;
                 }
@@ -382,7 +382,7 @@ class GameManager : CardGame, IGlobalManager
                     // flip the cards if they are face down
                     if (player.AnimatedHand.IsFaceDown)
                     {
-                        player.FlipCards(startTime);
+                        player.AnimatedPlayerHand.Flip(startTime);
                         startTime += Constants.CardFlipAnimationDuration; // * player.Hand.Count;
                     }
 
@@ -457,7 +457,7 @@ class GameManager : CardGame, IGlobalManager
             }
 
             // change player label
-            Winner.ShowWinner();
+            Winner.SetWinnerState();
 
             // change state
             State++;
@@ -529,6 +529,8 @@ class GameManager : CardGame, IGlobalManager
     /// </summary>
     public void ChangeCurrentPlayer()
     {
+        if (CurrentPlayer is HumanPlayer humanPlayer)
+            humanPlayer.StartedTurn = false;
         CurrentPlayer = GetNextPlayer(CurrentPlayer);
         _ignorePlayerAnimations = false;
         
@@ -678,8 +680,10 @@ class GameManager : CardGame, IGlobalManager
                     player.AnimatedHand.IsFaceDown = false;
                 }
 
-                // calculate start time and add deal animation
+                // add deal animation
                 player.AddDealAnimation(card, flip, startTime);
+
+                // advance start time
                 startTime += Constants.DealAnimationDuration;
             }
         }
@@ -719,7 +723,7 @@ class GameManager : CardGame, IGlobalManager
     public void SetTheme(string theme)
     {
         if (Theme == theme) return;
-        else if (theme != Constants.RedThemeText && theme != Constants.BlueThemeText) return;
+        else if (theme != Strings.Red && theme != Strings.Blue) return;
         else
         {
             Theme = theme;
@@ -737,7 +741,7 @@ class GameManager : CardGame, IGlobalManager
         Gender gender = (Gender)Game.Services.GetService<Random>().Next(2);
 
         // get the count of 50% of the names (first half is male, second female)
-        int nameCount = Constants.Names.Length / 2;
+        int nameCount = Strings.Names.Length / 2;
         do
         {
             // get random index taking into consideration the appropriate half of collection
@@ -745,7 +749,7 @@ class GameManager : CardGame, IGlobalManager
             int index = Game.Services.GetService<Random>().Next(0, nameCount);
 
             // retrieve the name and cap the index (just in case)
-            name = Constants.Names[Math.Min(index + offset, Constants.Names.Length - 1)];
+            name = Strings.Names[Math.Min(index + offset, Strings.Names.Length - 1)];
 
             // repeat until a unique name is selected
         } while (Players.Find(p => p.Name == name) is PokerCardsHolder);
@@ -841,13 +845,15 @@ class GameManager : CardGame, IGlobalManager
         StartPlaying();
     }
 
-    void GameplayScreen_OnExitClick(object o, EventArgs e)
-    {
+    void GameplayScreen_OnExitClick(object o, EventArgs e) =>
         StopPlaying();
-    }
 
-    void GameplayScreen_OnDealClick(object o, EventArgs e)
-    {
+    void GameplayScreen_OnDealClick(object o, EventArgs e) =>
         StartNewGame();
-    }
+
+    //void ThemeScreen_OnRedButtonClick(object o, EventArgs e) =>
+    //    SetTheme(Strings.Red);
+
+    //void ThemeScreen_OnBlueButtonClick(object o, EventArgs e) =>
+    //    SetTheme(Strings.Blue);
 }

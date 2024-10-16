@@ -20,6 +20,7 @@ abstract class Chip
     /// Delay between animating individual chips.
     /// </summary>
     public static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(200);
+    public static readonly TimeSpan WinningDelay = TimeSpan.FromMilliseconds(100);
 
     /// <summary>
     /// Size of any chip used in the game.

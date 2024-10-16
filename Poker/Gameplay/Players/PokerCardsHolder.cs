@@ -109,25 +109,4 @@ abstract class PokerCardsHolder : Player
             Duration = TimeSpan.FromMilliseconds(200)
         });
     }
-
-    public void FlipCards(DateTime startTime)
-    {
-        for (int i = 0; i < Hand.Count; i++)
-        {
-            var card = Hand[i];
-            var animatedCard = AnimatedHand.GetCardGameComponent(card) ?? 
-                throw new Exception("Internal error. " +
-                    $"The card with index {i} is missing its animated component.");
-
-            animatedCard.AddAnimation(new FlipGameComponentAnimation()
-            {
-                IsFromFaceDownToFaceUp = animatedCard.IsFaceDown,
-                StartTime = startTime,
-                PerformWhenDone = (o) => CardSounds.Flip.Play()
-            });
-            
-
-            //startTime += Constants.FlipAnimationDuration;
-        }
-    }
 }

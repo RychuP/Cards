@@ -10,10 +10,6 @@ namespace Poker.UI.Screens;
 
 internal class TestScreen : StaticGameScreen
 {
-    const string BetterText = "Better";
-    const string WorseText = "Worse";
-    const string EqualText = "Equal";
-    const string CardText = "Card";
     readonly Color TextColor = Color.WhiteSmoke;
 
     /// <summary>
@@ -51,8 +47,8 @@ internal class TestScreen : StaticGameScreen
 
     public override void Initialize()
     {
-        AddButton("Shuffle", ShuffleButton_OnClick);
-        AddButton("Exit", ExitButton_OnClick);
+        AddButton(Strings.Shuffle, ShuffleButton_OnClick);
+        AddButton(Strings.Exit, ExitButton_OnClick);
 
         _gameManager = Game.Services.GetService<GameManager>();
         _communityCards = _gameManager.CommunityCards;
@@ -128,18 +124,18 @@ internal class TestScreen : StaticGameScreen
         sb.DrawString(_gameManager.Font, text, new Vector2(x, y), TextColor);
 
         // determine card description text
-        string leftCardDesc = EqualText,
-            rightCardDesc = EqualText;
+        string leftCardDesc = Strings.Equal,
+            rightCardDesc = Strings.Equal;
         if (_player.BetterCard.Value != _player.WorseCard.Value)
         {
             leftCardDesc = _player.BetterCard == _player.Hand[0] ?
-                BetterText : WorseText;
+                Strings.Better : Strings.Worse;
             rightCardDesc = _player.BetterCard == _player.Hand[1] ?
-                BetterText : WorseText;
+                Strings.Better : Strings.Worse;
         }
 
         // measure card text size
-        cardTextSize = _gameManager.Font.MeasureString(CardText);
+        cardTextSize = _gameManager.Font.MeasureString(Strings.Card);
         float textHeight = cardTextSize.Y * 2 + Constants.TextVerticalSpacing;
 
         // calculate left card text position
@@ -170,15 +166,15 @@ internal class TestScreen : StaticGameScreen
         Vector2 rightCardDescPos = new(x, leftCardDescPos.Y);
 
         // draw player card descriptions
-        if (leftCardDesc == BetterText || leftCardDesc == EqualText)
+        if (leftCardDesc == Strings.Better || leftCardDesc == Strings.Equal)
         {
             sb.DrawString(_gameManager.Font, leftCardDesc, leftCardDescPos, TextColor);
-            sb.DrawString(_gameManager.Font, CardText, leftCardTextPos, TextColor);
+            sb.DrawString(_gameManager.Font, Strings.Card, leftCardTextPos, TextColor);
         }
-        if (rightCardDesc == BetterText || rightCardDesc == EqualText)
+        if (rightCardDesc == Strings.Better || rightCardDesc == Strings.Equal)
         {
             sb.DrawString(_gameManager.Font, rightCardDesc, rightCardDescPos, TextColor);
-            sb.DrawString(_gameManager.Font, CardText, rightCardTextPos, TextColor);
+            sb.DrawString(_gameManager.Font, Strings.Card, rightCardTextPos, TextColor);
         }
 
         sb.End();

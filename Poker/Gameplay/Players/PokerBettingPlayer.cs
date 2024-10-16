@@ -1,4 +1,5 @@
-﻿using Framework.Engine;
+﻿using Framework.Assets;
+using Framework.Engine;
 using Framework.Misc;
 using Framework.UI;
 using Poker.Gameplay.Chips;
@@ -70,6 +71,9 @@ class PokerBettingPlayer : PokerCardsHolder
     /// Convenience cached position normally provided by the game table.
     /// </summary>
     public Vector2 Position { get; }
+
+    public AnimatedPlayerHand AnimatedPlayerHand =>
+        AnimatedHand as AnimatedPlayerHand;
 
     /// <summary>
     /// Not bankrupt, folded or all-in.
@@ -211,10 +215,11 @@ class PokerBettingPlayer : PokerCardsHolder
     public PokerBettingPlayer(string name, Gender gender, int place, GameManager gm)
         : base(name, gm)
     {
-        AnimatedHand = new AnimatedPlayerHand(place, Hand, gm);
+        AnimatedHand = new AnimatedPlayerHand(this);
         Gender = gender;
         Place = place;
         Position = gm.GameTable[Place];
+        AnimatedHand.Position = Position;
 
         // calculate the first line of text position
         var stringSize = gm.Font.MeasureString(Name);
@@ -240,6 +245,9 @@ class PokerBettingPlayer : PokerCardsHolder
         // create a label
         _label = new(this, GameManager);
         Game.Components.Add(_label);
+
+        // assign event handler
+        gm.StateChanged += GameManager_OnStateChanged;
     }
 
     /// <inheritdoc/>
@@ -519,9 +527,8 @@ class PokerBettingPlayer : PokerCardsHolder
     /// <summary>
     /// Extendes the label with the text: Winner.
     /// </summary>
-    public void ShowWinner()
+    public void SetWinnerState()
     {
-        //_label.Extend("Winner");
         State = PlayerState.Winner;
     }
 
@@ -538,7 +545,7 @@ class PokerBettingPlayer : PokerCardsHolder
                 BetAmount -= chip.Value;
             };
             chip.Position = winner.Position;
-            startTime += Chip.Delay;
+            startTime += Chip.WinningDelay;
         }
         return chipCount;
     }
@@ -583,12 +590,19 @@ class PokerBettingPlayer : PokerCardsHolder
         switch (newState)
         {
             case PlayerState.Folded:
-                if (!AnimatedHand.IsFaceDown)
-                    FlipCards(DateTime.Now);
+                AnimatedPlayerHand.Fold();
                 break;
         }
 
         var args = new PlayerStateChangedEventArgs(prevState, newState);
         StateChanged?.Invoke(this, args);
+    }
+
+    void GameManager_OnStateChanged(object o, GameStateEventArgs e)
+    {
+        if (IsFolded && e.NewState > GameState.Preflop && e.NewState < GameState.RiverBet)
+        {
+            _label.Retract();
+        } 
     }
 }

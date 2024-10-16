@@ -22,23 +22,26 @@ internal class Label : AnimatedGameComponent
 
     static readonly TimeSpan AnimationDuration = TimeSpan.FromMilliseconds(400);
 
-    /// <summary>
-    /// Dictionary of label colors that correlate to players states.
-    /// </summary>
-    static readonly Dictionary<PlayerState, Color> Colors = new()
+    static readonly Dictionary<PlayerState, string> Descriptions = new()
     {
-        { PlayerState.Raised, Color.LightGreen } // ddf9e7
+        { PlayerState.Checked, Strings.Check },
+        { PlayerState.Folded, Strings.Fold },
+        { PlayerState.Raised, Strings.Raise },
+        { PlayerState.Called, Strings.Call },
+        { PlayerState.AllIn, Strings.AllIn },
+        { PlayerState.Bankrupt, Strings.Bankrupt },
+        { PlayerState.Winner, Strings.Winner }
     };
 
-    public static readonly Dictionary<PlayerState, string> Descriptions = new()
+    static readonly Dictionary<string, Color> Colors = new()
     {
-        { PlayerState.Checked, "Check" },
-        { PlayerState.Folded, "Fold" },
-        { PlayerState.Raised, "Raise" },
-        { PlayerState.Called, "Call" },
-        { PlayerState.AllIn, "All In" },
-        { PlayerState.Bankrupt, "Bankrupt" },
-        { PlayerState.Winner, "Winner" }
+        { Strings.Check, Color.LightSteelBlue },
+        { Strings.Fold, Color.LightSlateGray },
+        { Strings.Raise, Color.LightGreen },
+        { Strings.Call, Color.LightBlue },
+        { Strings.AllIn, Color.LightPink },
+        { Strings.Bankrupt, Color.LightSalmon },
+        { Strings.Winner, Color.LightGoldenrodYellow }
     };
 
     /// <summary>
@@ -87,6 +90,8 @@ internal class Label : AnimatedGameComponent
 
     public override void Draw(GameTime gameTime)
     {
+        if (Position == _hiddenPosition) return;
+
         var gm = Game.Services.GetService<GameManager>();
         var sb = Game.Services.GetService<SpriteBatch>();
         sb.Begin();
@@ -94,7 +99,7 @@ internal class Label : AnimatedGameComponent
         int x = (int)Position.X + TextBackgroundMarging;
         int y = (int)Position.Y + TextBackgroundMarging;
         var dest = new Rectangle(x, y, _textBackground.Width, _textBackground.Height);
-        sb.Draw(_textBackground, dest, Color.LightBlue);
+        sb.Draw(_textBackground, dest, Colors[Text]);
 
         sb.End();
         base.Draw(gameTime);
@@ -172,7 +177,7 @@ internal class Label : AnimatedGameComponent
         }
     }
 
-    void Retract(Action<object> performWhenDone = null)
+    public void Retract(Action<object> performWhenDone = null)
     {
         RemoveAnimations();
         var anim = new TransitionGameComponentAnimation(Position, _hiddenPosition)

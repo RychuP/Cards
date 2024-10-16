@@ -1,5 +1,4 @@
 ﻿using Framework.Engine;
-using Framework.Misc;
 using System;
 
 namespace Poker.Gameplay.Players;
@@ -21,6 +20,7 @@ class AIPlayer : PokerBettingPlayer
         _riskTakingTendency = (double)_rand.NextDouble();
     }
 
+    // There was an attempt at making some strategy here, but in the end it's just randomness.
     /// <inheritdoc/>
     public override void TakeTurn(int currentBetAmount, Hand communityCards, bool checkPossible)
     {

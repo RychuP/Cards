@@ -10,7 +10,7 @@ namespace Poker.UI.AnimatedGameComponents;
 /// </summary>
 class AnimatedCardPile : AnimatedGameComponent
 {
-    public AnimatedCardPile(GameManager gm) : base(gm, GetThemeTexture(Constants.DefaultTheme))
+    public AnimatedCardPile(GameManager gm) : base(gm, GetThemeTexture(gm.Theme))
     {
         Reset();
         gm.ThemeChanged += GameManager_OnThemeChanged;
@@ -91,13 +91,12 @@ class AnimatedCardPile : AnimatedGameComponent
         return new TransitionGameComponentAnimation(start, finish)
         {
             Duration = Constants.CardPileTransitionDuration,
-            //PerformBeforeStart = (o) => CardSounds.Flip.Play()
         };
     }
 
     static Texture2D GetThemeTexture(string theme) =>
-        theme == Constants.RedThemeText ? CardAssets.ShuffleSpriteSheets[Constants.RedThemeText]
-            : CardAssets.ShuffleSpriteSheets[Constants.BlueThemeText];
+        theme == Strings.Red ? CardAssets.ShuffleSpriteSheets[Strings.Red]
+            : CardAssets.ShuffleSpriteSheets[Strings.Blue];
 
     void GameManager_OnThemeChanged(object o, ThemeChangedEventArgs e)
     {

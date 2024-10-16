@@ -29,15 +29,15 @@ class GameplayScreen : MenuGameScreen
         var humanPlayer = gm[0] as HumanPlayer;
 
         // create buttons
-        CheckButton = new Button("Check", Game);
-        RaiseButton = new Button("Raise", Game);
-        CallButton = new Button("Call", Game);
-        FoldButton = new Button("Fold", Game);
-        ClearButton = new Button("Clear", Game);
-        AllInButton = new Button("All In", Game);
-        RestartButton = new Button("Restart", Game);
-        DealButton = new Button("Deal", Game);
-        ExitButton = new Button("Exit", Game);
+        CheckButton = new Button(Strings.Check, Game);
+        RaiseButton = new Button(Strings.Raise, Game);
+        CallButton = new Button(Strings.Call, Game);
+        FoldButton = new Button(Strings.Fold, Game);
+        ClearButton = new Button(Strings.Clear, Game);
+        AllInButton = new Button(Strings.AllIn, Game);
+        RestartButton = new Button(Strings.Restart, Game);
+        DealButton = new Button(Strings.Deal, Game);
+        ExitButton = new Button(Strings.Exit, Game);
         Buttons.AddRange(new[] { AllInButton, CheckButton, RaiseButton, CallButton, FoldButton, 
             ClearButton, RestartButton, DealButton, ExitButton });
         humanPlayer.AssignClickHandlers();
@@ -104,11 +104,11 @@ class GameplayScreen : MenuGameScreen
         {
             buttonsToShow.Add(CheckButton);
         }
-        else if (currentPlayerBet <= currentTableBet)
+        else if (currentPlayerBet <= currentTableBet && currentPlayerBet + playerBalance >= currentTableBet)
         {
             buttonsToShow.Add(CallButton);
         }
-        else if (currentPlayerBet > currentTableBet && currentPlayerBet != playerBalance)
+        else if (currentPlayerBet > currentTableBet)
         {
             buttonsToShow.Add(RaiseButton);
         }

@@ -14,10 +14,10 @@ class StartScreen : StaticGameScreen
 
     public override void Initialize()
     {
-        AddButton("Play", StartButton_OnClick);
-        AddButton("Theme", ThemeButton_OnClick);
-        AddButton("Test", TestButton_OnClick);
-        AddButton("Exit", ExitButton_OnClick);
+        AddButton(Strings.Play, StartButton_OnClick);
+        AddButton(Strings.Theme, ThemeButton_OnClick);
+        AddButton(Strings.Test, TestButton_OnClick);
+        AddButton(Strings.Exit, ExitButton_OnClick);
 
         base.Initialize();
     }

@@ -12,9 +12,9 @@ class ThemeScreen : StaticGameScreen
 
     public override void Initialize()
     {
-        AddButton("Red", RedThemeButton_OnClick);
-        AddButton("Blue", BlueThemeButton_OnClick);
-        AddButton("Exit", ExitButton_OnClick);
+        AddButton(Strings.Red, RedThemeButton_OnClick);
+        AddButton(Strings.Blue, BlueThemeButton_OnClick);
+        AddButton(Strings.Exit, ExitButton_OnClick);
 
         // register event handlers
         ScreenManager.ScreenChanged += ScreenManager_ScreenChanged;
@@ -47,10 +47,10 @@ class ThemeScreen : StaticGameScreen
     }
 
     void RedThemeButton_OnClick(object o, EventArgs e) =>
-        Game.Services.GetService<GameManager>().SetTheme(Constants.RedThemeText);
+        Game.Services.GetService<GameManager>().SetTheme(Strings.Red);
 
     void BlueThemeButton_OnClick(object o, EventArgs e) =>
-        Game.Services.GetService<GameManager>().SetTheme(Constants.BlueThemeText);
+        Game.Services.GetService<GameManager>().SetTheme(Strings.Blue);
 
     void ExitButton_OnClick(object o, EventArgs e) =>
         ScreenManager.ShowScreen<StartScreen>();

@@ -144,13 +144,6 @@ class BetComponent : DrawableGameComponent
             if (chip.IsHover)
                 sb.Draw(Art.ChipOutline, chip.OutlineDestination, Color.White);
         }
-
-        // debug
-        //string t = Stage.ToString();
-        //var s = _gameManager.Font.MeasureString(t);
-        //float z = (Constants.GameWidth - s.X) / 2;
-        //float g = 430;
-        //sb.DrawString(_gameManager.Font, t, new Vector2(z, g), Color.White);
         
         sb.End();
     }
@@ -395,7 +388,7 @@ class BetComponent : DrawableGameComponent
             if (!player.IsBankrupt)
             {
                 int chipCount = player.SendChipsToWinner(winner, startTime);
-                startTime += Chip.Delay * chipCount;
+                startTime += Chip.WinningDelay * chipCount;
             }
             player = _gameManager.GetNextPlayer(player);
         }
