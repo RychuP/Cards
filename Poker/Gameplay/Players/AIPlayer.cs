@@ -27,10 +27,10 @@ class AIPlayer : PokerBettingPlayer
         base.TakeTurn(currentBetAmount, communityCards, checkPossible);
 
         // establish which betting round is on now
-        GameState gameState = 
+        GameState gameState =
             communityCards.Count == 0 ? GameState.Preflop :
             communityCards.Count == 3 ? GameState.FlopBet :
-            communityCards.Count == 4 ? GameState.TurnBet : 
+            communityCards.Count == 4 ? GameState.TurnBet :
             GameState.RiverBet;
 
         // grab reference of both cards held
@@ -54,7 +54,7 @@ class AIPlayer : PokerBettingPlayer
                 if (c1 == c2)
                 {
                     confidence += 0.5f;
-                    
+
                     // card value factor
                     riskFactor = c1ValFactor / 2;
 
@@ -80,16 +80,25 @@ class AIPlayer : PokerBettingPlayer
         }
         confidence *= _riskTakingTendency;
 
-
-
-            //if (gameState == GameState.FlopBet)
-        //if ((confidence + (feelingLucky ? 0.5 : -0.5)) < 0.2 &&
-        //    gameState != GameState.RiverBet)
-        if (_rand.Next(10) > 7 && gameState != GameState.RiverBet)
+        // decision to fold
+        if (_rand.Next(6) == 0 && currentBetAmount > (BetAmount + Balance * 0.1))
         {
-            Fold();
+            if (GameManager.ActivePlayerCount == 2)
+            {
+                if (_rand.Next(5) == 0)
+                {
+                    Fold();
+                    return;
+                }
+            }
+            else
+            {
+                Fold();
+                return;
+            }
         }
-        else if (checkPossible)
+
+        if (checkPossible)
         {
             if (confidence > 0.6 || feelingLucky)
             {
@@ -140,6 +149,6 @@ class AIPlayer : PokerBettingPlayer
     int GetCardValue(TraditionalCard card)
     {
         int value = GameManager.GetCardValue(card);
-        return value == 1 ? 14: value;
+        return value == 1 ? 14 : value;
     }
 }
