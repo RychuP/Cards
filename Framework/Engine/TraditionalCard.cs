@@ -15,6 +15,9 @@ namespace Framework.Engine;
 /// </remarks>
 public class TraditionalCard : IComparable<TraditionalCard>
 {
+    public static readonly int Width = 80;
+    public static readonly int Height = 106;
+
     /// <summary>
     /// Whether the ace should be considered lowest or highest value.
     /// </summary>

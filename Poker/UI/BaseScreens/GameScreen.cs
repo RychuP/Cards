@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Poker.UI.BaseScreens;
 
-abstract class GameScreen : DrawableGameComponent
+abstract internal class GameScreen : DrawableGameComponent
 {
     protected Texture2D Texture { get; set; }
 

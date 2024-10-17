@@ -24,8 +24,7 @@ class GameManager : CardGame, IGlobalManager
     readonly AnimatedCardPile _animatedCardPile;
     readonly BetComponent _betComponent;
     readonly ScreenManager _screenManager;
-    readonly Dealer _dealer;
-
+    
     /// <summary>
     /// Used to make sure that the label animations are ignored during betting rounds.
     /// </summary>
@@ -34,6 +33,8 @@ class GameManager : CardGame, IGlobalManager
     // used for pausing and resuming gameplay components
     readonly List<DrawableGameComponent> _pauseEnabledComponents = new();
     readonly List<DrawableGameComponent> _pauseVisibleComponents = new();
+
+    public Dealer Dealer { get; }
 
     /// <summary>
     /// Represents the 5 community cards placed on the table.
@@ -125,7 +126,7 @@ class GameManager : CardGame, IGlobalManager
         game.Components.Add(_animatedCardPile);
 
         // create dealer hand
-        _dealer = new(Dealer);
+        Dealer = new(CardDeck);
 
         // create players
         AddPlayer(new HumanPlayer(Gender.Male, this));
@@ -150,7 +151,7 @@ class GameManager : CardGame, IGlobalManager
     public PokerBettingPlayer this[int index] =>
         Players[index] as PokerBettingPlayer;
 
-    public Dealer GetPokerDealer() => _dealer;
+    public Dealer GetPokerDealer() => Dealer;
 
     public override Player GetCurrentPlayer() => CurrentPlayer;
 
@@ -193,7 +194,7 @@ class GameManager : CardGame, IGlobalManager
         switch (State)
         {
             case GameState.Shuffling:
-                _dealer.Shuffle();
+                Dealer.Shuffle();
                 // wait for the shuffling animations to finish
                 if (!CheckForRunningAnimations<AnimatedCardPile>())
                 {
@@ -607,7 +608,7 @@ class GameManager : CardGame, IGlobalManager
             ((PokerBettingPlayer)player).Reset();
 
         CommunityCards.Reset();
-        _dealer.Reset();
+        Dealer.Reset();
         _betComponent.Reset();
         _animatedCardPile.Reset();
         CurrentPlayer = null;
@@ -626,7 +627,7 @@ class GameManager : CardGame, IGlobalManager
         foreach (PokerBettingPlayer player in Players.Cast<PokerBettingPlayer>())
             player.StartPlaying();
 
-        _dealer.StartPlaying();
+        Dealer.StartPlaying();
         _betComponent.StartPlaying();
         _animatedCardPile.StartPlaying();
         State = GameState.Shuffling;
@@ -671,7 +672,7 @@ class GameManager : CardGame, IGlobalManager
                 var player = this[playerIndex];
                 if (player.IsBankrupt) continue;
 
-                TraditionalCard card = _dealer.DealCardToHand(player.Hand);
+                TraditionalCard card = Dealer.DealCardToHand(player.Hand);
                 bool flip = false;
 
                 if (player is HumanPlayer)
@@ -696,7 +697,7 @@ class GameManager : CardGame, IGlobalManager
         // deal community cards
         for (int i = 0; i < amount; i++)
         {
-            TraditionalCard card = _dealer.DealCardToHand(CommunityCards.Hand);
+            TraditionalCard card = Dealer.DealCardToHand(CommunityCards.Hand);
             CommunityCards.AddDealAnimation(card, true, startTime);
             startTime += Constants.DealAnimationDuration;
         }

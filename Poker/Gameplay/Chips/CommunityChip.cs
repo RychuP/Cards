@@ -1,7 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 using Poker.UI;
-using System;
 
 namespace Poker.Gameplay.Chips;
 

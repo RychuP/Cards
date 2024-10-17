@@ -8,8 +8,6 @@ namespace Poker.Gameplay.Players;
 /// <summary>
 /// Card dealer at the poker table.
 /// </summary>
-/// <remarks>Intended to replace the <see cref="CardGame.Dealer"/>, 
-/// to allow getting the cards back from players.</remarks>
 class Dealer : Hand
 {
     PokerHand _pokerHand = PokerHand.RoyalFlush;

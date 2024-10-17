@@ -23,9 +23,7 @@ abstract class BlindChip : Chip
 
     public BlindChip(Game game, Vector2 position, Texture2D texture) 
         : base(game, position, texture)
-    {
-
-    }
+    { }
 
     /// <summary>
     /// Calculates the table position for <see cref="SmallBlindChip"/>.

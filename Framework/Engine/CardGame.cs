@@ -19,7 +19,7 @@ public abstract class CardGame
 {
     protected List<GameRule> Rules = new();
     protected List<Player> Players = new();
-    protected CardPacket Dealer;
+    protected CardPacket CardDeck;
     public int MinimumPlayers { get; protected set; }
     public int MaximumPlayers { get; protected set; }
     public string Theme { get; protected set; }
@@ -46,7 +46,7 @@ public abstract class CardGame
     public CardGame(int decks, int jokersInDeck, CardSuits suits, CardValues cardValues, SpriteFont font,
         int minimumPlayers, int maximumPlayers, GameTable gameTable, string theme, Game game)
     {
-        Dealer = new CardPacket(decks, jokersInDeck, suits, cardValues);
+        CardDeck = new CardPacket(decks, jokersInDeck, suits, cardValues);
 
         Game = game;
         MinimumPlayers = minimumPlayers;

@@ -80,8 +80,7 @@ abstract class PokerCardsHolder : Player
 
     public void ReturnCardsToDealer()
     {
-        Dealer dealer = GameManager.GetPokerDealer();
-        Hand.DealCardsToHand(dealer, Hand.Count);
+        Hand.DealCardsToHand(GameManager.Dealer, Hand.Count);
     }
 
     public bool HasCard(TraditionalCard card)

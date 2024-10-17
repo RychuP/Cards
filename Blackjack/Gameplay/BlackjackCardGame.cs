@@ -187,6 +187,7 @@ class BlackjackCardGame : CardGame
                     if (((BlackjackPlayer)Players[0]).Balance < 5)
                     {
                         EndGame();
+                        State++;
                     }
                     else
                     {
@@ -197,7 +198,11 @@ class BlackjackCardGame : CardGame
                 break;
 
             case BlackjackGameState.GameOver:
-            default: break;
+                var test = Game.Components;
+                break;
+
+            default: 
+                break;
         }
     }
 
@@ -489,7 +494,7 @@ class BlackjackCardGame : CardGame
                     if (((BlackjackPlayer)Players[playerIndex]).MadeBet)
                     {
                         // Deal a card to one of the players
-                        card = Dealer.DealCardToHand(Players[playerIndex].Hand);
+                        card = CardDeck.DealCardToHand(Players[playerIndex].Hand);
 
                         AddDealAnimation(card, _animatedHands[playerIndex], true, _dealDuration,
                             DateTime.Now + TimeSpan.FromSeconds(
@@ -497,7 +502,7 @@ class BlackjackCardGame : CardGame
                     }
                 }
                 // Deal a card to the dealer
-                card = Dealer.DealCardToHand(_dealerPlayer.Hand);
+                card = CardDeck.DealCardToHand(_dealerPlayer.Hand);
                 AddDealAnimation(card, _dealerHandComponent, dealIndex == 0, _dealDuration, DateTime.Now);
             }
         }
@@ -843,7 +848,7 @@ class BlackjackCardGame : CardGame
         int cardsDealed = 0;
         while (dealerValue <= 17)
         {
-            TraditionalCard card = Dealer.DealCardToHand(_dealerPlayer.Hand);
+            TraditionalCard card = CardDeck.DealCardToHand(_dealerPlayer.Hand);
             AddDealAnimation(card, _dealerHandComponent, true, _dealDuration,
                 DateTime.Now.AddMilliseconds(1000 * (cardsDealed + 1)));
             cardsDealed++;
@@ -886,7 +891,7 @@ class BlackjackCardGame : CardGame
     {
         _playerHandValueTexts.Clear();
         CardSounds.Shuffle.Play();
-        Dealer.Shuffle();
+        CardDeck.Shuffle();
         DisplayPlayingHands();
         State = BlackjackGameState.Shuffling;
     }
@@ -984,6 +989,7 @@ class BlackjackCardGame : CardGame
                     animComp.EstimatedTimeForAnimationsCompletion().Ticks);
             }
         }
+        TimeSpan time = TimeSpan.FromTicks(estimatedTime) + TimeSpan.FromSeconds(1);
 
         // Add a component for an empty stalling animation. This actually acts
         // as a timer.
@@ -1010,9 +1016,9 @@ class BlackjackCardGame : CardGame
         backButton.Click += BackButton_OnClick;
 
         // Add stalling animation
-        animationComponent.AddAnimation(new AnimatedGameComponentAnimation()
+        animationComponent.AddAnimation(new TimerGameComponentAnimation()
         {
-            Duration = TimeSpan.FromTicks(estimatedTime) + TimeSpan.FromSeconds(1),
+            Duration = time,
             PerformWhenDone = ResetGame,
             PerformWhenDoneArgs = new object[] { animationComponent, backButton }
         });
@@ -1026,7 +1032,6 @@ class BlackjackCardGame : CardGame
     void ResetGame(object obj)
     {
         object[] arr = (object[])obj;
-        State = BlackjackGameState.GameOver;
         ((AnimatedGameComponent)arr[0]).Visible = true;
         ((Button)arr[1]).Visible = true;
 
@@ -1195,10 +1200,10 @@ class BlackjackCardGame : CardGame
         animatedGameComponet.AddAnimation(animation);
 
         // Deal an additional cards to each of the new hands
-        TraditionalCard card = Dealer.DealCardToHand(player.Hand);
+        TraditionalCard card = CardDeck.DealCardToHand(player.Hand);
         AddDealAnimation(card, _animatedHands[playerIndex], true, _dealDuration,
             DateTime.Now + animation.EstimatedTimeForAnimationCompletion);
-        card = Dealer.DealCardToHand(player.SecondHand);
+        card = CardDeck.DealCardToHand(player.SecondHand);
         AddDealAnimation(card, _animatedSecondHands[playerIndex], true, _dealDuration,
             DateTime.Now + animation.EstimatedTimeForAnimationCompletion +
             _dealDuration);
@@ -1264,12 +1269,12 @@ class BlackjackCardGame : CardGame
         switch (player.CurrentHandType)
         {
             case HandTypes.First:
-                TraditionalCard card = Dealer.DealCardToHand(player.Hand);
+                TraditionalCard card = CardDeck.DealCardToHand(player.Hand);
                 AddDealAnimation(card, _animatedHands[playerIndex], true,
                     _dealDuration, DateTime.Now);
                 break;
             case HandTypes.Second:
-                card = Dealer.DealCardToHand(player.SecondHand);
+                card = CardDeck.DealCardToHand(player.SecondHand);
                 AddDealAnimation(card, _animatedSecondHands[playerIndex], true,
                     _dealDuration, DateTime.Now);
                 break;

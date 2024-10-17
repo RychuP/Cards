@@ -52,7 +52,7 @@ internal class TestScreen : StaticGameScreen
 
         _gameManager = Game.Services.GetService<GameManager>();
         _communityCards = _gameManager.CommunityCards;
-        _dealer = _gameManager.GetPokerDealer();
+        _dealer = _gameManager.Dealer;
         _player = _gameManager[0];
         _playerGamePosition = _player.AnimatedHand.Position;
         int x = (Constants.GameWidth - Constants.PlayerAreaWidth) / 2;

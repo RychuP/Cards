@@ -13,8 +13,6 @@ public class Button : AnimatedGameComponent
 {
     bool _isKeyDown = false;
     bool _isPressed = false;
-    readonly string _regularTexture;
-    readonly string _pressedTexture;
     public event EventHandler Click;
     public Rectangle Bounds { get; set; }
 
