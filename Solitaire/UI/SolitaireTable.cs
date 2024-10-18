@@ -2,30 +2,30 @@
 using Solitaire.Gameplay.Piles;
 using Solitaire.Managers;
 using Solitaire.Misc;
-using Solitaire.UI.AnimatedGameComponents;
 using Solitaire.UI.BaseScreens;
 
 namespace Solitaire.UI;
 
 internal class SolitaireTable : GameTable
 {
-    readonly static Vector2 PilePosition;
-    readonly static Vector2 PileSpacing = new(AnimatedPile.OutlineWidth + AnimatedPile.Spacing, 0);
+    readonly static Vector2 StockPosition;
+    readonly static Vector2 PileOffset = new(Pile.OutlineWidth + Pile.OutlineSpacing.X, 0);
 
     GameManager GameManager { get; set; }
 
     static SolitaireTable()
     {
-        int width = (int)PileSpacing.X * 7 - AnimatedPile.Spacing;
+        // calculate the width of all piles
+        int width = (int)PileOffset.X * 7 - Pile.OutlineSpacing.X;
         int x = (SolitaireGame.Width - width) / 2;
-        PilePosition = new Vector2(x, GameScreen.Margin);
+
+        // save the stock position
+        StockPosition = new Vector2(x, Pile.OutlineSpacing.Y + GameScreen.TopMargin);
     }
 
     public SolitaireTable(Game game) : 
         base(SolitaireGame.Bounds, Vector2.Zero, 1, GetPilePosition, game) 
-    {
-
-    }
+    { }
 
     static Vector2 GetPilePosition(int pileIndex)
     {
@@ -33,27 +33,26 @@ internal class SolitaireTable : GameTable
 
         // stock
         if (pileIndex == 0)
-            return PilePosition;
+            return StockPosition;
 
         // waste
         if (pileIndex == 1)
-            return PilePosition + PileSpacing;
+            return StockPosition + PileOffset - new Vector2(Pile.OutlineSpacing.X / 2, 0);
 
         // foundations
         if (pileIndex >= 2 && pileIndex <= 5)
         {
-            var horizontalOffset = PileSpacing * (pileIndex + 1);
-            return PilePosition + horizontalOffset;
+            var horizontalOffset = PileOffset * (pileIndex + 1);
+            return StockPosition + horizontalOffset;
         }
 
         // tableaus
         else
         {
             int tableauIndex = pileIndex - 6;
-            var verticalOffset = new Vector2(0, AnimatedPile.OutlineHeight + AnimatedPile.Spacing);
-            var horizontalOffset = PileSpacing * tableauIndex;
-            return PilePosition + verticalOffset + horizontalOffset;
-                ;
+            var verticalOffset = new Vector2(0, Pile.OutlineHeight + Pile.OutlineSpacing.Y);
+            var horizontalOffset = PileOffset * tableauIndex;
+            return StockPosition + verticalOffset + horizontalOffset;
         }
     }
 }

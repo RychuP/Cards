@@ -34,8 +34,15 @@ enum GameButtonState
     Pressed
 }
 
-public enum Theme
+public enum Difficulty
 {
-    Red,
-    Blue
+    Easy, 
+    Hard
+}
+
+public enum TextAlignment
+{
+    LeftAligned,
+    Centered,
+    RightAligned
 }

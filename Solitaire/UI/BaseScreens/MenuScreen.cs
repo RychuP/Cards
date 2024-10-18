@@ -57,10 +57,19 @@ abstract internal class MenuScreen : GameScreen
             button.Show();
     }
 
-    protected void AddButton(string text)
+    protected void AddButton(Button button)
+    {
+        Buttons.Add(button);
+        AdjustButtonPositions();
+    }
+
+    protected void AddButton(string text) =>
+        AddButton(new Button(text, Game));
+
+    void AdjustButtonPositions()
     {
         // calculate left most x
-        int width = (Buttons.Count + 1) * (Button.Width + Button.Spacing) - Button.Spacing;
+        int width = (Buttons.Count) * (Button.Width + Button.Spacing) - Button.Spacing;
         int x = (SolitaireGame.Width - width) / 2;
 
         // adjust positions of the previous buttons
@@ -69,10 +78,6 @@ abstract internal class MenuScreen : GameScreen
             button.ChangePosition(x);
             x += Button.Width + Button.Spacing;
         }
-
-        // create a new button
-        Button newButton = new(text, x, Game);
-        Buttons.Add(newButton);
     }
 
     public Button GetButton(string text) => Buttons.Find(b => b.Text == text);

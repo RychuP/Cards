@@ -17,3 +17,10 @@ class PositionChangedEventArgs : EventArgs
     public PositionChangedEventArgs(Vector2 prevPosition, Vector2 newPosition) =>
         (PrevPosition, NewPosition) = (prevPosition, newPosition);
 }
+
+class ClickEventArgs : EventArgs
+{
+    public Point Position { get; }
+    public ClickEventArgs(Point position) =>
+        Position = position;
+}

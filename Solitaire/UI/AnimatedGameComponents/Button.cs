@@ -39,6 +39,7 @@ internal class Button : AnimatedGameComponent
         Text = text;
         ChangePosition(x);
         DrawOrder = int.MaxValue;
+        Hide();
     }
 
     void SetTextPosition()

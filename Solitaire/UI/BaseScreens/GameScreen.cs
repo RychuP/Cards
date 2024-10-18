@@ -5,7 +5,9 @@ namespace Solitaire.UI.BaseScreens;
 
 abstract internal class GameScreen : DrawableGameComponent
 {
-    public static readonly int Margin = 30;
+    public static readonly int TopMargin = 5;
+    public static readonly int BottomMargin = 30;
+    public static readonly int HorizontalMargin = 30;
     static readonly Color BackgroundColor = new(50, 110, 51);
     public GameManager GameManager { get; }
 
@@ -33,6 +35,7 @@ abstract internal class GameScreen : DrawableGameComponent
         Enabled = false;
     }
 
+    // draws green background with pattern
     public override void Draw(GameTime gameTime)
     {
         var sb = Game.Services.GetService<SpriteBatch>();
