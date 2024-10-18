@@ -104,6 +104,21 @@ internal class GameManager : CardGame
         HandleKeyboardEscapeButton();
     }
 
+    /// <summary>
+    /// Checks if two cards are of consecutive value. The first card must be of lower value.
+    /// </summary>
+    public bool CheckConsecutiveValue(TraditionalCard c1, TraditionalCard c2)
+    {
+        int val1 = GetCardValue(c1);
+        int val2 = GetCardValue(c2);
+        if (val1 + 1 == val2)
+            return true;
+        return false;
+    }
+
+    public bool CheckOppositeColor(TraditionalCard c1, TraditionalCard c2) =>
+        (c1.IsRed() && c2.IsBlack()) || (c1.IsBlack() && c2.IsRed());
+
     public override void StartPlaying()
     {
         

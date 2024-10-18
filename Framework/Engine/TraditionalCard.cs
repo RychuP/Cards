@@ -112,4 +112,10 @@ public class TraditionalCard : IComparable<TraditionalCard>
             }
         }
     }
+
+    public bool IsRed() =>
+        Type == CardSuits.Heart || Type == CardSuits.Diamond;
+
+    public bool IsBlack() =>
+        Type == CardSuits.Club || Type == CardSuits.Spade;
 }

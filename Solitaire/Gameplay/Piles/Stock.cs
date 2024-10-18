@@ -9,7 +9,12 @@ namespace Solitaire.Gameplay.Piles;
 
 internal class Stock : Pile
 {
+    /// <summary>
+    /// Raised when there are no cards left in this pile.
+    /// </summary>
     public event EventHandler IsEmpty;
+
+    public bool CardsDealt { get; private set; }
 
     public Stock(GameManager gm) : base(gm, Place.Stock, true)
     {
@@ -28,7 +33,9 @@ internal class Stock : Pile
                 if (e.PrevScreen is StartScreen)
                 {
                     Shuffle();
+                    CardsDealt = false;
                     DealTablueaCards();
+                    CardsDealt = true;
                 }
                 break;
         }
@@ -39,6 +46,7 @@ internal class Stock : Pile
         int cardsCount = 1;
         foreach (var tableau in GameManager.Tableaus)
             DealCardsToHand(tableau, cardsCount++);
+
     }
 
     void DealWasteCards()
