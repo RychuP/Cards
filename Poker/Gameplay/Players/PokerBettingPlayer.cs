@@ -459,9 +459,6 @@ class PokerBettingPlayer : PokerCardsHolder
         if (newBetAmount < BetAmount)
             throw new ArgumentException("Cannot call bets lower than the current bet.");
 
-        if (newBetAmount > (Balance + BetAmount))
-            throw new ArgumentException("Insufficient balance to call.");
-
         if (newBetAmount >= (Balance + BetAmount))
             AllIn();
         else
@@ -482,9 +479,6 @@ class PokerBettingPlayer : PokerCardsHolder
     {
         if (newBetAmount < 0)
             throw new ArgumentException("Bet amount cannot be negative.");
-
-        if (newBetAmount > (Balance + BetAmount))
-            throw new ArgumentException("Insufficient balance to raise.");
 
         if (newBetAmount >= (Balance + BetAmount))
         {
