@@ -4,12 +4,13 @@ using Solitaire.UI.AnimatedGameComponents;
 using Framework.Engine;
 using System.Linq;
 using Framework.Misc;
+using Solitaire.UI.Screens;
 
 namespace Solitaire.Gameplay.Piles;
 
 internal class Foundation : Pile
 {
-    public Foundation(GameManager gm, Place place) : base(gm, place, true)
+    public Foundation(GameManager gm, PilePlace place) : base(gm, place, true)
     {
         AnimatedPile = new AnimatedFoundation(this);
     }

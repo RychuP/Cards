@@ -5,14 +5,14 @@ using Solitaire.UI.Buttons;
 
 namespace Solitaire.UI.Screens;
 
-internal class PauseScreen : MenuScreen
+internal class WinScreen : MenuScreen
 {
-    public Button ContinueButton => GetButton(Strings.Continue);
+    public Button RestartButton => GetButton(Strings.Restart);
     public Button ExitButton => GetButton(Strings.Exit);
 
-    public PauseScreen(GameManager gm) : base(gm, Art.PauseTitle)
+    public WinScreen(GameManager gm) : base(gm, Art.WinTitle)
     {
-        AddButton(Strings.Continue);
+        AddButton(Strings.Restart);
         AddButton(Strings.Exit);
     }
 }

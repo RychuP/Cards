@@ -6,20 +6,23 @@ using Solitaire.UI;
 using Solitaire.UI.AnimatedGameComponents;
 using Solitaire.UI.BaseScreens;
 using Solitaire.UI.Screens;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Solitaire.Gameplay.Piles;
 
 internal class Tableau : Pile
 {
-    public Tableau(GameManager gm, Place place) : base(gm, place, true)
+    AnimatedTableau AnimatedTablea => AnimatedPile as AnimatedTableau;
+
+    public Tableau(GameManager gm, PilePlace place) : base(gm, place, true)
     {
         Point size = new(Bounds.Width, SolitaireGame.Height - (int)Position.Y - GameScreen.HorizontalMargin);
         Bounds = new Rectangle(Bounds.Location, size);
         AnimatedPile = new AnimatedTableau(this);
 
         // register event handlers
-        GameManager.InputManager.Click += InputManager_OnClick;
+        gm.InputManager.Click += InputManager_OnClick;
     }
 
     public bool CanReceiveCard(TraditionalCard card)
@@ -39,28 +42,58 @@ internal class Tableau : Pile
         return false;
     }
 
+    /// <summary>
+    /// Moves all cards starting with the given card to another pile.
+    /// </summary>
+    void MoveCards(Pile pile, TraditionalCard startCard)
+    {
+        var cardsToMove = new List<TraditionalCard>();
+
+        // find all cards starting with the given card
+        for (int i = Cards.Count - 1; i >= 0; i--) 
+        {
+            var card = Cards[i];
+            cardsToMove.Insert(0, card);
+            if (card == startCard)
+                break;
+        }
+
+        // move all found cards to the destination pile
+        if (cardsToMove.Count > 0)
+        {
+            foreach (var card in cardsToMove)
+                card.MoveToHand(pile);
+        }
+    }
+
     void InputManager_OnClick(object o, ClickEventArgs e)
     {
         if (Bounds.Contains(e.Position) && Count > 0)
         {
-            var card = Cards.Last();
+            // get card from click position
+            var card = AnimatedTablea.GetCardFromScreenPosition(e.Position);
+            if (card is null) return;
 
-            // check foundations first
-            foreach (var foundation in GameManager.Foundations)
+            // foundations car receive only one card at a time
+            var lastCard = Cards[Count - 1];
+            if (card == lastCard)
             {
-                if (foundation.CanReceiveCard(card))
+                foreach (var foundation in GameManager.Foundations)
                 {
-                    card.MoveToHand(foundation);
-                    return;
+                    if (foundation.CanReceiveCard(card))
+                    {
+                        card.MoveToHand(foundation);
+                        return;
+                    }
                 }
             }
-
+            
             // check tableaus
             foreach (var tableau in GameManager.Tableaus)
             {
                 if (tableau.CanReceiveCard(card))
                 {
-                    card.MoveToHand(tableau);
+                    MoveCards(tableau, card);
                     return;
                 }
             }

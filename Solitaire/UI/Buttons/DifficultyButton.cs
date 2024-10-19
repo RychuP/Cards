@@ -1,6 +1,6 @@
 ﻿using Solitaire.Managers;
 
-namespace Solitaire.UI.AnimatedGameComponents;
+namespace Solitaire.UI.Buttons;
 
 internal class DifficultyButton : Button
 {

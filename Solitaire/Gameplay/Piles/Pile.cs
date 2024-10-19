@@ -33,9 +33,9 @@ internal class Pile : Hand
     /// <summary>
     /// Place that the pile occupies on the table.
     /// </summary>
-    public Place Place { get; }
+    public PilePlace Place { get; }
 
-    public Pile(GameManager gm, Place place, bool outlineVisible)
+    public Pile(GameManager gm, PilePlace place, bool outlineVisible)
     {
         Place = place;
         GameManager = gm;
@@ -57,7 +57,14 @@ internal class Pile : Hand
         switch (e.NewScreen)
         {
             case StartScreen:
-                if (e.PrevScreen is PauseScreen)
+                // return the cards to stock when the game ends
+                if (e.PrevScreen is PauseScreen && this is not Stock)
+                    ReturnCardsToStock();
+                break;
+
+            case WinScreen:
+                // return the cards to stock when the game ends
+                if (e.PrevScreen is GameplayScreen && this is not Stock)
                     ReturnCardsToStock();
                 break;
         }

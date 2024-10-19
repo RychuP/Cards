@@ -1,6 +1,6 @@
 ﻿namespace Solitaire.Misc;
 
-public enum Place
+public enum PilePlace
 {
     Stock,
     Waste,

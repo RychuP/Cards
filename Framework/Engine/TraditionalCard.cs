@@ -1,4 +1,5 @@
 using Framework.Misc;
+using Microsoft.Xna.Framework;
 
 namespace Framework.Engine;
 
@@ -15,8 +16,10 @@ namespace Framework.Engine;
 /// </remarks>
 public class TraditionalCard : IComparable<TraditionalCard>
 {
+    // dimensions of the card assets
     public static readonly int Width = 80;
     public static readonly int Height = 106;
+    public static readonly Point Size = new(Width, Height);
 
     /// <summary>
     /// Whether the ace should be considered lowest or highest value.
@@ -89,6 +92,7 @@ public class TraditionalCard : IComparable<TraditionalCard>
         hand.Add(this);
     }
 
+    // orders cards by values
     public int CompareTo(TraditionalCard other)
     {
         if (Value == other.Value)

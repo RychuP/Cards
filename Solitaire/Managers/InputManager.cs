@@ -9,6 +9,7 @@ namespace Solitaire.Managers;
 class InputManager : GameComponent
 {
     public event EventHandler<ClickEventArgs> Click;
+    public event EventHandler EscapePressed;
 
     /// <summary>
     /// Max distance from the initial mouse down position to class the event as a click.
@@ -18,11 +19,21 @@ class InputManager : GameComponent
     public static KeyboardState PrevKeyboardState { get; private set; }
     Point _mouseDownInitialPosition;
     public bool MouseIsDown { get; private set; }
+    public GameManager GameManager { get; }
 
-    public InputManager(Game game) : base(game)
+    public InputManager(GameManager gm) : base(gm.Game)
     {
+        GameManager = gm;
         Game.Components.Add(this);
+
+        // make it update last
         UpdateOrder = int.MaxValue;
+    }
+
+    public override void Initialize()
+    {
+        // register event handlers
+        GameManager.ScreenManager.ScreenChanged += ScreenManager_OnScreenChanged;
     }
 
     public override void Update(GameTime gameTime)
@@ -52,6 +63,10 @@ class InputManager : GameComponent
                 break;
         }
 
+        // check escape button
+        if (IsNewKeyPress(Keys.Escape))
+            OnEscapeButtonPressed();
+
         PrevMouseState = Mouse.GetState();
         PrevKeyboardState = Keyboard.GetState();
     }
@@ -67,5 +82,16 @@ class InputManager : GameComponent
     {
         var args = new ClickEventArgs(position);
         Click?.Invoke(this, args);
+    }
+
+    void OnEscapeButtonPressed()
+    {
+        EscapePressed?.Invoke(this, EventArgs.Empty);
+    }
+
+    void ScreenManager_OnScreenChanged(object o, ScreenChangedEventArgs e)
+    {
+        // prevent invoking clicks on mouse button release when changing screens
+        MouseIsDown = false;
     }
 }

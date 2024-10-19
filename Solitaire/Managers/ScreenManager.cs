@@ -3,7 +3,6 @@ using Solitaire.Misc;
 using Solitaire.UI.BaseScreens;
 using Solitaire.UI.Screens;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Solitaire.Managers;
 
@@ -35,24 +34,31 @@ internal class ScreenManager
     public ScreenManager(GameManager gm)
     {
         GameManager = gm;
-        GameManager.EscapePressed += GameManager_OnEscapeButtonPressed;
 
+        // create screens
         var startScreen = new StartScreen(gm);
-        startScreen.GetButton(Strings.Start).Click += StartScreen_StartButton_OnClick;
-        startScreen.GetButton(Strings.Options).Click += StartScreen_OptionsButton_OnClick;
-        AddScreen(startScreen);
-
         var optionsScreen = new OptionsScreen(gm);
-        optionsScreen.GetButton(Strings.Exit).Click += OptionsScreen_ExitButton_OnClick;
-        AddScreen(optionsScreen);
-
         var pauseScreen = new PauseScreen(gm);
-        pauseScreen.GetButton(Strings.Continue).Click += PauseScreen_ContinueButton_OnClick;
-        pauseScreen.GetButton(Strings.Exit).Click += PauseScreen_ExitButton_OnClick;
+        var winScreen = new WinScreen(gm);
+        AddScreen(startScreen);
+        AddScreen(optionsScreen);
         AddScreen(pauseScreen);
-
+        AddScreen(winScreen);
         AddScreen(new GameplayScreen(gm));
+
+        // show start screen
         ShowScreen<StartScreen>();
+
+        // register event handlers
+        GameManager.InputManager.EscapePressed += InputManager_OnEscapeButtonPressed;
+        GameManager.WinRule.RuleMatch += (o, e) => ShowScreen<WinScreen>();
+        startScreen.StartButton.Click += (o, e) => ShowScreen<GameplayScreen>();
+        startScreen.OptionsButton.Click += (o, e) => ShowScreen<OptionsScreen>();
+        optionsScreen.ExitButton.Click += (o, e) => ShowScreen<StartScreen>();
+        pauseScreen.ContinueButton.Click += (o, e) => ShowScreen<GameplayScreen>();
+        pauseScreen.ExitButton.Click += (o, e) => ShowScreen<StartScreen>();
+        winScreen.RestartButton.Click += (o, e) => ShowScreen<GameplayScreen>();
+        winScreen.ExitButton.Click += (o, e) => ShowScreen<StartScreen>();
     }
 
     void AddScreen(GameScreen screen)
@@ -74,7 +80,7 @@ internal class ScreenManager
     public static Texture2D CreateTexture(GraphicsDevice device, int width, int height, Color color)
     {
         //initialize a texture
-        Texture2D texture = new Texture2D(device, width, height);
+        Texture2D texture = new(device, width, height);
 
         //the array holds the color for each pixel in the texture
         Color[] data = new Color[width * height];
@@ -93,26 +99,19 @@ internal class ScreenManager
         ScreenChanged?.Invoke(this, new ScreenChangedEventArgs(prevScreen, newScreen));
     }
 
-    void GameManager_OnEscapeButtonPressed(object o, EventArgs e)
+    void InputManager_OnEscapeButtonPressed(object o, EventArgs e)
     {
-        if (Screen is GameplayScreen)
-            ShowScreen<PauseScreen>();
-        else if (Screen is PauseScreen || Screen is OptionsScreen)
-            ShowScreen<StartScreen>();
+        switch (Screen)
+        {
+            case StartScreen:
+                Game.Exit();
+                break;
+            case GameplayScreen:
+                ShowScreen<PauseScreen>();
+                break;
+            default:
+                ShowScreen<StartScreen>();
+                break;
+        }
     }
-
-    void StartScreen_StartButton_OnClick(object o, EventArgs e) =>
-        ShowScreen<GameplayScreen>();
-
-    void StartScreen_OptionsButton_OnClick(object o, EventArgs e) =>
-        ShowScreen<OptionsScreen>();
-
-    void PauseScreen_ExitButton_OnClick(object o, EventArgs e) =>
-        ShowScreen<StartScreen>();
-
-    void PauseScreen_ContinueButton_OnClick(object o, EventArgs e) =>
-        ShowScreen<GameplayScreen>();
-
-    void OptionsScreen_ExitButton_OnClick(object o, EventArgs e) =>
-        ShowScreen<StartScreen>();
 }

@@ -3,12 +3,12 @@ using Solitaire.Managers;
 
 namespace Solitaire.UI.TextBoxes;
 
-internal class CardCounterTextBox : TextBox
+internal class CardCounter : TextBox
 {
     static readonly int Padding = 1;
     readonly Pile _pile;
 
-    public CardCounterTextBox(Pile pile, GameManager gm) : base(gm)
+    public CardCounter(Pile pile, GameManager gm) : base(gm)
     {
         _pile = pile;
         Visible = false;

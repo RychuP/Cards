@@ -14,39 +14,20 @@ internal class Stock : Pile
     /// </summary>
     public event EventHandler IsEmpty;
 
-    public bool CardsDealt { get; private set; }
-
-    public Stock(GameManager gm) : base(gm, Place.Stock, true)
+    public Stock(GameManager gm) : base(gm, PilePlace.Stock, true)
     {
         AnimatedPile = new AnimatedPile(this);
 
         // register event handlers
+        var startScreen = gm.ScreenManager.GetScreen<StartScreen>();
         gm.InputManager.Click += InputManager_OnClick;
-        gm.ScreenManager.ScreenChanged += ScreenManager_OnScreenChanged;   
     }
 
-    void ScreenManager_OnScreenChanged(object o, ScreenChangedEventArgs e)
-    {
-        switch (e.NewScreen)
-        {
-            case GameplayScreen:
-                if (e.PrevScreen is StartScreen)
-                {
-                    Shuffle();
-                    CardsDealt = false;
-                    DealTablueaCards();
-                    CardsDealt = true;
-                }
-                break;
-        }
-    }
-
-    void DealTablueaCards()
+    public void DealTablueaCards()
     {
         int cardsCount = 1;
         foreach (var tableau in GameManager.Tableaus)
             DealCardsToHand(tableau, cardsCount++);
-
     }
 
     void DealWasteCards()

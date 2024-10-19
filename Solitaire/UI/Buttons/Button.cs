@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using Solitaire.Managers;
 using Solitaire.Misc;
 
-namespace Solitaire.UI.AnimatedGameComponents;
+namespace Solitaire.UI.Buttons;
 
 internal class Button : AnimatedGameComponent
 {

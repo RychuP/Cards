@@ -29,7 +29,7 @@ internal class SolitaireTable : GameTable
 
     static Vector2 GetPilePosition(int pileIndex)
     {
-        var place = (Place)pileIndex;
+        var place = (PilePlace)pileIndex;
 
         // stock
         if (pileIndex == 0)

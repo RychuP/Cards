@@ -21,11 +21,11 @@ internal class GameplayScreen : GameScreen
     public override void Initialize()
     {
         base.Initialize();
-        _cardCounters.Add(new CardCounterTextBox(GameManager.Stock, GameManager));
+        _cardCounters.Add(new CardCounter(GameManager.Stock, GameManager));
         foreach (var tableau in GameManager.Tableaus)
-            _cardCounters.Add(new CardCounterTextBox(tableau, GameManager));
+            _cardCounters.Add(new CardCounter(tableau, GameManager));
         foreach (var foundation in GameManager.Foundations)
-            _cardCounters.Add(new CardCounterTextBox(foundation, GameManager));
+            _cardCounters.Add(new CardCounter(foundation, GameManager));
     }
 
     public override void Draw(GameTime gameTime)

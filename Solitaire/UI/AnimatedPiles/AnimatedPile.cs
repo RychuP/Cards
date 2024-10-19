@@ -74,7 +74,8 @@ internal class AnimatedPile : AnimatedHandGameComponent
 
     protected virtual void Hand_OnCardReceived(object o, CardEventArgs e)
     {
+        // make the cards visible (especially important during gameplay)
         var animCard = GetCardGameComponent(e.Card);
-        if (Visible) animCard.Visible = true;
+        animCard.Visible = Visible;
     }
 }

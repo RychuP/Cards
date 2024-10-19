@@ -3,6 +3,7 @@ using Framework.Misc;
 using Solitaire.Managers;
 using Solitaire.Misc;
 using Solitaire.UI.AnimatedGameComponents;
+using Solitaire.UI.Screens;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,7 +11,7 @@ namespace Solitaire.Gameplay.Piles;
 
 internal class Waste : Pile
 {
-    public Waste(GameManager gm) : base(gm, Place.Waste, false)
+    public Waste(GameManager gm) : base(gm, PilePlace.Waste, false)
     {
         Point size = new(Bounds.Width + CardSpacing.X * 2, Bounds.Height);
         Bounds = new Rectangle(Bounds.Location, size);

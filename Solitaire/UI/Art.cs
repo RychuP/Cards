@@ -11,6 +11,7 @@ internal class Art
     public static Texture2D SolitaireTitle { get; private set; }
     public static Texture2D OptionsTitle { get; private set; }
     public static Texture2D PauseTitle { get; private set; }
+    public static Texture2D WinTitle { get; private set; }
 
     public static void Initialize(Game game)
     {
@@ -21,6 +22,7 @@ internal class Art
         SolitaireTitle = LoadTexture("solitaire_title");
         OptionsTitle = LoadTexture("options_title");
         PauseTitle = LoadTexture("pause_title");
+        WinTitle = LoadTexture("solitaire_title");
 
         Texture2D LoadTexture(string textureName) =>
             game.Content.Load<Texture2D>(textureName);

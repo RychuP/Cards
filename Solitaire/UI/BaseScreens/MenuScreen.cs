@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework.Graphics;
 using Solitaire.Managers;
-using Solitaire.UI.AnimatedGameComponents;
+using Solitaire.UI.Buttons;
 using System.Collections.Generic;
 
 namespace Solitaire.UI.BaseScreens;
