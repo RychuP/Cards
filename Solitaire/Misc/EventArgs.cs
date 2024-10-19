@@ -18,9 +18,27 @@ class PositionChangedEventArgs : EventArgs
         (PrevPosition, NewPosition) = (prevPosition, newPosition);
 }
 
-class ClickEventArgs : EventArgs
+class PointEventArgs : EventArgs
 {
     public Point Position { get; }
-    public ClickEventArgs(Point position) =>
+    public PointEventArgs(Point position) =>
         Position = position;
+}
+
+class MouseDragEventArgs : EventArgs
+{
+    /// <summary>
+    /// Current mouse position.
+    /// </summary>
+    public Point Position { get; }
+
+    /// <summary>
+    /// Mouse initial position when started dragging.
+    /// </summary>
+    public Point InitialPosition { get; }
+    public MouseDragEventArgs(Point position, Point initialPosition)
+    {
+        Position = position;
+        InitialPosition = initialPosition;
+    }
 }

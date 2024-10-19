@@ -1,5 +1,4 @@
 ﻿using Framework.Engine;
-using Microsoft.Xna.Framework.Input;
 using Solitaire.Managers;
 using Solitaire.Misc;
 using Solitaire.UI;
@@ -49,6 +48,13 @@ internal class Pile : Hand
 
     protected void ReturnCardsToStock() =>
         DealCardsToHand(GameManager.Stock, Count);
+
+    /// <summary>
+    /// Called from animated pile when the left mouse button is released.
+    /// </summary>
+    /// <param name="pile"></param>
+    /// <param name="startCard"></param>
+    public virtual void DropCards(Pile pile, TraditionalCard startCard) { }
 
     protected virtual void OnClick(Point position) { }
 

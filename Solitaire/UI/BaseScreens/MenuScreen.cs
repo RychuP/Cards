@@ -64,7 +64,7 @@ abstract internal class MenuScreen : GameScreen
     }
 
     protected void AddButton(string text) =>
-        AddButton(new Button(text, Game));
+        AddButton(new Button(text, GameManager));
 
     void AdjustButtonPositions()
     {

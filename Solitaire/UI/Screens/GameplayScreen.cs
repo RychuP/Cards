@@ -34,6 +34,11 @@ internal class GameplayScreen : GameScreen
         return;
         var sb = Game.Services.GetService<SpriteBatch>();
         sb.Begin();
+        if (GameManager.InputManager.IsDragging)
+        {
+            var pos = GameManager.InputManager.MousePosition.ToVector2();
+            sb.DrawString(GameManager.Font, "X", pos , Color.Pink);
+        }
         sb.End();
     }
 

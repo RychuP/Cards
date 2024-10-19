@@ -4,7 +4,7 @@ namespace Solitaire.UI.Buttons;
 
 internal class DifficultyButton : Button
 {
-    public DifficultyButton(GameManager gm) : base(gm.Difficulty.ToString(), gm.Game)
+    public DifficultyButton(GameManager gm) : base(gm.Difficulty.ToString(), gm)
     {
         gm.DifficultyChanged += GameManager_OnDifficultyChanged;
     }

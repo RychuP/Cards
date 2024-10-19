@@ -67,7 +67,7 @@ internal class Stock : Pile
         IsEmpty?.Invoke(this, EventArgs.Empty);
     }
 
-    void InputManager_OnClick(object o, ClickEventArgs e)
+    void InputManager_OnClick(object o, PointEventArgs e)
     {
         if (Bounds.Contains(e.Position))
             DealWasteCards();

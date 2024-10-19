@@ -1,9 +1,6 @@
 ﻿using Framework.Engine;
 using Framework.Misc;
 using Solitaire.Gameplay.Piles;
-using Solitaire.Misc;
-using Solitaire.UI.Screens;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Solitaire.UI.AnimatedGameComponents;
@@ -37,7 +34,7 @@ internal class AnimatedTableau : AnimatedPile
     /// <param name="position">Usually the position from the mouse click.</param>
     /// <remarks>Only face up cards are taken into consideration.</remarks>
     /// <returns>Card if found, otherwise null.</returns>
-    public TraditionalCard GetCardFromScreenPosition(Point position)
+    public override TraditionalCard GetCardFromPosition(Point position)
     {
         var lastAnimCard = AnimatedCards.Last();
         for (int i = 0; i < Hand.Count; i++)

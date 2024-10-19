@@ -29,7 +29,7 @@ internal class Waste : Pile
             DealCardToHand(GameManager.Stock);
     }
 
-    void InputManager_OnClick(object o, ClickEventArgs e)
+    void InputManager_OnClick(object o, PointEventArgs e)
     {
         if (Bounds.Contains(e.Position) && Count > 0)
         {

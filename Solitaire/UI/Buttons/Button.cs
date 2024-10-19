@@ -26,17 +26,21 @@ internal class Button : AnimatedGameComponent
     Vector2 _boldFontTextPos;
     Vector2 _boldFontWithOffsetTextPos;
 
-    public GameButtonState State { get; private set; }
+    // font used
     SpriteFont _currentFont;
 
+    public GameButtonState State { get; private set; }
+    GameManager GameManager { get; }
+
     // constructor for buttons with variable position
-    public Button(string text, Game game) : this(text, 0, game)
+    public Button(string text, GameManager gm) : this(text, 0, gm)
     { }
 
     // constructor for static buttons
-    public Button(string text, int x, Game game) : base(game)
+    public Button(string text, int x, GameManager gm) : base(gm.Game)
     {
         Text = text;
+        GameManager = gm;
         ChangePosition(x);
         DrawOrder = int.MaxValue;
         Hide();
@@ -123,7 +127,7 @@ internal class Button : AnimatedGameComponent
 
             // check for clicks
             if (mouseState.LeftButton == ButtonState.Released &&
-                InputManager.PrevMouseState.LeftButton == ButtonState.Pressed)
+                GameManager.InputManager.PrevMouseState.LeftButton == ButtonState.Pressed)
             {
                 OnClick();
             }

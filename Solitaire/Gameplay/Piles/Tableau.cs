@@ -66,15 +66,30 @@ internal class Tableau : Pile
         }
     }
 
-    void InputManager_OnClick(object o, ClickEventArgs e)
+    /// <inheritdoc/>
+    public override void DropCards(Pile pile, TraditionalCard startCard)
+    {
+        // foundations can receive only one card at a time
+        if (pile is Foundation foundation && startCard == Cards[Count - 1] &&
+            foundation.CanReceiveCard(startCard))
+        {
+            startCard.MoveToHand(foundation);
+        }
+        else if (pile is Tableau tableau && tableau.CanReceiveCard(startCard))
+        {
+            MoveCards(tableau, startCard);
+        }
+    }
+
+    void InputManager_OnClick(object o, PointEventArgs e)
     {
         if (Bounds.Contains(e.Position) && Count > 0)
         {
             // get card from click position
-            var card = AnimatedTablea.GetCardFromScreenPosition(e.Position);
+            var card = AnimatedTablea.GetCardFromPosition(e.Position);
             if (card is null) return;
 
-            // foundations car receive only one card at a time
+            // foundations can receive only one card at a time
             var lastCard = Cards[Count - 1];
             if (card == lastCard)
             {

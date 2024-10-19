@@ -103,6 +103,25 @@ internal class GameManager : CardGame
     }
 
     /// <summary>
+    /// Returns the pile whose bounds contain given position. Used to find card destinations for mouse drops.
+    /// </summary>
+    /// <remarks>Only tableaus and foundations are searched.</remarks>
+    public Pile GetPileFromPosition(Point position)
+    {
+        foreach (var tableau in Tableaus)
+        {
+            if (tableau.Bounds.Contains(position))
+                return tableau;
+        }
+        foreach (var foundation in Foundations)
+        {
+            if (foundation.Bounds.Contains(position))
+                return foundation;
+        }
+        return null;
+    }
+
+    /// <summary>
     /// Checks if two cards are of consecutive value. The first card must be of lower value.
     /// </summary>
     public bool CheckConsecutiveValue(TraditionalCard c1, TraditionalCard c2)
@@ -114,7 +133,7 @@ internal class GameManager : CardGame
         return false;
     }
 
-    public bool CheckOppositeColor(TraditionalCard c1, TraditionalCard c2) =>
+    public static bool CheckOppositeColor(TraditionalCard c1, TraditionalCard c2) =>
         (c1.IsRed() && c2.IsBlack()) || (c1.IsBlack() && c2.IsRed());
 
     public override void StartPlaying()
