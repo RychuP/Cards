@@ -2,7 +2,7 @@
 using Solitaire.Managers;
 using Solitaire.Misc;
 using Solitaire.UI;
-using Solitaire.UI.AnimatedGameComponents;
+using Solitaire.UI.AnimatedPiles;
 using Solitaire.UI.Screens;
 
 namespace Solitaire.Gameplay.Piles;

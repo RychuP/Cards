@@ -7,7 +7,7 @@ using Solitaire.Managers;
 using Solitaire.Misc;
 using Solitaire.UI.Screens;
 
-namespace Solitaire.UI.AnimatedGameComponents;
+namespace Solitaire.UI.AnimatedPiles;
 
 internal class AnimatedPile : AnimatedHandGameComponent
 {
@@ -109,7 +109,7 @@ internal class AnimatedPile : AnimatedHandGameComponent
         {
             DraggedCard = GetCardFromPosition(e.Position);
 
-            
+
             if (DraggedCard != null)
             {
                 // remove and add cards from the game components to adjust their draw order
@@ -120,7 +120,7 @@ internal class AnimatedPile : AnimatedHandGameComponent
                     var card = Hand[i];
                     if (!cardFound)
                         cardFound = card == DraggedCard;
-                    
+
                     if (cardFound)
                     {
                         var animCard = GetCardGameComponent(card);

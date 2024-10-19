@@ -1,6 +1,6 @@
 ﻿using Solitaire.Misc;
 using Solitaire.Managers;
-using Solitaire.UI.AnimatedGameComponents;
+using Solitaire.UI.AnimatedPiles;
 using Framework.Engine;
 using System.Linq;
 using Framework.Misc;

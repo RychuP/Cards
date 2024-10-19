@@ -3,13 +3,13 @@ using Microsoft.Xna.Framework.Graphics;
 using Solitaire.Gameplay.Piles;
 using Solitaire.Managers;
 
-namespace Solitaire.UI.AnimatedGameComponents;
+namespace Solitaire.UI.AnimatedPiles;
 
 internal class AnimatedFoundation : AnimatedPile
 {
     public AnimatedFoundation(Foundation foundation) : base(foundation)
     {
-        
+
     }
 
     protected override void Hand_OnCardReceived(object o, CardEventArgs e)

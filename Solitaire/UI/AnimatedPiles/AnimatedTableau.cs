@@ -3,7 +3,7 @@ using Framework.Misc;
 using Solitaire.Gameplay.Piles;
 using System.Linq;
 
-namespace Solitaire.UI.AnimatedGameComponents;
+namespace Solitaire.UI.AnimatedPiles;
 
 internal class AnimatedTableau : AnimatedPile
 {

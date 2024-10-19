@@ -3,7 +3,7 @@ using Framework.Misc;
 using Solitaire.Managers;
 using Solitaire.Misc;
 using Solitaire.UI;
-using Solitaire.UI.AnimatedGameComponents;
+using Solitaire.UI.AnimatedPiles;
 using Solitaire.UI.BaseScreens;
 using Solitaire.UI.Screens;
 using System.Collections.Generic;

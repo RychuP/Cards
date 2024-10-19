@@ -1,6 +1,6 @@
 ﻿using Solitaire.Managers;
 using Solitaire.Misc;
-using Solitaire.UI.AnimatedGameComponents;
+using Solitaire.UI.AnimatedPiles;
 using Solitaire.UI.BaseScreens;
 using Solitaire.UI.Buttons;
 

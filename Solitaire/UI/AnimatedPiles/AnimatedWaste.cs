@@ -5,7 +5,7 @@ using Solitaire.Managers;
 using Solitaire.Misc;
 using System;
 
-namespace Solitaire.UI.AnimatedGameComponents;
+namespace Solitaire.UI.AnimatedPiles;
 
 internal class AnimatedWaste : AnimatedPile
 {
@@ -30,7 +30,7 @@ internal class AnimatedWaste : AnimatedPile
         }
         return new Vector2(Pile.CardSpacing.X * index, 0);
     }
-        
+
     protected override void Hand_OnCardReceived(object o, CardEventArgs e)
     {
         base.Hand_OnCardReceived(o, e);

@@ -36,7 +36,7 @@ internal class TextBox : DrawableGameComponent
         sb.Begin();
 
         var texture = ScreenManager.CreateTexture(Game.GraphicsDevice, Bounds.Width,
-            Bounds.Height, Color.LightBlue);
+            Bounds.Height, Color.ForestGreen);
         sb.Draw(texture, Bounds, Color.White);
 
         var textSize = GameManager.Font.MeasureString(Text);

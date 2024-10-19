@@ -5,7 +5,7 @@ using Solitaire.Gameplay.Piles;
 using Solitaire.Gameplay.Rules;
 using Solitaire.Misc;
 using Solitaire.UI;
-using Solitaire.UI.AnimatedGameComponents;
+using Solitaire.UI.AnimatedPiles;
 using Solitaire.UI.Screens;
 using System.Collections.Generic;
 
