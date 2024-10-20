@@ -15,18 +15,18 @@ internal class ScreenManager
     public Game Game => GameManager.Game;
 
     // backing field
-    GameScreen _activeScreen;
+    GameScreen _screen;
     /// <summary>
     /// Currently displayed screen.
     /// </summary>
     public GameScreen Screen
     {
-        get => _activeScreen;
+        get => _screen;
         private set
         {
-            if (_activeScreen == value) return;
-            var prevActScreen = _activeScreen;
-            _activeScreen = value;
+            if (_screen == value) return;
+            var prevActScreen = _screen;
+            _screen = value;
             OnScreenChanged(prevActScreen, value);
         }
     }
@@ -40,10 +40,12 @@ internal class ScreenManager
         var optionsScreen = new OptionsScreen(gm);
         var pauseScreen = new PauseScreen(gm);
         var winScreen = new WinScreen(gm);
+        var creditsScreen = new CreditsScreen(gm);
         AddScreen(startScreen);
         AddScreen(optionsScreen);
         AddScreen(pauseScreen);
         AddScreen(winScreen);
+        AddScreen(creditsScreen);
         AddScreen(new GameplayScreen(gm));
 
         // show start screen
@@ -54,11 +56,13 @@ internal class ScreenManager
         GameManager.WinRule.RuleMatch += (o, e) => ShowScreen<WinScreen>();
         startScreen.StartButton.Click += (o, e) => ShowScreen<GameplayScreen>();
         startScreen.OptionsButton.Click += (o, e) => ShowScreen<OptionsScreen>();
+        startScreen.CreditsButton.Click += (o, e) => ShowScreen<CreditsScreen>();
         optionsScreen.ExitButton.Click += (o, e) => ShowScreen<StartScreen>();
         pauseScreen.ContinueButton.Click += (o, e) => ShowScreen<GameplayScreen>();
         pauseScreen.ExitButton.Click += (o, e) => ShowScreen<StartScreen>();
         winScreen.RestartButton.Click += (o, e) => ShowScreen<GameplayScreen>();
         winScreen.ExitButton.Click += (o, e) => ShowScreen<StartScreen>();
+        creditsScreen.ExitButton.Click += (o, e) => ShowScreen<StartScreen>();
     }
 
     void AddScreen(GameScreen screen)

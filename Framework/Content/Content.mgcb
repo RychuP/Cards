@@ -844,6 +844,12 @@
 /processorParam:Quality=Best
 /build:Sounds/Flip.wav
 
+#begin Sounds/ShortDeal.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/ShortDeal.wav
+
 #begin Sounds/Shuffle.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

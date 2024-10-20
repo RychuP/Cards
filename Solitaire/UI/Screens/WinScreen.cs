@@ -10,7 +10,7 @@ internal class WinScreen : MenuScreen
     public Button RestartButton => GetButton(Strings.Restart);
     public Button ExitButton => GetButton(Strings.Exit);
 
-    public WinScreen(GameManager gm) : base(gm, Art.WinTitle)
+    public WinScreen(GameManager gm) : base(gm, Art.WinTitle, Direction.Down)
     {
         AddButton(Strings.Restart);
         AddButton(Strings.Exit);

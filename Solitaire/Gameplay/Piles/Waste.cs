@@ -1,10 +1,8 @@
-﻿using Framework.Engine;
-using Framework.Misc;
+﻿using Framework.Assets;
+using Framework.Engine;
 using Solitaire.Managers;
 using Solitaire.Misc;
 using Solitaire.UI.AnimatedPiles;
-using Solitaire.UI.Screens;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Solitaire.Gameplay.Piles;
@@ -20,7 +18,15 @@ internal class Waste : Pile
 
         // register event handlers
         GameManager.Stock.IsEmpty += Stock_OnIsEmpty;
-        GameManager.InputManager.Click += InputManager_OnClick;
+    }
+
+    public override void DropCards(Pile pile, TraditionalCard startCard)
+    {
+        if (pile.CanReceiveCard(startCard))
+        {
+            startCard.MoveToHand(pile);
+            CardSounds.Bet.Play();
+        }
     }
 
     void Stock_OnIsEmpty(object o, EventArgs e)
@@ -29,7 +35,7 @@ internal class Waste : Pile
             DealCardToHand(GameManager.Stock);
     }
 
-    void InputManager_OnClick(object o, PointEventArgs e)
+    protected override void InputManager_OnClick(object o, PointEventArgs e)
     {
         if (Bounds.Contains(e.Position) && Count > 0)
         {
@@ -41,6 +47,7 @@ internal class Waste : Pile
                 if (foundation.CanReceiveCard(card)) 
                 {
                     card.MoveToHand(foundation);
+                    CardSounds.Bet.Play();
                     return;
                 }
             }
@@ -51,6 +58,7 @@ internal class Waste : Pile
                 if (tableau.CanReceiveCard(card))
                 {
                     card.MoveToHand(tableau);
+                    CardSounds.Bet.Play();
                     return;
                 }
             }

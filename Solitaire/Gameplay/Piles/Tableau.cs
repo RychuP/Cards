@@ -1,11 +1,11 @@
-﻿using Framework.Engine;
+﻿using Framework.Assets;
+using Framework.Engine;
 using Framework.Misc;
 using Solitaire.Managers;
 using Solitaire.Misc;
 using Solitaire.UI;
 using Solitaire.UI.AnimatedPiles;
 using Solitaire.UI.BaseScreens;
-using Solitaire.UI.Screens;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,26 +20,6 @@ internal class Tableau : Pile
         Point size = new(Bounds.Width, SolitaireGame.Height - (int)Position.Y - GameScreen.HorizontalMargin);
         Bounds = new Rectangle(Bounds.Location, size);
         AnimatedPile = new AnimatedTableau(this);
-
-        // register event handlers
-        gm.InputManager.Click += InputManager_OnClick;
-    }
-
-    public bool CanReceiveCard(TraditionalCard card)
-    {
-        if (Count == 0 && card.Value == CardValues.King)
-            return true;
-        else if (card.Value == CardValues.Ace)
-            return false;
-        else if (Count > 0)
-        {
-            var lastCard = Cards.Last();
-            bool cardsAreOppositeColors = GameManager.CheckOppositeColor(card, lastCard);
-            bool cardsHaveConsecutiveValue = GameManager.CheckConsecutiveValue(card, lastCard);
-            if (cardsAreOppositeColors && cardsHaveConsecutiveValue) 
-                return true;
-        }
-        return false;
     }
 
     /// <summary>
@@ -67,21 +47,38 @@ internal class Tableau : Pile
     }
 
     /// <inheritdoc/>
-    public override void DropCards(Pile pile, TraditionalCard startCard)
+    public override bool CanReceiveCard(TraditionalCard card)
     {
-        // foundations can receive only one card at a time
-        if (pile is Foundation foundation && startCard == Cards[Count - 1] &&
-            foundation.CanReceiveCard(startCard))
+        if (Count == 0 && card.Value == CardValues.King)
+            return true;
+        else if (card.Value == CardValues.Ace)
+            return false;
+        else if (Count > 0)
         {
-            startCard.MoveToHand(foundation);
+            var lastCard = Cards.Last();
+            bool cardsAreOppositeColors = GameManager.CheckOppositeColor(card, lastCard);
+            bool cardsHaveConsecutiveValue = GameManager.CheckConsecutiveValue(card, lastCard);
+            if (cardsAreOppositeColors && cardsHaveConsecutiveValue)
+                return true;
         }
-        else if (pile is Tableau tableau && tableau.CanReceiveCard(startCard))
-        {
-            MoveCards(tableau, startCard);
-        }
+        return false;
     }
 
-    void InputManager_OnClick(object o, PointEventArgs e)
+    /// <inheritdoc/>
+    public override void DropCards(Pile pile, TraditionalCard startCard)
+    {
+        if (!pile.CanReceiveCard(startCard)) return;
+
+        // foundations can receive only one card at a time
+        if (pile is Foundation foundation && startCard == Cards[Count - 1])
+            startCard.MoveToHand(foundation);
+        else
+            MoveCards(pile, startCard);
+
+        CardSounds.Bet.Play();
+    }
+
+     protected override void InputManager_OnClick(object o, PointEventArgs e)
     {
         if (Bounds.Contains(e.Position) && Count > 0)
         {
@@ -98,6 +95,7 @@ internal class Tableau : Pile
                     if (foundation.CanReceiveCard(card))
                     {
                         card.MoveToHand(foundation);
+                        CardSounds.Bet.Play();
                         return;
                     }
                 }
@@ -109,6 +107,7 @@ internal class Tableau : Pile
                 if (tableau.CanReceiveCard(card))
                 {
                     MoveCards(tableau, card);
+                    CardSounds.Bet.Play();
                     return;
                 }
             }

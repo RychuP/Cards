@@ -44,6 +44,7 @@ internal class Pile : Hand
 
         // register event handlers
         gm.ScreenManager.ScreenChanged += ScreenManager_OnScreenChanged;
+        gm.InputManager.Click += InputManager_OnClick;
     }
 
     protected void ReturnCardsToStock() =>
@@ -56,7 +57,12 @@ internal class Pile : Hand
     /// <param name="startCard"></param>
     public virtual void DropCards(Pile pile, TraditionalCard startCard) { }
 
-    protected virtual void OnClick(Point position) { }
+    /// <summary>
+    /// Checks if the pile can accept the given card.
+    /// </summary>
+    /// <param name="card">Card to add.</param>
+    /// <returns>True if the card can be added to the pile.</returns>
+    public virtual bool CanReceiveCard(TraditionalCard card) => false;
 
     void ScreenManager_OnScreenChanged(object o, ScreenChangedEventArgs e)
     {
@@ -75,4 +81,6 @@ internal class Pile : Hand
                 break;
         }
     }
+
+    protected virtual void InputManager_OnClick(object o, PointEventArgs e) { }
 }

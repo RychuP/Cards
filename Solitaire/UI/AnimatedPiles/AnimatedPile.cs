@@ -6,6 +6,7 @@ using Solitaire.Gameplay.Piles;
 using Solitaire.Managers;
 using Solitaire.Misc;
 using Solitaire.UI.Screens;
+using System.Linq;
 
 namespace Solitaire.UI.AnimatedPiles;
 
@@ -40,6 +41,7 @@ internal class AnimatedPile : AnimatedHandGameComponent
     {
         base.Update(gameTime);
 
+        // handle dragging cards with mouse
         var im = GameManager.InputManager;
         if (im.IsDragging && DraggedCard != null)
         {
@@ -50,7 +52,6 @@ internal class AnimatedPile : AnimatedHandGameComponent
                 var animCard = GetCardGameComponent(card);
                 var position = animCard.Position.ToPoint() + offset;
                 animCard.Destination = new Rectangle(position, TraditionalCard.Size);
-                var test = animCard.DrawOrder;
                 if (card == DraggedCard)
                     return;
             }
@@ -59,6 +60,7 @@ internal class AnimatedPile : AnimatedHandGameComponent
 
     public override void Draw(GameTime gameTime)
     {
+        // draw pile outline if visible
         if (Pile.OutlineVisible)
         {
             var sb = Game.Services.GetService<SpriteBatch>();
@@ -70,6 +72,7 @@ internal class AnimatedPile : AnimatedHandGameComponent
         base.Draw(gameTime);
     }
 
+    /// <inheritdoc/>
     public override Vector2 GetCardRelativePosition(int cardLocationInHand) =>
         Vector2.Zero;
 
@@ -87,6 +90,23 @@ internal class AnimatedPile : AnimatedHandGameComponent
             animCard.Visible = false;
     }
 
+    /// <summary>
+    /// Returns the card whose visible part contains the given position.
+    /// </summary>
+    /// <param name="position">Usually the position from the mouse down/click.</param>
+    /// <returns>Card if found, otherwise null.</returns>
+    public virtual TraditionalCard GetCardFromPosition(Point position)
+    {
+        if (Pile.Count > 0)
+        {
+            var animCard = AnimatedCards.Last();
+            var bounds = new Rectangle(animCard.Position.ToPoint(), TraditionalCard.Size);
+            if (bounds.Contains(position))
+                return animCard.Card;
+        }
+        return null;
+    }
+
     void GameplayScreen_OnVisibleChanged(object o, EventArgs e)
     {
         if (o is not GameplayScreen gameplayScreen) return;
@@ -98,7 +118,7 @@ internal class AnimatedPile : AnimatedHandGameComponent
 
     protected virtual void Hand_OnCardReceived(object o, CardEventArgs e)
     {
-        // make the cards visible (especially important during gameplay)
+        // make the newly created animated cards visible (especially important during gameplay)
         var animCard = GetCardGameComponent(e.Card);
         animCard.Visible = Visible;
     }
@@ -108,8 +128,6 @@ internal class AnimatedPile : AnimatedHandGameComponent
         if (Pile.Bounds.Contains(e.Position) && Hand.Count > 0)
         {
             DraggedCard = GetCardFromPosition(e.Position);
-
-
             if (DraggedCard != null)
             {
                 // remove and add cards from the game components to adjust their draw order
@@ -134,7 +152,6 @@ internal class AnimatedPile : AnimatedHandGameComponent
 
     protected virtual void InputManager_OnLeftMouseButtonReleased(object o, PointEventArgs e)
     {
-        // this needs work... TODO
         if (DraggedCard != null)
         {
             // reset drawing destinations
@@ -149,10 +166,4 @@ internal class AnimatedPile : AnimatedHandGameComponent
             DraggedCard = null;
         }
     }
-
-    /// <summary>
-    /// Returns the card whose visible part contains the given position.
-    /// </summary>
-    /// <param name="position">Usually the position from the mouse click.</param>
-    public virtual TraditionalCard GetCardFromPosition(Point position) => null;
 }

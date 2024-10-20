@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualBasic;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Solitaire.Managers;
+using Solitaire.Misc;
 using Solitaire.UI.Buttons;
 using System.Collections.Generic;
 
@@ -8,20 +8,21 @@ namespace Solitaire.UI.BaseScreens;
 
 abstract internal class MenuScreen : GameScreen
 {
-    readonly Texture2D _titleTexture;
-    readonly Vector2 _titlePosition;
+    // round cards logo top margin
+    public static readonly int LogoMarginTop = 50;
+
     readonly Vector2 _logoPosition;
+    public AnimatedTitle Title { get; }
 
     /// <summary>
     /// List of buttons in this menu screen.
     /// </summary>
     public List<Button> Buttons { get; } = new();
 
-    public MenuScreen(GameManager gm, Texture2D titleTexture) : base(gm)
+    public MenuScreen(GameManager gm, Texture2D titleTexture, Direction defaultTitlePosition) : base(gm)
     {
-        _titleTexture = titleTexture;
-        _titlePosition = new Vector2(GetCenteredPosition(_titleTexture.Bounds).X, 386);
-        _logoPosition = new Vector2(GetCenteredPosition(Art.CardsLogo.Bounds).X, 30);
+        _logoPosition = new Vector2(GetCenteredPosition(Art.CardsLogo.Bounds).X, LogoMarginTop);
+        Title = new AnimatedTitle(this, titleTexture, defaultTitlePosition);
     }
 
     public override void Draw(GameTime gameTime)
@@ -30,16 +31,14 @@ abstract internal class MenuScreen : GameScreen
         var sb = Game.Services.GetService<SpriteBatch>();
         sb.Begin();
         sb.Draw(Art.CardsLogo, _logoPosition, Color.White);
-        sb.Draw(_titleTexture, _titlePosition, Color.White);
         sb.End();
     }
 
     public override void Initialize()
     {
-        // add buttons to game components
         foreach (var button in Buttons)
             Game.Components.Add(button);
-
+        Game.Components.Add(Title);
         base.Initialize();
     }
 
@@ -75,7 +74,7 @@ abstract internal class MenuScreen : GameScreen
         // adjust positions of the previous buttons
         foreach (var button in Buttons)
         {
-            button.ChangePosition(x);
+            button.SetPosX(x);
             x += Button.Width + Button.Spacing;
         }
     }

@@ -44,8 +44,6 @@ public class AnimatedCardGameComponent : AnimatedGameComponent
     /// <param name="gameTime">The game time.</param>
     public override void Draw(GameTime gameTime)
     {
-        base.Draw(gameTime);
-
         var sb = Game.Services.GetService<SpriteBatch>();
         sb.Begin();
 

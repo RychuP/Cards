@@ -37,6 +37,7 @@ enum GameButtonState
 public enum Difficulty
 {
     Easy, 
+    Medium,
     Hard
 }
 
@@ -45,4 +46,18 @@ public enum TextAlignment
     LeftAligned,
     Centered,
     RightAligned
+}
+
+public enum Direction
+{
+    Up,
+    Down,
+    Left,
+    Right
+}
+
+public enum Visibility
+{
+    Hidden,
+    Visible
 }

@@ -13,9 +13,9 @@ internal class Button : AnimatedGameComponent
 
     // static constants
     public static readonly int Height = 64;
-    public static readonly int Width = 200; // long texture width 291
+    public static readonly int Width = 200;
     public static readonly int Spacing = 20;
-    public static readonly int PositionY = SolitaireGame.Height - 88;
+    public static readonly int PositionY = SolitaireGame.Height - Height - Spacing * 2;
     public static readonly Rectangle SpriteRegularSource = new(0, 0, Width, Height);
     public static readonly Rectangle SpriteHoverSource = new(0, Height, Width, Height);
     public static readonly Rectangle SpritePressedSource = new(0, Height * 2, Width, Height);
@@ -41,12 +41,12 @@ internal class Button : AnimatedGameComponent
     {
         Text = text;
         GameManager = gm;
-        ChangePosition(x);
+        SetPosX(x);
         DrawOrder = int.MaxValue;
         Hide();
     }
 
-    void SetTextPosition()
+    void CalculateTextPositions()
     {
         var dest = Destination ?? Rectangle.Empty;
         _regularFontTextPos = GetTextPosition(dest, Fonts.Moire.Regular.MeasureString(Text));
@@ -61,11 +61,11 @@ internal class Button : AnimatedGameComponent
         return new Vector2(x, y);
     }
 
-    public void ChangePosition(int x)
+    public void SetPosX(int x)
     {
         Position = new Vector2(x, PositionY);
         Destination = new(x, PositionY, Width, Height);
-        SetTextPosition();
+        CalculateTextPositions();
     }
 
     protected override void LoadContent()
@@ -157,5 +157,11 @@ internal class Button : AnimatedGameComponent
     void OnClick()
     {
         Click?.Invoke(this, EventArgs.Empty);
+    }
+
+    protected override void OnTextChanged(string prevText, string newText)
+    {
+        CalculateTextPositions();
+        base.OnTextChanged(prevText, newText);
     }
 }

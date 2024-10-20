@@ -1,9 +1,8 @@
 ﻿using Solitaire.Misc;
 using Solitaire.Managers;
-using System.Collections.Generic;
-using Solitaire.UI.Screens;
 using Solitaire.UI.AnimatedPiles;
 using Framework.Engine;
+using Framework.Assets;
 
 namespace Solitaire.Gameplay.Piles;
 
@@ -17,10 +16,6 @@ internal class Stock : Pile
     public Stock(GameManager gm) : base(gm, PilePlace.Stock, true)
     {
         AnimatedPile = new AnimatedPile(this);
-
-        // register event handlers
-        var startScreen = gm.ScreenManager.GetScreen<StartScreen>();
-        gm.InputManager.Click += InputManager_OnClick;
     }
 
     public void DealTablueaCards()
@@ -30,20 +25,11 @@ internal class Stock : Pile
             DealCardsToHand(tableau, cardsCount++);
     }
 
-    void DealWasteCards()
+    void DealWasteCards(int count)
     {
-        switch (GameManager.Difficulty)
+        for (int i = 0; i < count; i++)
         {
-            case Difficulty.Easy:
-                DealWasteCard();
-                break;
-
-            case Difficulty.Hard:
-                for (int i = 0; i < 3; i++)
-                {
-                    if (!DealWasteCard())
-                        break;
-                }
+            if (!DealWasteCard())
                 break;
         }
     }
@@ -53,6 +39,7 @@ internal class Stock : Pile
         if (Count > 0)
         {
             DealCardToHand(GameManager.Waste);
+            CardSounds.ShortDeal.Play();
             return true;
         }
         else
@@ -62,14 +49,26 @@ internal class Stock : Pile
         }
     }
 
+    public override void DropCards(Pile pile, TraditionalCard startCard)
+    {
+        if (pile is Waste)
+        {
+            DealCardToHand(GameManager.Waste);
+            CardSounds.Bet.Play();
+        }
+    }
+
     void OnIsEmpty()
     {
         IsEmpty?.Invoke(this, EventArgs.Empty);
     }
 
-    void InputManager_OnClick(object o, PointEventArgs e)
+    protected override void InputManager_OnClick(object o, PointEventArgs e)
     {
         if (Bounds.Contains(e.Position))
-            DealWasteCards();
+        {
+            int count = GameManager.GetDrawCount();
+            DealWasteCards(count);
+        }
     }
 }

@@ -42,3 +42,10 @@ class MouseDragEventArgs : EventArgs
         InitialPosition = initialPosition;
     }
 }
+
+class DirectionEventArgs : EventArgs
+{
+    public Direction Direction { get; }
+    public DirectionEventArgs(Direction direction) =>
+        Direction = direction;
+}

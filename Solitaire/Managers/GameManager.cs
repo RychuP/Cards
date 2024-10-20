@@ -105,9 +105,13 @@ internal class GameManager : CardGame
     /// <summary>
     /// Returns the pile whose bounds contain given position. Used to find card destinations for mouse drops.
     /// </summary>
-    /// <remarks>Only tableaus and foundations are searched.</remarks>
+    /// <remarks>Stock is not considered.</remarks>
     public Pile GetPileFromPosition(Point position)
     {
+        if (Waste.Bounds.Contains(position))
+        {
+            return Waste;
+        }
         foreach (var tableau in Tableaus)
         {
             if (tableau.Bounds.Contains(position))
@@ -144,6 +148,19 @@ internal class GameManager : CardGame
             (tablea.AnimatedPile as AnimatedTableau).SetUpCards();
     }
 
+    /// <summary>
+    /// Returns number of cards to be drawn from stock based on the difficulty.
+    /// </summary>
+    public int GetDrawCount()
+    {
+        return Difficulty switch
+        {
+            Difficulty.Medium => 2,
+            Difficulty.Hard => 3,
+            _ => 1
+        };
+    }
+
     #region Unused CardGame methods
     public override void AddPlayer(Player player)
     {
@@ -166,7 +183,13 @@ internal class GameManager : CardGame
         DifficultyChanged?.Invoke(this, EventArgs.Empty);
     }
 
-
-    void OptionsScreen_DifficultyButton_OnClick(object o, EventArgs e) =>
-        Difficulty = Difficulty == Difficulty.Easy ? Difficulty.Hard : Difficulty.Easy;
+    void OptionsScreen_DifficultyButton_OnClick(object o, EventArgs e)
+    {
+        Difficulty = Difficulty switch
+        {
+            Difficulty.Easy => Difficulty.Medium,
+            Difficulty.Medium => Difficulty.Hard,
+            _ => Difficulty.Easy,
+        };
+    }
 }

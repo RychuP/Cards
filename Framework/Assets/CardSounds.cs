@@ -7,6 +7,7 @@ namespace Framework.Assets;
 public static class CardSounds
 {
     public static SoundEffectInstance Deal { get; private set; }
+    public static SoundEffectInstance ShortDeal { get; private set; }
     public static SoundEffectInstance Shuffle { get; private set; }
     public static SoundEffectInstance Flip { get; private set; }
     public static SoundEffectInstance Bet { get; private set; }
@@ -14,6 +15,7 @@ public static class CardSounds
     public static void Initialize(Game game)
     {
         Deal = LoadSound("Deal");
+        ShortDeal = LoadSound("ShortDeal");
         Shuffle = LoadSound("Shuffle");
         Flip = LoadSound("Flip");
         Bet = LoadSound("Bet");

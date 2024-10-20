@@ -28,12 +28,8 @@ internal class AnimatedTableau : AnimatedPile
         AnimatedCards.Last().IsFaceDown = false;
     }
 
-    /// <summary>
-    /// Searches the pile to find the card whose visible part contains the given position.
-    /// </summary>
-    /// <param name="position">Usually the position from the mouse click.</param>
+    /// <inheritdoc/>
     /// <remarks>Only face up cards are taken into consideration.</remarks>
-    /// <returns>Card if found, otherwise null.</returns>
     public override TraditionalCard GetCardFromPosition(Point position)
     {
         var lastAnimCard = AnimatedCards.Last();

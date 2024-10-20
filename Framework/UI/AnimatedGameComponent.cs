@@ -1,5 +1,6 @@
 using Framework.Assets;
 using Framework.Engine;
+using Framework.Misc;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Diagnostics.Metrics;
@@ -11,12 +12,12 @@ namespace Framework.UI;
 /// </summary>
 public class AnimatedGameComponent : DrawableGameComponent
 {
+    public event EventHandler<TextChangedEventArgs> TextChanged;
+    public event EventHandler<PositionChangedEventArgs> PositionChanged;
     public Texture2D Texture { get; set; }
     public Rectangle? CurrentSegment { get; set; }
-    public string Text { get; set; }
     public Color TextColor { get; set; } = Color.Black;
     public bool IsFaceDown { get; set; } = true;
-    public Vector2 Position { get; set; }
     public Rectangle? Destination { get; set; }
 
     readonly List<AnimatedGameComponentAnimation> _runningAnimations = new();
@@ -28,6 +29,34 @@ public class AnimatedGameComponent : DrawableGameComponent
         _runningAnimations.Count > 0;
 
     public CardGame CardGame { get; private set; }
+
+    // backing field
+    Vector2 _position;
+    public Vector2 Position
+    {
+        get => _position;
+        set
+        {
+            if (_position == value) return;
+            var prevPosition = _position;
+            _position = value;
+
+        }
+    }
+
+    // backing field
+    string _text;
+    public string Text
+    {
+        get => _text;
+        set
+        {
+            if (_text == value) return;
+            var prevText = _text;
+            _text = value;
+            OnTextChanged(prevText, value);
+        }
+    }
 
     public AnimatedGameComponent(Game game) : base(game)
     { }
@@ -153,5 +182,17 @@ public class AnimatedGameComponent : DrawableGameComponent
         }
 
         return result;
+    }
+
+    protected virtual void OnTextChanged(string prevText, string newText)
+    { 
+        var args = new TextChangedEventArgs(prevText, newText);
+        TextChanged?.Invoke(this, args);
+    }
+
+    protected virtual void OnPositionChanged(Vector2 prevPosition, Vector2 newPosition)
+    {
+        var args = new PositionChangedEventArgs(prevPosition, newPosition);
+        PositionChanged?.Invoke(this, args);
     }
 }
