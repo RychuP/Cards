@@ -135,4 +135,9 @@ class InputManager : GameComponent
         // prevent invoking clicks on mouse button release when changing screens
         MouseIsDown = false;
     }
+
+    void OptionsScreen_ThemeButton_OnClick(object o, EventArgs e)
+    {
+
+    }
 }

@@ -32,6 +32,7 @@ internal class Foundation : Pile
         {
             startCard.MoveToHand(pile);
             CardSounds.Bet.Play();
+            OnMoveMade();
         }
     }
 
@@ -39,16 +40,8 @@ internal class Foundation : Pile
     {
         if (!Bounds.Contains(e.Position) || Count == 0) return;
 
-        // check tableaus
+        // top card can only go back to tableaus
         var card = Cards.Last();
-        foreach (var tableau in GameManager.Tableaus)
-        {
-            if (tableau.CanReceiveCard(card))
-            {
-                card.MoveToHand(tableau);
-                CardSounds.Bet.Play();
-                return;
-            }
-        }
+        FindCardRecepient(card, GameManager.Tableaus);
     }
 }

@@ -5,7 +5,6 @@ using Solitaire.Gameplay.Piles;
 using Solitaire.Gameplay.Rules;
 using Solitaire.Misc;
 using Solitaire.UI;
-using Solitaire.UI.AnimatedPiles;
 using Solitaire.UI.Screens;
 using System.Collections.Generic;
 
@@ -13,7 +12,25 @@ namespace Solitaire.Managers;
 
 internal class GameManager : CardGame
 {
+    /// <summary>
+    /// Raised when the difficulty is changed in settings.
+    /// </summary>
     public event EventHandler DifficultyChanged;
+
+    /// <summary>
+    /// Raised when the game ends and it's time to clean up.
+    /// </summary>
+    public event EventHandler GameEnd;
+
+    /// <summary>
+    /// Raised just before the game starts to set everything up ready to begin playing.
+    /// </summary>
+    public event EventHandler GameInit;
+
+    /// <summary>
+    /// Raised when the game starts.
+    /// </summary>
+    public event EventHandler GameStart;
 
     public ScreenManager ScreenManager { get; }
     public InputManager InputManager { get; }
@@ -62,6 +79,7 @@ internal class GameManager : CardGame
         Difficulty = Difficulty.Easy;
         WinRule = new(this);
         InputManager = new(this);
+        InputManager.EscapePressed += InputManager_OnEscapePressed;
         ScreenManager = new(this);
 
         // create stock pile
@@ -91,10 +109,14 @@ internal class GameManager : CardGame
         var startScreen = ScreenManager.GetScreen<StartScreen>();
         var optionsScreen = ScreenManager.GetScreen<OptionsScreen>();
         var winScreen = ScreenManager.GetScreen<WinScreen>();
-        winScreen.RestartButton.Click += (o, e) => StartPlaying();
+        var pauseScreen = ScreenManager.GetScreen<PauseScreen>();
+        WinRule.RuleMatch += (o, e) => StopPlaying();
+        winScreen.RestartButton.Click += (o, e) => StartPlaying(); // that is correct
         startScreen.StartButton.Click += (o, e) => StartPlaying();
         startScreen.ExitButton.Click += (o, e) => Game.Exit();
         optionsScreen.DifficultyButton.Click += OptionsScreen_DifficultyButton_OnClick;
+        optionsScreen.ThemeButton.Click += OptionsScreen_ThemeButton_OnClick;
+        pauseScreen.ExitButton.Click += (o, e) => StopPlaying();
     }
 
     public void Update(GameTime gameTime)
@@ -142,10 +164,20 @@ internal class GameManager : CardGame
 
     public override void StartPlaying()
     {
-        Stock.Shuffle();
-        Stock.DealTablueaCards();
-        foreach (var tablea in Tableaus)
-            (tablea.AnimatedPile as AnimatedTableau).SetUpCards();
+        OnGameInit();
+        OnGameStart();
+    }
+
+    void StopPlaying()
+    {
+        OnGameEnd();
+    }
+
+    // for some reason this is buggy...
+    void RestartPlaying()
+    {
+        StopPlaying();
+        StartPlaying();
     }
 
     /// <summary>
@@ -183,6 +215,21 @@ internal class GameManager : CardGame
         DifficultyChanged?.Invoke(this, EventArgs.Empty);
     }
 
+    void OnGameInit()
+    {
+        GameInit?.Invoke(this, EventArgs.Empty);
+    }
+
+    void OnGameStart()
+    {
+        GameStart?.Invoke(this, EventArgs.Empty);
+    }
+
+    void OnGameEnd()
+    {
+        GameEnd?.Invoke(this, EventArgs.Empty);
+    }
+
     void OptionsScreen_DifficultyButton_OnClick(object o, EventArgs e)
     {
         Difficulty = Difficulty switch
@@ -191,5 +238,16 @@ internal class GameManager : CardGame
             Difficulty.Medium => Difficulty.Hard,
             _ => Difficulty.Easy,
         };
+    }
+
+    void OptionsScreen_ThemeButton_OnClick(object o, EventArgs e)
+    {
+        Theme = Theme == Strings.Red ? Strings.Blue : Strings.Red;
+    }
+
+    void InputManager_OnEscapePressed(object o, EventArgs e)
+    {
+        if (ScreenManager.Screen is PauseScreen)
+            StopPlaying();
     }
 }

@@ -20,42 +20,35 @@ internal class Stock : Pile
 
     public void DealTablueaCards()
     {
+        var count = Count;
         int cardsCount = 1;
         foreach (var tableau in GameManager.Tableaus)
             DealCardsToHand(tableau, cardsCount++);
     }
 
-    void DealWasteCards(int count)
+    void DealWasteCards()
     {
-        for (int i = 0; i < count; i++)
-        {
-            if (!DealWasteCard())
-                break;
-        }
-    }
-
-    bool DealWasteCard()
-    {
+        int count = GameManager.GetDrawCount();
         if (Count > 0)
         {
-            DealCardToHand(GameManager.Waste);
+            count = count < Count ? count : Count;
+            for (int i = 0; i < count; i++)
+                DealCardToHand(GameManager.Waste);
             CardSounds.ShortDeal.Play();
-            return true;
+            OnMoveMade();
         }
         else
         {
             OnIsEmpty();
-            return false;
         }
     }
 
+    // stock will not concern itself with the startCard -> it will just deal cards in order
+    /// <inheritdoc/>
     public override void DropCards(Pile pile, TraditionalCard startCard)
     {
         if (pile is Waste)
-        {
-            DealCardToHand(GameManager.Waste);
-            CardSounds.Bet.Play();
-        }
+            DealWasteCards();
     }
 
     void OnIsEmpty()
@@ -66,9 +59,15 @@ internal class Stock : Pile
     protected override void InputManager_OnClick(object o, PointEventArgs e)
     {
         if (Bounds.Contains(e.Position))
-        {
-            int count = GameManager.GetDrawCount();
-            DealWasteCards(count);
-        }
+            DealWasteCards();
     }
+
+    protected override void GameManager_OnGameInit(object o, EventArgs e)
+    {
+        Shuffle();
+        DealTablueaCards();
+    }
+
+    // method cleared as the stock does not need to return cards to itself
+    protected override void GameManager_OnGameEnd(object o, EventArgs e) { }
 }

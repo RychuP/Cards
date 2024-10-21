@@ -1,10 +1,6 @@
 ﻿using Framework.Engine;
 using Framework.Misc;
-using Microsoft.Xna.Framework.Graphics;
 using Solitaire.Gameplay.Piles;
-using Solitaire.Managers;
-using Solitaire.Misc;
-using System;
 using System.Linq;
 
 namespace Solitaire.UI.AnimatedPiles;

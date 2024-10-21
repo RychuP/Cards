@@ -1,4 +1,5 @@
 ﻿using Framework.Assets;
+using Framework.Misc;
 using Framework.UI;
 using Microsoft.Xna.Framework.Graphics;
 using Poker.Gameplay;
@@ -100,6 +101,6 @@ class AnimatedCardPile : AnimatedGameComponent
 
     void GameManager_OnThemeChanged(object o, ThemeChangedEventArgs e)
     {
-        Texture = GetThemeTexture(e.Theme);
+        Texture = GetThemeTexture(e.NewTheme);
     }
 }

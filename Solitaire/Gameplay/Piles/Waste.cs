@@ -26,13 +26,18 @@ internal class Waste : Pile
         {
             startCard.MoveToHand(pile);
             CardSounds.Bet.Play();
+            OnMoveMade();
         }
     }
 
     void Stock_OnIsEmpty(object o, EventArgs e)
     {
-        while (Count > 0)
-            DealCardToHand(GameManager.Stock);
+        if (Count > 0)
+        {
+            while (Count > 0)
+                DealCardToHand(GameManager.Stock);
+            OnMoveMade();
+        }
     }
 
     protected override void InputManager_OnClick(object o, PointEventArgs e)
@@ -42,26 +47,12 @@ internal class Waste : Pile
             var card = Cards.Last();
 
             // check foundations first
-            foreach (var foundation in GameManager.Foundations)
-            {
-                if (foundation.CanReceiveCard(card)) 
-                {
-                    card.MoveToHand(foundation);
-                    CardSounds.Bet.Play();
-                    return;
-                }
-            }
+            if (FindCardRecepient(card, GameManager.Foundations))
+                return;
 
             // check tableaus
-            foreach (var tableau in GameManager.Tableaus)
-            {
-                if (tableau.CanReceiveCard(card))
-                {
-                    card.MoveToHand(tableau);
-                    CardSounds.Bet.Play();
-                    return;
-                }
-            }
+            if (FindCardRecepient(card, GameManager.Tableaus))
+                return;
         }
     }
 }

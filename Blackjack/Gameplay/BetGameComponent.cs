@@ -458,7 +458,7 @@ public class BetGameComponent : DrawableGameComponent
     private void AddInsuranceChipAnimation(float amount)
     {
         // Add chip component
-        AnimatedGameComponent chipComponent = new(_cardGame, ChipAssets.BlankChips["white"])
+        AnimatedGameComponent chipComponent = new(_cardGame, ChipAssets.BlankChips["White"])
         {
             TextColor = Color.Black,
             Enabled = true,

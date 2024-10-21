@@ -17,7 +17,6 @@ namespace Poker.Gameplay;
 
 class GameManager : CardGame, IGlobalManager
 {
-    public event EventHandler<ThemeChangedEventArgs> ThemeChanged;
     public event EventHandler<GameStateEventArgs> StateChanged;
     public event EventHandler<PlayerChangedEventArgs> PlayerChanged;
 
@@ -723,13 +722,8 @@ class GameManager : CardGame, IGlobalManager
     /// <param name="theme">New card theme.</param>
     public void SetTheme(string theme)
     {
-        if (Theme == theme) return;
-        else if (theme != Strings.Red && theme != Strings.Blue) return;
-        else
-        {
-            Theme = theme;
-            OnThemeChanged(theme);
-        }
+        if (theme != Strings.Red && theme != Strings.Blue) return;
+        Theme = theme;
     }
 
     /// <summary>
@@ -804,11 +798,6 @@ class GameManager : CardGame, IGlobalManager
             GameState.FlopBet or GameState.TurnBet or GameState.RiverBet => true,
             _ => false
         };
-    }
-
-    void OnThemeChanged(string theme)
-    {
-        ThemeChanged?.Invoke(this, new ThemeChangedEventArgs(theme));
     }
 
     void OnStateChanged(GameState prevGameState, GameState newGameState)

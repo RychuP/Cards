@@ -6,6 +6,8 @@ namespace Solitaire.UI.TextBoxes;
 
 internal class TextBox : DrawableGameComponent
 {
+    protected static readonly int Padding = 1;
+
     public string Text { get; set; }
     public TextAlignment TextAlignment { get; set; }
     public Rectangle Bounds { get; set; }

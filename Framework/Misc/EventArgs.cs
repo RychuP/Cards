@@ -34,3 +34,14 @@ public class TextChangedEventArgs : EventArgs
         NewText = newText;
     }
 }
+
+public class ThemeChangedEventArgs : EventArgs
+{
+    public string PrevTheme { get; }
+    public string NewTheme { get; }
+    public ThemeChangedEventArgs(string prevTheme, string newTheme)
+    {
+        PrevTheme = prevTheme;
+        NewTheme = newTheme;
+    }
+}

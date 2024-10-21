@@ -17,15 +17,29 @@ namespace Framework.Engine;
 /// </remarks>
 public abstract class CardGame
 {
+    public event EventHandler<ThemeChangedEventArgs> ThemeChanged;
     protected List<GameRule> Rules = new();
     protected List<Player> Players = new();
     protected CardPacket CardDeck;
     public int MinimumPlayers { get; protected set; }
     public int MaximumPlayers { get; protected set; }
-    public string Theme { get; protected set; }
     public SpriteFont Font { get; init; }
     public GameTable GameTable { get; protected set; }
     public Game Game { get; set; }
+
+    // backing field
+    string _theme;
+    public string Theme
+    {
+        get => _theme;
+        protected set
+        {
+            if (_theme == value) return;
+            var prevTheme = _theme;
+            _theme = value;
+            OnThemeChanged(prevTheme, value);
+        }
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CardGame"/> class.
@@ -133,4 +147,10 @@ public abstract class CardGame
     /// Initializes the game and lets the players start playing.
     /// </summary>
     public abstract void StartPlaying();
+
+    protected virtual void OnThemeChanged(string prevTheme, string newTheme)
+    {
+        var args = new ThemeChangedEventArgs(prevTheme, newTheme);
+        ThemeChanged?.Invoke(this, args);
+    }
 }

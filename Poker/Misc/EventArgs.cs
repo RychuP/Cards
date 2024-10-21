@@ -4,13 +4,6 @@ using System;
 
 namespace Poker.Misc;
 
-class ThemeChangedEventArgs : EventArgs
-{
-    public string Theme { get; }
-    public ThemeChangedEventArgs(string theme) =>
-        Theme = theme;
-}
-
 class ScreenChangedEventArgs : EventArgs
 {
     public GameScreen PrevScreen { get; }

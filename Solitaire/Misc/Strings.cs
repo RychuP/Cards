@@ -10,5 +10,6 @@ internal static class Strings
     public static readonly string Continue = "Continue";
     public static readonly string Restart = "Restart";
     public static readonly string Credits = "Credits";
+    public static readonly string Theme = "Theme";
     public static readonly string Exit = "Exit";
 }

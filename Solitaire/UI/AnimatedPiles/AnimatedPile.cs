@@ -78,6 +78,7 @@ internal class AnimatedPile : AnimatedHandGameComponent
 
     public void Show()
     {
+        Enabled = true;
         Visible = true;
         foreach (var animCard in AnimatedCards)
             animCard.Visible = true;
@@ -85,6 +86,7 @@ internal class AnimatedPile : AnimatedHandGameComponent
 
     public void Hide()
     {
+        Enabled = false;
         Visible = false;
         foreach (var animCard in AnimatedCards)
             animCard.Visible = false;
@@ -125,7 +127,7 @@ internal class AnimatedPile : AnimatedHandGameComponent
 
     protected virtual void InputManager_OnLeftMouseButtonDown(object o, PointEventArgs e)
     {
-        if (Pile.Bounds.Contains(e.Position) && Hand.Count > 0)
+        if (Visible && Pile.Bounds.Contains(e.Position) && Hand.Count > 0)
         {
             DraggedCard = GetCardFromPosition(e.Position);
             if (DraggedCard != null)

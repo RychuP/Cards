@@ -6,9 +6,7 @@ namespace Solitaire.UI.AnimatedPiles;
 internal class AnimatedFoundation : AnimatedPile
 {
     public AnimatedFoundation(Foundation foundation) : base(foundation)
-    {
-
-    }
+    { }
 
     protected override void Hand_OnCardReceived(object o, CardEventArgs e)
     {

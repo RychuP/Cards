@@ -76,6 +76,7 @@ internal class Tableau : Pile
             MoveCards(pile, startCard);
 
         CardSounds.Bet.Play();
+        OnMoveMade();
     }
 
      protected override void InputManager_OnClick(object o, PointEventArgs e)
@@ -88,26 +89,17 @@ internal class Tableau : Pile
 
             // foundations can receive only one card at a time
             var lastCard = Cards[Count - 1];
-            if (card == lastCard)
-            {
-                foreach (var foundation in GameManager.Foundations)
-                {
-                    if (foundation.CanReceiveCard(card))
-                    {
-                        card.MoveToHand(foundation);
-                        CardSounds.Bet.Play();
-                        return;
-                    }
-                }
-            }
-            
-            // check tableaus
+            if (card == lastCard && FindCardRecepient(card, GameManager.Foundations))
+                return;
+
+            // check tableaus (do not use FindCardRecepient here - many cards can be sent at once)
             foreach (var tableau in GameManager.Tableaus)
             {
                 if (tableau.CanReceiveCard(card))
                 {
                     MoveCards(tableau, card);
                     CardSounds.Bet.Play();
+                    OnMoveMade();
                     return;
                 }
             }

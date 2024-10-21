@@ -87,8 +87,6 @@ internal class Window : DrawableGameComponent
         {
             Opacity = 0;
             return;
-            _percent += gameTime.ElapsedGameTime.TotalSeconds / FadeDuration.TotalSeconds;
-            Opacity = (float)(1 - _percent);
         }
     }
 

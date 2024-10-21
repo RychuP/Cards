@@ -1,14 +1,17 @@
-﻿using Framework.Engine;
+﻿using Framework.Assets;
+using Framework.Engine;
 using Solitaire.Managers;
 using Solitaire.Misc;
 using Solitaire.UI;
 using Solitaire.UI.AnimatedPiles;
-using Solitaire.UI.Screens;
+using System.Collections.Generic;
 
 namespace Solitaire.Gameplay.Piles;
 
 internal class Pile : Hand
 {
+    public event EventHandler MoveMade;
+
     public static readonly Point OutlineSpacing = new(30, 50);
     public static readonly Point CardSpacing = new(31, 33);
     public static readonly int OutlineWidth = 93;
@@ -43,12 +46,25 @@ internal class Pile : Hand
         Bounds = new Rectangle(Position.ToPoint(), Art.CardOutline.Bounds.Size);
 
         // register event handlers
-        gm.ScreenManager.ScreenChanged += ScreenManager_OnScreenChanged;
-        gm.InputManager.Click += InputManager_OnClick;
+        GameManager.InputManager.Click += InputManager_OnClick;
+        GameManager.GameEnd += GameManager_OnGameEnd;
+        GameManager.GameInit += GameManager_OnGameInit;
     }
 
-    protected void ReturnCardsToStock() =>
-        DealCardsToHand(GameManager.Stock, Count);
+    protected bool FindCardRecepient<T>(TraditionalCard card, List<T> piles) where T : Pile
+    {
+        foreach (var pile in piles)
+        {
+            if (pile.CanReceiveCard(card))
+            {
+                card.MoveToHand(pile);
+                CardSounds.Bet.Play();
+                OnMoveMade();
+                return true;
+            }
+        }
+        return false;
+    }
 
     /// <summary>
     /// Called from animated pile when the left mouse button is released.
@@ -64,23 +80,18 @@ internal class Pile : Hand
     /// <returns>True if the card can be added to the pile.</returns>
     public virtual bool CanReceiveCard(TraditionalCard card) => false;
 
-    void ScreenManager_OnScreenChanged(object o, ScreenChangedEventArgs e)
-    {
-        switch (e.NewScreen)
-        {
-            case StartScreen:
-                // return the cards to stock when the game ends
-                if (e.PrevScreen is PauseScreen && this is not Stock)
-                    ReturnCardsToStock();
-                break;
+    protected virtual void InputManager_OnClick(object o, PointEventArgs e) { }
 
-            case WinScreen:
-                // return the cards to stock when the game ends
-                if (e.PrevScreen is GameplayScreen && this is not Stock)
-                    ReturnCardsToStock();
-                break;
-        }
+    protected virtual void GameManager_OnGameInit(object o, EventArgs e) { }
+
+    protected virtual void GameManager_OnGameEnd(object o, EventArgs e)
+    {
+        // return cards to stock
+        DealCardsToHand(GameManager.Stock, Count);
     }
 
-    protected virtual void InputManager_OnClick(object o, PointEventArgs e) { }
+    protected virtual void OnMoveMade()
+    {
+        MoveMade?.Invoke(this, EventArgs.Empty);
+    }
 }

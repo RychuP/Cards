@@ -11,21 +11,20 @@ internal class GameplayScreen : GameScreen
     /// <summary>
     /// Card counters displayed above each pile.
     /// </summary>
-    readonly List<TextBox> _cardCounters = new();
+    readonly List<TextBox> _textBoxes = new();
 
     public GameplayScreen(GameManager gm) : base(gm)
-    {
-        
-    }
+    { }
 
     public override void Initialize()
     {
         base.Initialize();
-        _cardCounters.Add(new CardCounter(GameManager.Stock, GameManager));
+        _textBoxes.Add(new CardCounter(GameManager.Stock, GameManager));
         foreach (var tableau in GameManager.Tableaus)
-            _cardCounters.Add(new CardCounter(tableau, GameManager));
+            _textBoxes.Add(new CardCounter(tableau, GameManager));
         foreach (var foundation in GameManager.Foundations)
-            _cardCounters.Add(new CardCounter(foundation, GameManager));
+            _textBoxes.Add(new CardCounter(foundation, GameManager));
+        _textBoxes.Add(new MoveCounter(GameManager.Waste));
     }
 
     public override void Draw(GameTime gameTime)
@@ -45,7 +44,7 @@ internal class GameplayScreen : GameScreen
     protected override void OnVisibleChanged(object sender, EventArgs args)
     {
         base.OnVisibleChanged(sender, args);
-        foreach (var textBox in _cardCounters)
+        foreach (var textBox in _textBoxes)
             textBox.Visible = Visible;
     }
 }
